@@ -1,5 +1,4 @@
 # Group-LTBD-
-# File_LTTBDD_Bai_Tap
 
 Thông Tin Nhóm
 
@@ -15,7 +14,7 @@ Cấu Trúc Thư Mục Tổng Quan
 
 ├── Tuan1
 
-│       ├── Vẽ figma
+│           ├── Vẽ figma
 
 |
 
