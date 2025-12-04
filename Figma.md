@@ -8,4 +8,4 @@ App bán nước
 
 Click vào link để xem rõ hơn.
 
-https://github.com/MinhHai2906/Group-LTTBD-.git
+https://www.figma.com/design/ZQK19mH2ZvHcDXWwuxL9Mt/Figma-B%C3%A1n-n%C6%B0%E1%BB%9Bc?node-id=0-1&t=iJwEU8kaIW1twSH9-1
