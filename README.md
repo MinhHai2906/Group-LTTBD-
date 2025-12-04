@@ -16,8 +16,6 @@ Cấu Trúc Thư Mục Tổng Quan
 
 │           
 
-|
-
 └── README.md
 
 Nội Dung Chi Tiết Từng Tuần
