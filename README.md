@@ -8,7 +8,8 @@ Môn học: Lập trình thiết bị di động
 
 Trường: Đại học giao thông vận tải
 
-Đề tài: APP đặt nước
+Đề tài: App mua nước online
+================================================================================
 
 Cấu Trúc Thư Mục Tổng Quan
 
