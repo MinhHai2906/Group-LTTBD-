@@ -28,7 +28,8 @@ Nội Dung Chi Tiết Từng Tuần
 Với file Figma.md có ảnh và đường link Figma mà nhóm đã làm.
 CLick vào đường link và xem phần prototype để xem. Sau đó sẽ xuất hiện icon như ảnh
 
-<img width="76" height="53" alt="image" src="https://github.com/user-attachments/assets/8322a64a-5c01-41be-89d3-0bfca5ad7a76" />
+<img width="367" height="115" alt="image" src="https://github.com/user-attachments/assets/dc0681b5-0186-4a70-80e7-ea64ad89aaa2" />
+
 
 Và bạn có thể xem và thao tác.
 
