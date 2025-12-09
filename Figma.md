@@ -3,8 +3,9 @@
 
 Ảnh
 
+<img width="11457" height="5719" alt="Group 79" src="https://github.com/user-attachments/assets/d59390c3-6aef-494c-8457-e98055515eed" />
 
-<img width="11457" height="4850" alt="Ảnh app đặt nước" src="https://github.com/user-attachments/assets/b07fed75-6348-4512-8346-ffcc4b5cacd6" />
+
 
 Click vào link để xem rõ hơn.
 
