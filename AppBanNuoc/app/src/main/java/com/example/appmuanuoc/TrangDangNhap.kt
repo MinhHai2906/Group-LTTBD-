@@ -65,6 +65,7 @@ fun Greeting( modifier: Modifier = Modifier) {
             onValueChange = { text2 = it},
             label = "Nhap so dien thoai"
         )
+
     }
 }
 

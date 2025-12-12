@@ -4,14 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -23,7 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,55 +60,102 @@ class TrangDangKi : ComponentActivity() {
 
 @Composable
 fun TrangDangKiScreen(modifier: Modifier = Modifier) {
+    var hoTen by remember { mutableStateOf("") }
+    var sdt by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    Column(
-        modifier = modifier.fillMaxSize().padding(top = 200.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5EFE6)),
+        contentAlignment = Alignment.Center
     ) {
-        Text("Tạo tài khoản",
-            fontSize = 30.sp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        MyTextField(value = email,
-            onValueChange = { email = it },
-            label = "Email")
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row {
+                        Text(
+                            text = "Đăng nhập",
+                            fontSize = 18.sp,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "Đăng ký",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
 
-        Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-        MyTextField(value = password,
-            onValueChange = { password = it },
-            label = "Mật khẩu")
+                    MyTextField(value = hoTen, onValueChange = { hoTen = it }, placeholder = "Họ và tên...")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyTextField(value = sdt, onValueChange = { sdt = it }, placeholder = "Nhập SĐT...")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyTextField(value = email, onValueChange = { email = it }, placeholder = "Nhập tài khoản email...")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyTextField(value = password, onValueChange = { password = it }, placeholder = "Nhập mật khẩu...")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MyTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, placeholder = "Xác nhận mật khẩu...")
+                    Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        MyTextField(value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = "Nhập lại mật khẩu")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = { /* TODO: Xử lý đăng ký */ }) {
-            Text("Đăng ký")
+                    Button(
+                        onClick = { /* TODO */ },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD2B48C))
+                    ) {
+                        Text(
+                            text = "Tiếp tục",
+                            color = Color.White,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun MyTextField(value: String, onValueChange: (String) -> Unit, label: String) {
+fun MyTextField(value: String, onValueChange: (String) -> Unit, placeholder: String) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
+        placeholder = { Text(placeholder) },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Blue,
-            unfocusedBorderColor = Color.Blue,
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = Color.Transparent,
+
         ),
-        shape = RoundedCornerShape(18.dp)
+        textStyle = TextStyle(fontSize = 16.sp),
+        singleLine = true,
     )
 }
 
