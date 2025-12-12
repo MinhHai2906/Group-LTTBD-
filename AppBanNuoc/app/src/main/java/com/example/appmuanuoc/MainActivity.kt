@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting( modifier: Modifier = Modifier) {
+    var text2 by remember { mutableStateOf("") }
     var text1 by remember { mutableStateOf("") }
     Row(
         modifier = modifier.fillMaxSize(),
@@ -57,6 +58,11 @@ fun Greeting( modifier: Modifier = Modifier) {
             text= text1,
             onValueChange = { text1 = it },
             label = "Nhap email"
+        )
+        TextInput(
+            text= text2,
+            onValueChange = { text2 = it},
+            label = "Nhap so dien thoai"
         )
     }
 }
