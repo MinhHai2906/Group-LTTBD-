@@ -5,8 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -24,9 +26,7 @@ import com.example.appmuanuoc.ui.theme.AppMuaNuocTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.compose.ui.graphics.Color
-
 
 
 class MainActivity : ComponentActivity() {
@@ -49,16 +49,17 @@ class MainActivity : ComponentActivity() {
 fun Greeting( modifier: Modifier = Modifier) {
     var text2 by remember { mutableStateOf("") }
     var text1 by remember { mutableStateOf("") }
-    Row(
-        modifier = modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier.fillMaxSize().padding(top=200.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextInput(
             text= text1,
             onValueChange = { text1 = it },
             label = "Nhap email"
         )
+        Spacer(modifier = Modifier.height(20.dp))
         TextInput(
             text= text2,
             onValueChange = { text2 = it},
@@ -85,7 +86,7 @@ fun TextInput(text:String , onValueChange: (String) -> Unit, label: String) {
 fun GreetingPreview() {
     AppMuaNuocTheme {
         Surface(modifier = Modifier.fillMaxSize(),
-            color = Color.Black
+            color = Color.White
 
         ) {
             Greeting()
