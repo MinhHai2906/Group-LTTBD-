@@ -37,8 +37,6 @@ class TrangChu : ComponentActivity() {
         }
     }
 }
-
-@PreviewScreenSizes
 @Composable
 fun TrangChuApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
