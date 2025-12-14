@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 
 import com.example.appmuanuoc.Greeting
 import com.example.appmuanuoc.TrangChuApp
-import com.example.appmuanuoc.ManHinhDangKy // Sửa lại import cho đúng
+import com.example.appmuanuoc.ManHinhDangKy
 import com.example.appmuanuoc.TrangDangNhapScreen
 
 @Composable
