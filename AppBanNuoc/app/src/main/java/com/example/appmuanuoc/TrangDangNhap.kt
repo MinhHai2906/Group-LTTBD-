@@ -47,7 +47,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmuanuoc.ui.theme.AppMuaNuocTheme
 
+<<<<<<< HEAD
 
+=======
+class TrangDangNhapActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            AppMuaNuocTheme {
+                ManHinhDangKy()
+            }
+        }
+    }
+}
+>>>>>>> 2edb0c551fae19abc78983be52040abea7be9218
 
 @Composable
 fun TrangDangNhapScreen(
