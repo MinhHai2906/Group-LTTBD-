@@ -12,6 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppMuaNuoc">
         <activity
+            android:name=".FirstScreenActivity"
+            android:exported="false"
+            android:label="@string/title_activity_first_screen"
+            android:theme="@style/Theme.AppMuaNuoc" />
+        <activity
             android:name=".TrangDangKi"
             android:exported="false"
             android:label="@string/title_activity_trang_dang_ki"

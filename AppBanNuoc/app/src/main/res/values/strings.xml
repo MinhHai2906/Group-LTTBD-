@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">AppMuaNuoc</string>
     <string name="title_activity_trang_dang_ki">TrangDangKi</string>
+    <string name="title_activity_first_screen">FirstScreenActivity</string>
 </resources>

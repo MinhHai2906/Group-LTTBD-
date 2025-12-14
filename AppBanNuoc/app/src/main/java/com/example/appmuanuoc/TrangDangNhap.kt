@@ -1,13 +1,10 @@
 package com.example.appmuanuoc
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,19 +13,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,45 +39,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import com.example.appmuanuoc.ui.theme.AppMuaNuocTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Icon
 
-class TrangDangNhapActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            AppMuaNuocTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TrangDangNhapScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
-fun TrangDangNhapScreen( modifier: Modifier = Modifier) {
+fun TrangDangNhapScreen(
+    modifier: Modifier = Modifier,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF5EFE6)),
+            .background(Color(0xFFFDF6E3)),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
@@ -87,7 +69,8 @@ fun TrangDangNhapScreen( modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "LogoQuan",
-                modifier = Modifier.padding(top = 50.dp)
+                modifier = Modifier
+                    .padding(top = 50.dp)
                     .size(150.dp)
                     .shadow(elevation = 8.dp, shape = CircleShape)
                     .border(BorderStroke(2.dp, Color.White), CircleShape)
@@ -102,132 +85,149 @@ fun TrangDangNhapScreen( modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Thưởng thức cafe và những trang sách"
+                text = "Thưởng thức cafe"
             )
         }
 
-            Card(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(450.dp),
-                shape = RoundedCornerShape(topStart = 45.dp, topEnd = 45.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+        Card(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(450.dp),
+            shape = RoundedCornerShape(topStart = 45.dp, topEnd = 45.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
 
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp, start = 16.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top=10.dp, start = 16.dp, end = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                text = "Đăng nhập",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 23.sp,
-                                color = Color.Black,
-                                modifier=Modifier.padding(start=10.dp)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Box(
-                                modifier = Modifier
-                                    .width(140.dp)
-                                    .height(2.dp)
-                                    .background(Color.Black)
+                    Column {
+                        Text(
+                            text = "Đăng nhập",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 23.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(140.dp)
+                                .height(3.dp)
+                                .background(Color(0xFFD4A373))
 
-                            )
-                        }
-                            Text(
-                                text = "Đăng ký",
-                                color = Color.Gray,
-                                fontSize = 23.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier=Modifier.padding(end=10.dp)
-                            )
+                        )
+                    }
+                    Text(
+                        text = "Đăng ký",
+                        color = Color.Gray,
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .clickable { onRegisterClick() }
+                    )
 
-                    }// Đóng khung Row
-                    Spacer(modifier = Modifier.height(15.dp))
+                }// Đóng khung Row
+                Spacer(modifier = Modifier.height(15.dp))
                 TextInput(
                     text = email,
                     onValueChange = { email = it },
                     label = "Nhập Email",
-                    leadingIcon={Icon(
+                    leadingIcon = {Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = "Email Icon",
-                        tint=Color.Yellow
+                        tint=Color(0xFFD4A373)
                     )}
                 )
-                    Spacer(modifier = Modifier.height(15.dp))
-                 TextInput(
-                     text=password,
-                     onValueChange = { password = it },
-                     label = "Nhập Mật khẩu",
-                     leadingIcon = {Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock Icon"
-                     ,tint = Color.Yellow)}
-                 )
-                    Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.height(15.dp))
+                TextInput(
+                    text = password,
+                    onValueChange = { password = it },
+                    label = "Nhập Mật khẩu",
+                    leadingIcon = {Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock Icon"
+                    ,tint = Color(0xFFD4A373)
+                    )}
+                )
+                Spacer(modifier = Modifier.height(15.dp))
 
-                 Text(
-                     text = "Quên mật khẩu?",
-                     color = Color.Gray,
-                     fontSize = 15.sp,
-                     fontWeight = FontWeight.Bold,
-                     modifier = Modifier.align(Alignment.End)
-                 )
-                    Spacer(modifier = Modifier.height(15.dp))
-                 Button(
-                     onClick = { /* TODO */ },
-                     modifier = Modifier.fillMaxWidth(0.7f),
-                     shape = RoundedCornerShape(16.dp),
-                     colors = ButtonDefaults.buttonColors
-                         (containerColor = Color(0xFF8B4513)) // Đã đổi thành màu đậm hơn
-
-
-                 ) {
-                     Text(
-                         text = "Đăng nhập",
-                         color = Color.White,
-                         fontSize = 25.sp,
-                         fontWeight = FontWeight.Bold
-                     )
-                 }//button
-
-                }//Column
-            }//Card
-
-        }//Box
+                Text(
+                    text = "Quên mật khẩu?",
+                    color = Color.Gray,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.End)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Button(
+                    onClick = { onLoginClick() },
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(50.dp)
+                        .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors
+                        (containerColor = Color(0xFF8B4513),
+                        )
 
 
-    }
+                ) {
+                    Text(
+                        text = "Đăng nhập",
+                        color = Color.White,
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }//button
+
+            }//Column
+        }//Card
+
+    }//Box
+}
 
 
 @Composable
 fun TextInput(text:String , onValueChange: (String) -> Unit, label: String, leadingIcon: @Composable (() -> Unit)? = null) {
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(elevation = 8.dp, shape = RoundedCornerShape(18.dp)),
         value = text,
         onValueChange = onValueChange,
-        label = { Text(label)},
+        label = { Text(label) },
         leadingIcon = leadingIcon,
+        shape = RoundedCornerShape(18.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor =Color.Blue,
-            unfocusedBorderColor = Color.Blue,
-        ),
-        shape =RoundedCornerShape(18.dp)
+
+            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color.White,
+
+
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = Color.Transparent,
+
+            focusedLabelColor = Color.Blue,
+            unfocusedLabelColor = Color.Gray
+        )
     )
 }
+
 @Preview(showBackground = true, showSystemUi =true)
 @Composable
-fun GreetingPreview() {
+fun TrangDangNhapScreenPreview() {
     AppMuaNuocTheme {
-            TrangDangNhapScreen()
-        }
+        TrangDangNhapScreen(
+            onLoginClick = {},
+            onRegisterClick = {}
+        )
     }
-
-@Composable
-fun AppMuaNuocTheme(content: @Composable () -> Unit) {
-    TODO("Not yet implemented")
 }
-
