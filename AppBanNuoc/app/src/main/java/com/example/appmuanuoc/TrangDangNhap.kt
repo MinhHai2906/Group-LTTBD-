@@ -61,11 +61,7 @@ class TrangDangNhapActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppMuaNuocTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TrangDangNhapScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                ManHinhDangKy()
             }
         }
     }
