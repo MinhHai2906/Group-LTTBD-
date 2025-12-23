@@ -1,232 +1,222 @@
 package com.example.wateronl
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.wateronl.ui.theme.WaterOnlTheme
-
 
 @Composable
-fun TrangDangNhapScreen(
-    modifier: Modifier = Modifier,
-    onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit
+fun ManHinhDangNhap(
+    onChuyenSangDangKy: () -> Unit,
+    onDangNhapThanhCong: () -> Unit,
+    onQuenMatKhau: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var matKhau by remember { mutableStateOf("") }
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFDF6E3)),
-        contentAlignment = Alignment.TopCenter
+            .background(MauNenKem)
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "LogoQuan",
-                modifier = Modifier
-                    .padding(top = 50.dp)
-                    .size(150.dp)
-                    .shadow(elevation = 8.dp, shape = CircleShape)
-                    .border(BorderStroke(2.dp, Color.White), CircleShape)
-                    .clip(CircleShape)
-            )
-            Text(
-                text = "Xin chào!",
-                modifier = Modifier.padding(top = 30.dp),
-                fontWeight = FontWeight.Bold,
-                fontSize = 50.sp,
-                fontFamily = FontFamily.Cursive,
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = "Thưởng thức cafe"
-            )
-        }
-
-        Card(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(450.dp),
-            shape = RoundedCornerShape(topStart = 45.dp, topEnd = 45.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // Phần tiêu đề
             Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .height(300.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp, start = 16.dp, end = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(120.dp)
                 ) {
-                    Column {
+                    Surface(
+                        shape = CircleShape,
+                        color = MauCam.copy(alpha = 0.2f),
+                        modifier = Modifier.fillMaxSize()
+                    ) {}
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Logo Coffee",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(text = "Chào mừng trở lại!"
+                    , fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MauNauDam)
+                Text(text = "Bùng nổ vị giác cùng chúng tôi",
+                    fontSize = 14.sp,
+                    color = MauNauDam.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(top = 8.dp))
+            }
+
+            // Card trắng chứa form đăng nhập
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                color = MauTrangCard,
+                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+                shadowElevation = 10.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(32.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Các tab Đăng nhập/Đăng ký
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)) {
+                        Column(modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "Đăng nhập",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MauNauDam
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Box(modifier = Modifier
+                                .width(80.dp)
+                                .height(3.dp)
+                                .background(MauCam))
+                        }
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { onChuyenSangDangKy() },
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "Đăng ký",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Gray)
+                        }
+                    }
+
+                    // Các ô nhập liệu
+                    O_Nhap_Lieu_Tuy_Chinh(
+                        value = email,
+                        onValueChange = { email = it },
+                        placeholder = "Địa chỉ email",
+                        icon = Icons.Default.Email
+                    )
+                    O_Nhap_Lieu_Tuy_Chinh(
+                        value = matKhau,
+                        onValueChange = { matKhau = it },
+                        placeholder = "Mật khẩu",
+                        icon = Icons.Default.Lock,
+                        isPassword = true
+                    )
+
+                    // Quên mật khẩu
+                    Text(
+                        text = "Quên mật khẩu?",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onQuenMatKhau() },
+                        textAlign = TextAlign.End,
+                        color = MauNauDam.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp)) // Tăng khoảng cách
+
+                    // Nút Đăng nhập
+                    Button(
+                        onClick = {
+                            onDangNhapThanhCong()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .shadow(10.dp, RoundedCornerShape(16.dp), spotColor = MauCam),
+                        colors = ButtonDefaults.buttonColors(containerColor = MauCam),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
                         Text(
                             text = "Đăng nhập",
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 23.sp,
-                            color = Color.Black,
-                            modifier = Modifier.padding(start = 10.dp)
+                            color = Color.White
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(
-                            modifier = Modifier
-                                .width(140.dp)
-                                .height(3.dp)
-                                .background(Color(0xFFD4A373))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White)
+                    }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Văn bản chuyển sang màn hình Đăng ký
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+
+                    ) {
+                        Text(
+                            text = "Chưa có tài khoản? ",
+                            color = MauNauDam.copy(alpha = 0.6f)
+                        )
+                        Text(
+                            text = "Đăng ký",
+                            modifier = Modifier.clickable { onChuyenSangDangKy() },
+                            style = TextStyle(
+                                color = MauCam,
+                                fontWeight = FontWeight.Bold
+                            )
                         )
                     }
-                    Text(
-                        text = "Đăng ký",
-                        color = Color.Gray,
-                        fontSize = 23.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(end = 10.dp)
-                            .clickable { onRegisterClick() }
-                    )
 
-                }// Đóng khung Row
-                Spacer(modifier = Modifier.height(15.dp))
-                TextInput(
-                    text = email,
-                    onValueChange = { email = it },
-                    label = "Nhập Email",
-                    leadingIcon = {Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = "Email Icon",
-                        tint=Color(0xFFD4A373)
-                    )}
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                TextInput(
-                    text = password,
-                    onValueChange = { password = it },
-                    label = "Nhập Mật khẩu",
-                    leadingIcon = {Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock Icon"
-                        ,tint = Color(0xFFD4A373)
-                    )}
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-
-                Text(
-                    text = "Quên mật khẩu?",
-                    color = Color.Gray,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.End)
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Button(
-                    onClick = { onLoginClick() },
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(50.dp)
-                        .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp)),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = ButtonDefaults.buttonColors
-                        (containerColor = Color(0xFF8B4513),
-                    )
-
-
-                ) {
-                    Text(
-                        text = "Đăng nhập",
-                        color = Color.White,
-                        fontSize = 23.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }//button
-
-            }//Column
-        }//Card
-
-    }//Box
-}
-
-
-@Composable
-fun TextInput(text:String , onValueChange: (String) -> Unit, label: String, leadingIcon: @Composable (() -> Unit)? = null) {
-    OutlinedTextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(18.dp)),
-        value = text,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        leadingIcon = leadingIcon,
-        shape = RoundedCornerShape(18.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-
-            unfocusedContainerColor = Color.White,
-            focusedContainerColor = Color.White,
-
-
-            unfocusedBorderColor = Color.Transparent,
-            focusedBorderColor = Color.Transparent,
-
-            focusedLabelColor = Color.Blue,
-            unfocusedLabelColor = Color.Gray
-        )
-    )
-}
-
-@Preview(showBackground = true, showSystemUi =true)
-@Composable
-fun TrangDangNhapScreenPreview() {
-    WaterOnlTheme() {
-        TrangDangNhapScreen(
-            onLoginClick = {},
-            onRegisterClick = {}
-        )
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+            }
+        }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewDangNhap() {
+    ManHinhDangNhap(
+        onChuyenSangDangKy = {},
+        onDangNhapThanhCong = {},
+        onQuenMatKhau = {}
+    )
 }

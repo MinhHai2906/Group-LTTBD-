@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.wateronl.ui.theme.WaterOnlTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +19,49 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WaterOnlTheme {
+                // Tạo một bộ điều khiển chuyển hướng
+                val navController = rememberNavController()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    // NavHost là nơi chứa các màn hình sẽ thay đổi
+                    NavHost(
+                        navController = navController,
+                        startDestination = "dang_nhap",
                         modifier = Modifier.padding(innerPadding)
-                    )
+                    ) {
+                        // 1. Màn Đăng Nhập
+                        composable("dang_nhap") {
+                            ManHinhDangNhap(
+                                onChuyenSangDangKy = { navController.navigate("dang_ky") },
+                                onDangNhapThanhCong = {
+                                    navController.navigate("trang_chu") {
+                                        popUpTo("dang_nhap") { inclusive = true }
+                                    }
+                                },
+                                onQuenMatKhau = { navController.navigate("quen_mk") }
+                            )
+                        }
+
+                        // Màn hình Đăng ký
+                        composable("dang_ky") {
+                            ManHinhDangKy(
+                                onQuayLaiDangNhap = { navController.popBackStack() }
+                            )
+                        }
+
+                        // Màn hình Trang chủ
+                        composable("trang_chu") {
+                            ManHinhTrangChu()
+                        }
+                        composable("quen_mk") {
+                            ManHinhQuenMK(
+                                onQuayLai = { navController.popBackStack() },
+                                onGuiYeuCau = { navController.popBackStack() }
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WaterOnlTheme {
-        Greeting("Android")
     }
 }

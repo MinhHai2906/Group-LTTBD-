@@ -2,6 +2,7 @@ package com.example.wateronl
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -38,7 +39,7 @@ val MauCam = Color(0xFFD4A373)
 val MauNenInput = Color(0xFFFEFAE0)
 
 @Composable
-fun ManHinhDangKy() {
+fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
     var tenNguoiDung by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
@@ -85,7 +86,7 @@ fun ManHinhDangKy() {
                     , fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = MauNauDam)
-                Text(text = "Thưởng thức đồ uống cùng chúng tôi",
+                Text(text = "Bùng nổ vị giác cùng chúng tôi",
                     fontSize = 14.sp,
                     color = MauNauDam.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 8.dp))
@@ -109,7 +110,8 @@ fun ManHinhDangKy() {
                     Row(modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)) {
-                        Column(modifier = Modifier.weight(1f),
+                        Column(modifier = Modifier.weight(1f)
+                            .clickable { onQuayLaiDangNhap() },
                             horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "Đăng nhập",
@@ -232,5 +234,5 @@ fun O_Nhap_Lieu_Tuy_Chinh(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewDangKy() {
-    ManHinhDangKy()
+    ManHinhDangKy(onQuayLaiDangNhap = {})
 }
