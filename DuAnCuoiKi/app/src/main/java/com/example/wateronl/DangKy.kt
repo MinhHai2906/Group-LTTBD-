@@ -1,5 +1,7 @@
 package com.example.wateronl
 
+import android.widget.Toast
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -24,8 +27,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +53,9 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
     var matKhau by remember { mutableStateOf("") }
     var xacNhanMatKhau by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +68,7 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // tieu de
+            // HEADER
             Column(
                 modifier = Modifier
                     .height(300.dp)
@@ -92,7 +103,7 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                     modifier = Modifier.padding(top = 8.dp))
             }
 
-            // card trang
+            // BODY
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,7 +117,7 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         .padding(32.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // cac tab
+                    // TAB
                     Row(modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)) {
@@ -134,19 +145,27 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         }
                     }
 
-                    // o nhap du lieu
+                    // INPUTS
+
+                    // 1. Tên người dùng:
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = tenNguoiDung,
                         onValueChange = { tenNguoiDung = it },
                         placeholder = "Tên người dùng",
-                        icon = Icons.Default.Person
+                        icon = Icons.Default.Person,
+                        capitalization = KeyboardCapitalization.None
                     )
+
+                    // 2. Email: Bàn phím Email
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = email,
                         onValueChange = { email = it },
                         placeholder = "Địa chỉ email",
-                        icon = Icons.Default.Email
+                        icon = Icons.Default.Email,
+                        keyboardType = KeyboardType.Email
                     )
+
+                    // 3. Mật khẩu
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = matKhau,
                         onValueChange = { matKhau = it },
@@ -154,6 +173,8 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         icon = Icons.Default.Lock,
                         isPassword = true
                     )
+
+                    // 4. Xác nhận mật khẩu
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = xacNhanMatKhau,
                         onValueChange = { xacNhanMatKhau = it },
@@ -161,10 +182,46 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         icon = Icons.Default.Lock,
                         isPassword = true
                     )
-                    Spacer(modifier = Modifier.height(24.dp)) //tang khoang cach
+                    Spacer(modifier = Modifier.height(24.dp))
 
+                    // BUTTON
                     Button(
-                        onClick = {  },
+                        onClick = {
+                            keyboardController?.hide()
+
+                            val cleanEmail = email.trim()
+
+                            // LOGIC KIỂM TRA
+                            if (tenNguoiDung.isEmpty() || cleanEmail.isEmpty() || matKhau.isEmpty()) {
+                                Toast.makeText(context, "Vui lòng điền đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Tên người dùng:
+
+                            // Email: Bắt buộc đúng chuẩn
+                            else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
+                                Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Mật khẩu: Cấm tiệt dấu cách
+                            else if (matKhau.contains(" ")) {
+                                Toast.makeText(context, "Mật khẩu không được chứa khoảng trắng!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Mật khẩu: Độ dài >= 6
+                            else if (matKhau.length < 6) {
+                                Toast.makeText(context, "Mật khẩu phải từ 6 ký tự trở lên!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Mật khẩu: Ký tự đầu phải là chữ/số
+                            else if (matKhau.isNotEmpty() && !matKhau[0].isLetterOrDigit()) {
+                                Toast.makeText(context, "Mật khẩu phải bắt đầu bằng chữ hoặc số!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Xác nhận: Phải giống y hệt
+                            else if (matKhau != xacNhanMatKhau) {
+                                Toast.makeText(context, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show()
+                            }
+                            else {
+                                Toast.makeText(context, "Đăng ký thành công! Hãy đăng nhập ngay.", Toast.LENGTH_LONG).show()
+                                onQuayLaiDangNhap()
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
@@ -182,13 +239,14 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White)
                     }
 
-                    //
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
         }
     }
 }
+
+// Component nhập liệu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun O_Nhap_Lieu_Tuy_Chinh(
@@ -196,16 +254,24 @@ fun O_Nhap_Lieu_Tuy_Chinh(
     onValueChange: (String) -> Unit,
     placeholder: String,
     icon: ImageVector,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None // Mặc định là không can thiệp
 ) {
     var hienMatKhau by remember { mutableStateOf(false) }
 
     TextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(text = placeholder,
-            color = MauNauDam.copy(alpha = 0.4f)) },
+        placeholder = { Text(text = placeholder, color = MauNauDam.copy(alpha = 0.4f)) },
         leadingIcon = { Icon(imageVector = icon, contentDescription = null, tint = MauCam) },
+
+        keyboardOptions = KeyboardOptions(
+            keyboardType = if (isPassword) KeyboardType.Password else keyboardType,
+            capitalization = capitalization,
+            imeAction = ImeAction.Next
+        ),
+
         trailingIcon = if (isPassword) {
             {
                 IconButton(onClick = { hienMatKhau = !hienMatKhau }) {

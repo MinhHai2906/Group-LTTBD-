@@ -1,5 +1,7 @@
 package com.example.wateronl
 
+import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,17 +16,18 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +41,10 @@ fun ManHinhDangNhap(
 ) {
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,7 +57,7 @@ fun ManHinhDangNhap(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Phần tiêu đề
+            // HEADER
             Column(
                 modifier = Modifier
                     .height(300.dp)
@@ -87,7 +94,7 @@ fun ManHinhDangNhap(
                     modifier = Modifier.padding(top = 8.dp))
             }
 
-            // Card trắng chứa form đăng nhập
+            // BODY
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,7 +108,7 @@ fun ManHinhDangNhap(
                         .padding(32.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Các tab Đăng nhập/Đăng ký
+                    // TAB
                     Row(modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)) {
@@ -131,12 +138,13 @@ fun ManHinhDangNhap(
                         }
                     }
 
-                    // Các ô nhập liệu
+                    // INPUTS
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = email,
                         onValueChange = { email = it },
                         placeholder = "Địa chỉ email",
-                        icon = Icons.Default.Email
+                        icon = Icons.Default.Email,
+                        keyboardType = KeyboardType.Email
                     )
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = matKhau,
@@ -147,22 +155,50 @@ fun ManHinhDangNhap(
                     )
 
                     // Quên mật khẩu
-                    Text(
-                        text = "Quên mật khẩu?",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onQuenMatKhau() },
-                        textAlign = TextAlign.End,
-                        color = MauNauDam.copy(alpha = 0.6f),
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "Quên mật khẩu?",
+                            modifier = Modifier.clickable { onQuenMatKhau() },
+                            textAlign = TextAlign.End,
+                            color = MauNauDam.copy(alpha = 0.6f),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
-                    Spacer(modifier = Modifier.height(16.dp)) // Tăng khoảng cách
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // Nút Đăng nhập
+                    // BUTTON ĐĂNG NHẬP
                     Button(
                         onClick = {
-                            onDangNhapThanhCong()
+                            keyboardController?.hide() // Ẩn bàn phím
+
+                            val cleanEmail = email.trim()
+
+                            // LOGIC KIỂM TRA ĐỒNG BỘ VỚI ĐĂNG KÝ
+                            if (cleanEmail.isEmpty() || matKhau.isEmpty()) {
+                                Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
+                            }
+                            else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
+                                Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
+                            }
+                            else if (matKhau.contains(" ")) {
+                                Toast.makeText(context, "Mật khẩu không được chứa khoảng trắng!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Thêm check độ dài
+                            else if (matKhau.length < 6) {
+                                Toast.makeText(context, "Mật khẩu quá ngắn (phải từ 6 ký tự)!", Toast.LENGTH_SHORT).show()
+                            }
+                            // Thêm check ký tự đầu (Chặn @Quang)
+                            else if (!matKhau[0].isLetterOrDigit()) {
+                                Toast.makeText(context, "Mật khẩu phải bắt đầu bằng chữ hoặc số!", Toast.LENGTH_SHORT).show()
+                            }
+                            else {
+                                Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
+                                onDangNhapThanhCong()
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -183,12 +219,11 @@ fun ManHinhDangNhap(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Văn bản chuyển sang màn hình Đăng ký
+                    // Footer
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
-
                     ) {
                         Text(
                             text = "Chưa có tài khoản? ",

@@ -1,6 +1,5 @@
 package com.example.wateronl
 
-import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,7 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,13 +33,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 
 @Composable
-fun ManHinhQuenMK(
+fun ManHinhXacThucOTP(
     onQuayLai: () -> Unit,
-    onGuiYeuCau: () -> Unit
+    onXacThucThanhCong: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-
-    // 1. Lấy công cụ hỗ trợ (Context & Bàn phím)
+    var maOTP by remember { mutableStateOf("") }
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -90,21 +88,24 @@ fun ManHinhQuenMK(
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(80.dp).clip(CircleShape)
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Quên Mật Khẩu?",
+                    text = "Nhập mã xác thực",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MauNauDam
                 )
                 Text(
-                    text = "Đừng lo, hãy nhập email để khôi phục",
+                    text = "Mã xác thực đã được gửi đến email của bạn.\nVui lòng nhập mã để tiếp tục.",
                     fontSize = 14.sp,
                     color = MauNauDam.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(top = 8.dp)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp, start = 32.dp, end = 32.dp)
                 )
             }
 
@@ -119,47 +120,37 @@ fun ManHinhQuenMK(
             ) {
                 Column(
                     modifier = Modifier.padding(32.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Nhập địa chỉ Email đã đăng ký của bạn, chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.",
-                        fontSize = 15.sp,
-                        color = MauNauDam.copy(alpha = 0.7f),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 22.sp
-                    )
-
-                    // Ô NHẬP EMAIL (Dùng hàm chung, thêm Keyboard Email)
+                    // Ô NHẬP OTP
                     O_Nhap_Lieu_Tuy_Chinh(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = "Địa chỉ email",
-                        icon = Icons.Default.Email,
-                        keyboardType = KeyboardType.Email // Bàn phím có @
+                        value = maOTP,
+                        onValueChange = {
+                            // Chỉ cho phép nhập số
+                            if (it.all { char -> char.isDigit() }) {
+                                maOTP = it
+                            }
+                        },
+                        placeholder = "Nhập mã xác thực (6 số)",
+                        icon = Icons.Default.VpnKey,
+                        keyboardType = KeyboardType.Number // Bàn phím số
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // NÚT GỬI YÊU CẦU (LOGIC HỢP LÝ)
+                    // BUTTON XÁC NHẬN
                     Button(
                         onClick = {
-                            // 1. Ẩn bàn phím cho thoáng
                             keyboardController?.hide()
 
-                            // 2. Dọn dẹp email (cắt khoảng trắng thừa)
-                            val cleanEmail = email.trim()
-
-                            // 3. Logic kiểm tra
-                            if (cleanEmail.isEmpty()) {
-                                Toast.makeText(context, "Vui lòng nhập địa chỉ email!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
-                                Toast.makeText(context, "Email không hợp lệ! (Ví dụ: abc@gmail.com)", Toast.LENGTH_SHORT).show()
-                            }
-                            else {
-                                // 4. Hợp lệ -> Gửi OTP
-                                Toast.makeText(context, "Mã OTP đã được gửi đến email của bạn.", Toast.LENGTH_LONG).show()
-                                onGuiYeuCau()
+                            if (maOTP.isEmpty()) {
+                                Toast.makeText(context, "Vui lòng nhập mã OTP!", Toast.LENGTH_SHORT).show()
+                            } else if (maOTP.length < 6) { // Giả sử mã OTP chuẩn là 6 số
+                                Toast.makeText(context, "Mã OTP phải đủ 6 chữ số!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                // Thành công
+                                onXacThucThanhCong()
                             }
                         },
                         modifier = Modifier
@@ -170,29 +161,30 @@ fun ManHinhQuenMK(
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Text(
-                            text = "Gửi yêu cầu",
+                            text = "Xác nhận mã",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                     }
 
-                    // Footer quay về đăng nhập
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Nhớ mật khẩu rồi? ",
-                            color = MauNauDam.copy(alpha = 0.6f)
-                        )
-                        Text(
-                            text = "Đăng nhập ngay",
-                            modifier = Modifier.clickable { onQuayLai() },
-                            fontWeight = FontWeight.Bold,
-                            color = MauCam
-                        )
-                    }
+                    // Gửi lại mã
+                    Text(
+                        text = "Gửi lại mã",
+                        color = MauCam,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable {
+                                Toast.makeText(context, "Đã gửi lại mã mới!", Toast.LENGTH_SHORT).show()
+                            }
+                            .padding(8.dp)
+                    )
                 }
             }
         }
@@ -201,6 +193,6 @@ fun ManHinhQuenMK(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewQuenMK() {
-    ManHinhQuenMK(onQuayLai = {}, onGuiYeuCau = {})
+fun PreviewOTP() {
+    ManHinhXacThucOTP(onQuayLai = {}, onXacThucThanhCong = {})
 }

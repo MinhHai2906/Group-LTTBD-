@@ -19,11 +19,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WaterOnlTheme {
-                // Tạo một bộ điều khiển chuyển hướng
+                // Tạo bộ điều khiển chuyển hướng
                 val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // NavHost là nơi chứa các màn hình sẽ thay đổi
+                    // NavHost chứa các màn hình
                     NavHost(
                         navController = navController,
                         startDestination = "dang_nhap",
@@ -42,21 +42,50 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Màn hình Đăng ký
+                        // 2. Màn Đăng Ký
                         composable("dang_ky") {
                             ManHinhDangKy(
                                 onQuayLaiDangNhap = { navController.popBackStack() }
                             )
                         }
 
-                        // Màn hình Trang chủ
+                        // 3. Màn Trang Chủ
                         composable("trang_chu") {
                             ManHinhTrangChu()
                         }
+
+                        // 4. Màn Quên Mật Khẩu
                         composable("quen_mk") {
                             ManHinhQuenMK(
                                 onQuayLai = { navController.popBackStack() },
-                                onGuiYeuCau = { navController.popBackStack() }
+                                onGuiYeuCau = {
+                                    // Chuyển sang màn nhập OTP khi bấm nút gửi
+                                    navController.navigate("xac_thuc_otp")
+                                }
+                            )
+                        }
+
+                        // 5. Màn Nhập OTP
+                        composable("xac_thuc_otp") {
+                            ManHinhXacThucOTP(
+                                onQuayLai = { navController.popBackStack() },
+                                onXacThucThanhCong = {
+                                    // Sửa: Xác thực xong thì đi tiếp tới đổi mật khẩu
+                                    navController.navigate("mat_khau_moi")
+                                }
+                            )
+                        }
+
+                        // 6. Màn Mật Khẩu Mới
+                        composable("mat_khau_moi") {
+                            ManHinhMatKhauMoi(
+                                onQuayLai = { navController.popBackStack() },
+                                onDoiMatKhauThanhCong = {
+                                    // Đổi xong thì về màn Đăng nhập và xóa hết lịch sử cũ
+                                    navController.navigate("dang_nhap") {
+                                        popUpTo("dang_nhap") { inclusive = true }
+                                    }
+                                }
                             )
                         }
                     }
