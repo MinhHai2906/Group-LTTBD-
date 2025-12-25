@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,12 +22,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,11 +48,37 @@ fun ManHinhDangNhap(
 
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    fun xuLyDangNhap() {
+        keyboardController?.hide()
+        val cleanEmail = email.trim()
+
+        if (cleanEmail.isEmpty() || matKhau.isEmpty()) {
+            Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
+            Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
+        } else if (matKhau.contains(" ")) {
+            Toast.makeText(context, "Mật khẩu không được chứa khoảng trắng!", Toast.LENGTH_SHORT).show()
+        } else if (matKhau.length < 6) {
+            Toast.makeText(context, "Mật khẩu quá ngắn (phải từ 6 ký tự)!", Toast.LENGTH_SHORT).show()
+        } else if (!matKhau[0].isLetterOrDigit()) {
+            Toast.makeText(context, "Mật khẩu phải bắt đầu bằng chữ hoặc số!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
+            onDangNhapThanhCong()
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MauNenKem)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            }
     ) {
         Column(
             modifier = Modifier
@@ -88,7 +118,7 @@ fun ManHinhDangNhap(
                     , fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = MauNauDam)
-                Text(text = "Bùng nổ vị giác cùng chúng tôi",
+                Text(text = "Relax and Chill",
                     fontSize = 14.sp,
                     color = MauNauDam.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 8.dp))
@@ -104,14 +134,11 @@ fun ManHinhDangNhap(
                 shadowElevation = 10.dp
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(32.dp),
+                    modifier = Modifier.padding(32.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // TAB
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                         Column(modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
@@ -121,15 +148,10 @@ fun ManHinhDangNhap(
                                 color = MauNauDam
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            Box(modifier = Modifier
-                                .width(80.dp)
-                                .height(3.dp)
-                                .background(MauCam))
+                            Box(modifier = Modifier.width(80.dp).height(3.dp).background(MauCam))
                         }
                         Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { onChuyenSangDangKy() },
+                            modifier = Modifier.weight(1f).clickable { onChuyenSangDangKy() },
                             horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = "Đăng ký",
                                 fontSize = 18.sp,
@@ -144,14 +166,18 @@ fun ManHinhDangNhap(
                         onValueChange = { email = it },
                         placeholder = "Địa chỉ email",
                         icon = Icons.Default.Email,
-                        keyboardType = KeyboardType.Email
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
                     )
+
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = matKhau,
                         onValueChange = { matKhau = it },
                         placeholder = "Mật khẩu",
                         icon = Icons.Default.Lock,
-                        isPassword = true
+                        isPassword = true,
+                        imeAction = ImeAction.Done,
+                        onAction = { xuLyDangNhap() }
                     )
 
                     // Quên mật khẩu
@@ -170,36 +196,8 @@ fun ManHinhDangNhap(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // BUTTON ĐĂNG NHẬP
                     Button(
-                        onClick = {
-                            keyboardController?.hide() // Ẩn bàn phím
-
-                            val cleanEmail = email.trim()
-
-                            // LOGIC KIỂM TRA ĐỒNG BỘ VỚI ĐĂNG KÝ
-                            if (cleanEmail.isEmpty() || matKhau.isEmpty()) {
-                                Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
-                                Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (matKhau.contains(" ")) {
-                                Toast.makeText(context, "Mật khẩu không được chứa khoảng trắng!", Toast.LENGTH_SHORT).show()
-                            }
-                            // Thêm check độ dài
-                            else if (matKhau.length < 6) {
-                                Toast.makeText(context, "Mật khẩu quá ngắn (phải từ 6 ký tự)!", Toast.LENGTH_SHORT).show()
-                            }
-                            // Thêm check ký tự đầu (Chặn @Quang)
-                            else if (!matKhau[0].isLetterOrDigit()) {
-                                Toast.makeText(context, "Mật khẩu phải bắt đầu bằng chữ hoặc số!", Toast.LENGTH_SHORT).show()
-                            }
-                            else {
-                                Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
-                                onDangNhapThanhCong()
-                            }
-                        },
+                        onClick = { xuLyDangNhap() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
@@ -218,27 +216,14 @@ fun ManHinhDangNhap(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // Footer
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Chưa có tài khoản? ",
-                            color = MauNauDam.copy(alpha = 0.6f)
-                        )
-                        Text(
-                            text = "Đăng ký",
-                            modifier = Modifier.clickable { onChuyenSangDangKy() },
-                            style = TextStyle(
-                                color = MauCam,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
+                        Text(text = "Chưa có tài khoản? ", color = MauNauDam.copy(alpha = 0.6f))
+                        Text(text = "Đăng ký", modifier = Modifier.clickable { onChuyenSangDangKy() }, style = TextStyle(color = MauCam, fontWeight = FontWeight.Bold))
                     }
-
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }

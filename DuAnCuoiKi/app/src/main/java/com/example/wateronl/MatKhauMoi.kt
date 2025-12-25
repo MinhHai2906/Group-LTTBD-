@@ -139,7 +139,6 @@ fun ManHinhMatKhauMoi(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // BUTTON (LOGIC ĐỒNG BỘ VỚI ĐĂNG KÝ)
                     Button(
                         onClick = {
                             keyboardController?.hide()

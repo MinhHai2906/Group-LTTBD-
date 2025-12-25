@@ -1,11 +1,11 @@
 package com.example.wateronl
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -14,20 +14,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.wateronl.ui.theme.WaterOnlTheme
 
 class MainActivity : ComponentActivity() {
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             WaterOnlTheme {
-                // Tạo bộ điều khiển chuyển hướng
                 val navController = rememberNavController()
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // NavHost chứa các màn hình
+                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
+
                     NavHost(
                         navController = navController,
                         startDestination = "dang_nhap",
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         // 1. Màn Đăng Nhập
                         composable("dang_nhap") {
@@ -42,46 +43,43 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 2. Màn Đăng Ký
+                        // 2. Màn Dky
                         composable("dang_ky") {
                             ManHinhDangKy(
                                 onQuayLaiDangNhap = { navController.popBackStack() }
                             )
                         }
 
-                        // 3. Màn Trang Chủ
+                        // 3. Màn TChu
                         composable("trang_chu") {
                             ManHinhTrangChu()
                         }
 
-                        // 4. Màn Quên Mật Khẩu
+                        // 4. Màn quen mk
                         composable("quen_mk") {
                             ManHinhQuenMK(
                                 onQuayLai = { navController.popBackStack() },
                                 onGuiYeuCau = {
-                                    // Chuyển sang màn nhập OTP khi bấm nút gửi
                                     navController.navigate("xac_thuc_otp")
                                 }
                             )
                         }
 
-                        // 5. Màn Nhập OTP
+                        // 5. Màn nhap otp
                         composable("xac_thuc_otp") {
                             ManHinhXacThucOTP(
                                 onQuayLai = { navController.popBackStack() },
                                 onXacThucThanhCong = {
-                                    // Sửa: Xác thực xong thì đi tiếp tới đổi mật khẩu
                                     navController.navigate("mat_khau_moi")
                                 }
                             )
                         }
 
-                        // 6. Màn Mật Khẩu Mới
+                        // 6. Màn mk mới
                         composable("mat_khau_moi") {
                             ManHinhMatKhauMoi(
                                 onQuayLai = { navController.popBackStack() },
                                 onDoiMatKhauThanhCong = {
-                                    // Đổi xong thì về màn Đăng nhập và xóa hết lịch sử cũ
                                     navController.navigate("dang_nhap") {
                                         popUpTo("dang_nhap") { inclusive = true }
                                     }

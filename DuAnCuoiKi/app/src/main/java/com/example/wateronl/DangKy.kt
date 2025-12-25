@@ -5,10 +5,12 @@ import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -24,10 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,11 +52,14 @@ val MauNenInput = Color(0xFFFEFAE0)
 
 @Composable
 fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
+    // Khai báo state
     var tenNguoiDung by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
     var xacNhanMatKhau by remember { mutableStateOf("") }
 
+    // Các biến quản lý hệ thống
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -60,6 +67,13 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(MauNenKem)
+
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                focusManager.clearFocus()
+            }
     ) {
         Column(
             modifier = Modifier
@@ -97,7 +111,7 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                     , fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = MauNauDam)
-                Text(text = "Bùng nổ vị giác cùng chúng tôi",
+                Text(text = "Relax and Chill",
                     fontSize = 14.sp,
                     color = MauNauDam.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 8.dp))
@@ -113,8 +127,7 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                 shadowElevation = 10.dp
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(32.dp),
+                    modifier = Modifier.padding(32.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // TAB
@@ -146,23 +159,24 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                     }
 
                     // INPUTS
-
-                    // 1. Tên người dùng:
+                    // 1. Tên người dùng
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = tenNguoiDung,
                         onValueChange = { tenNguoiDung = it },
                         placeholder = "Tên người dùng",
                         icon = Icons.Default.Person,
-                        capitalization = KeyboardCapitalization.None
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
                     )
 
-                    // 2. Email: Bàn phím Email
+                    // 2. Email
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = email,
                         onValueChange = { email = it },
                         placeholder = "Địa chỉ email",
                         icon = Icons.Default.Email,
-                        keyboardType = KeyboardType.Email
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
                     )
 
                     // 3. Mật khẩu
@@ -171,7 +185,8 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         onValueChange = { matKhau = it },
                         placeholder = "Mật khẩu",
                         icon = Icons.Default.Lock,
-                        isPassword = true
+                        isPassword = true,
+                        imeAction = ImeAction.Next
                     )
 
                     // 4. Xác nhận mật khẩu
@@ -180,7 +195,11 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                         onValueChange = { xacNhanMatKhau = it },
                         placeholder = "Xác nhận mật khẩu",
                         icon = Icons.Default.Lock,
-                        isPassword = true
+                        isPassword = true,
+                        imeAction = ImeAction.Done,
+                        onAction = {
+                            focusManager.clearFocus()
+                        }
                     )
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -188,6 +207,7 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                     Button(
                         onClick = {
                             keyboardController?.hide()
+                            focusManager.clearFocus()
 
                             val cleanEmail = email.trim()
 
@@ -195,25 +215,18 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
                             if (tenNguoiDung.isEmpty() || cleanEmail.isEmpty() || matKhau.isEmpty()) {
                                 Toast.makeText(context, "Vui lòng điền đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
                             }
-                            // Tên người dùng:
-
-                            // Email: Bắt buộc đúng chuẩn
                             else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
                                 Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
                             }
-                            // Mật khẩu: Cấm tiệt dấu cách
                             else if (matKhau.contains(" ")) {
                                 Toast.makeText(context, "Mật khẩu không được chứa khoảng trắng!", Toast.LENGTH_SHORT).show()
                             }
-                            // Mật khẩu: Độ dài >= 6
                             else if (matKhau.length < 6) {
                                 Toast.makeText(context, "Mật khẩu phải từ 6 ký tự trở lên!", Toast.LENGTH_SHORT).show()
                             }
-                            // Mật khẩu: Ký tự đầu phải là chữ/số
                             else if (matKhau.isNotEmpty() && !matKhau[0].isLetterOrDigit()) {
                                 Toast.makeText(context, "Mật khẩu phải bắt đầu bằng chữ hoặc số!", Toast.LENGTH_SHORT).show()
                             }
-                            // Xác nhận: Phải giống y hệt
                             else if (matKhau != xacNhanMatKhau) {
                                 Toast.makeText(context, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show()
                             }
@@ -246,7 +259,6 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
     }
 }
 
-// Component nhập liệu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun O_Nhap_Lieu_Tuy_Chinh(
@@ -256,9 +268,12 @@ fun O_Nhap_Lieu_Tuy_Chinh(
     icon: ImageVector,
     isPassword: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
-    capitalization: KeyboardCapitalization = KeyboardCapitalization.None // Mặc định là không can thiệp
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
+    imeAction: ImeAction = ImeAction.Next,
+    onAction: () -> Unit = {}
 ) {
     var hienMatKhau by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     TextField(
         value = value,
@@ -269,7 +284,19 @@ fun O_Nhap_Lieu_Tuy_Chinh(
         keyboardOptions = KeyboardOptions(
             keyboardType = if (isPassword) KeyboardType.Password else keyboardType,
             capitalization = capitalization,
-            imeAction = ImeAction.Next
+            imeAction = imeAction
+        ),
+
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) },
+            onDone = {
+                focusManager.clearFocus()
+                onAction()
+            },
+            onGo = {
+                focusManager.clearFocus()
+                onAction()
+            }
         ),
 
         trailingIcon = if (isPassword) {

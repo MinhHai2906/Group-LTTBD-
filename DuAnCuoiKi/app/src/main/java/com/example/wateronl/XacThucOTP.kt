@@ -146,7 +146,7 @@ fun ManHinhXacThucOTP(
 
                             if (maOTP.isEmpty()) {
                                 Toast.makeText(context, "Vui lòng nhập mã OTP!", Toast.LENGTH_SHORT).show()
-                            } else if (maOTP.length < 6) { // Giả sử mã OTP chuẩn là 6 số
+                            } else if (maOTP.length < 6) {
                                 Toast.makeText(context, "Mã OTP phải đủ 6 chữ số!", Toast.LENGTH_SHORT).show()
                             } else {
                                 // Thành công

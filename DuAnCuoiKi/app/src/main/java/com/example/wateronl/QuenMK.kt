@@ -39,7 +39,6 @@ fun ManHinhQuenMK(
 ) {
     var email by remember { mutableStateOf("") }
 
-    // 1. Lấy công cụ hỗ trợ (Context & Bàn phím)
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -129,7 +128,7 @@ fun ManHinhQuenMK(
                         lineHeight = 22.sp
                     )
 
-                    // Ô NHẬP EMAIL (Dùng hàm chung, thêm Keyboard Email)
+                    // Ô NHẬP EMAIL
                     O_Nhap_Lieu_Tuy_Chinh(
                         value = email,
                         onValueChange = { email = it },
@@ -140,13 +139,12 @@ fun ManHinhQuenMK(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // NÚT GỬI YÊU CẦU (LOGIC HỢP LÝ)
                     Button(
                         onClick = {
                             // 1. Ẩn bàn phím cho thoáng
                             keyboardController?.hide()
 
-                            // 2. Dọn dẹp email (cắt khoảng trắng thừa)
+                            // 2. Dọn dẹp email
                             val cleanEmail = email.trim()
 
                             // 3. Logic kiểm tra
