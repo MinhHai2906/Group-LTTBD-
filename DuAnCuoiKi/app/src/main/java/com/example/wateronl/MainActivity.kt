@@ -50,9 +50,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 3. Màn TChu
+                        // 3. Màn TChu (Chứa BottomBar)
                         composable("trang_chu") {
-                            ManHinhTrangChu()
+                            MainScreen()
                         }
 
                         // 4. Màn quen mk
