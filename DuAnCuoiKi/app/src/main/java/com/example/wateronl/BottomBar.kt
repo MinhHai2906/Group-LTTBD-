@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 
-// Danh sách NavItem được chuyển ra ngoài file hoặc một file riêng để dùng chung
+
 private val NavItems = listOf(
     NavItem("Trang chủ", Icons.Default.Home, "home"),
     NavItem("Giỏ hàng", Icons.Default.ShoppingCart, "cart"),
@@ -42,10 +42,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
     ) { innerPadding ->
+
         Box(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
+                .padding(bottom = innerPadding.calculateBottomPadding()) 
         ) {
             when (selectedIndex) {
                 0 -> TrangChuContent()
