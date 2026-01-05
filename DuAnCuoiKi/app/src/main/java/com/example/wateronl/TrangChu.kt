@@ -1,7 +1,6 @@
 package com.example.wateronl
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,19 +51,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
 
 open class ThanhPhanUi(
-    @DrawableRes val image: Int,
+    @get:DrawableRes val image: Int,
     val namedrink: String,
     val price: Int,
-    @DrawableRes val minus: Int,
+    @get:DrawableRes val minus: Int,
     val increasing: Int, // tăng dần
-    @DrawableRes val plus: Int,
-    @DrawableRes val shop: Int,
-    val buy:String
+    @get:DrawableRes val plus: Int,
+    @get:DrawableRes val shop: Int,
+    val buy: String,
 )
 open class NhomUI(
-    @DrawableRes val imageDrink: Int,
+    @get:DrawableRes val imageDrink: Int,
     val nameMon: String,
     val danhSachThanhPhan: List<ThanhPhanUi>
 )
@@ -79,7 +80,7 @@ fun TrangChuContent() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(210.dp),
+                .height(170.dp),
             shape = RoundedCornerShape(bottomStart = 36.dp, bottomEnd = 36.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MauCam.copy(alpha = 0.2f)
@@ -91,18 +92,18 @@ fun TrangChuContent() {
                 OutlinedTextField(
                     value = search,
                     onValueChange = { search = it },
-                    placeholder = { Text("Tìm kiếm sản phẩm", fontSize = 16.sp) },
+                    placeholder = { Text("Tìm kiếm sản phẩm", fontSize = 14.sp) },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth().heightIn(min=2.dp)
                         .padding(horizontal = 30.dp)
                         .align(Alignment.TopCenter)
                         .padding(top = 40.dp)
                         .shadow(elevation = 20.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(24.dp),
                     trailingIcon = {
                         Icon(
                             Icons.Default.Search, contentDescription = null,
-                            modifier = Modifier.size(38.dp).padding(end = 10.dp)
+                            modifier = Modifier.size(28.dp).padding(end = 10.dp)
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -128,7 +129,7 @@ fun TrangChuContent() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 30.dp),
+                        .padding(bottom = 17.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
@@ -140,9 +141,9 @@ fun TrangChuContent() {
                                 containerColor = Color.White,
                                 contentColor = Color.Black
                             ),
-                            modifier = Modifier.height(50.dp)
+                            modifier = Modifier.height(40.dp)
                         ) {
-                            Text(text = nameDrink, fontSize = 16.sp)
+                            Text(text = nameDrink, fontSize = 14.sp)
                         }
                     }
                 }
@@ -153,9 +154,9 @@ fun TrangChuContent() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .weight(1f) // Chiếm phần không gian còn lại
+                .weight(1f)
         ) {
-            val DuLieuDrink = listOf(
+            val duLieuDrink = listOf(
                 NhomUI(
                     imageDrink = R.drawable.attcaffe,
                     nameMon = "Coffee",
@@ -379,6 +380,16 @@ fun TrangChuContent() {
                             shop = R.drawable.ic_giohang,
                             buy = "Mua ngay"
                         ),
+                        ThanhPhanUi(
+                            image = R.drawable.suachuavietquoc,
+                            namedrink = "Sữa Chua Việt Quất",
+                            price = 32000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
 
                     )
                 ),//NhómUI  Sữa chua
@@ -505,39 +516,96 @@ fun TrangChuContent() {
                         ),
                         )
                 ),//NhómUI  TRÀ
+                NhomUI(
+                    imageDrink = R.drawable.attcaffe,
+                    nameMon = "Các Nước Ép",
+                    danhSachThanhPhan = listOf(
+                        ThanhPhanUi(
+                            image = R.drawable.nebuoi,
+                            namedrink = "Nước Ép Bưởi",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.nethom,
+                            namedrink = "Nước Ép Thơm",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.necam,
+                            namedrink = "Nước Ép Cam",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.netao,
+                            namedrink = "Nước Ép Táo",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.neduahau,
+                            namedrink = "Nước Ép Dưa Hấu",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                    )
+                ),//NhómUI  Nước ép
             )
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 20.dp)
             ) {
-                items(DuLieuDrink) { nhom ->
-                    // Hiển thị tên nhóm kèm ảnh nhỏ
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = nhom.imageDrink),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(end = 8.dp)
-                                .clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text(
-                            text = nhom.nameMon,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 27.sp,
-                            color = Color.Black
-                        )
+
+                duLieuDrink.forEach { nhom ->
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        ) {
+                            AsyncImage(
+                                model = nhom.imageDrink,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .padding(end = 8.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = nhom.nameMon,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 22.sp,
+                                color = Color.Black
+                            )
+                        }
                     }
 
-                    nhom.danhSachThanhPhan.forEach { thanhPhan ->
+                    items(nhom.danhSachThanhPhan) { thanhPhan ->
                         TheHienThiThanhPhan(thanhPhan,
                             onClick = { /* Xử lý click*/ },
                             onImageClick = {
-                                // Khi click vào ảnh, lưu ID ảnh vào biến state để hiển thị Dialog
                                 anhDangChon = thanhPhan.image
                             })
                         Spacer(modifier = Modifier.height(15.dp))
@@ -558,8 +626,9 @@ fun TrangChuContent() {
                         .clickable { anhDangChon = null },
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = anhDangChon!!),
+                    // Dùng Coil ở đây để load ảnh to trong Dialog
+                    AsyncImage(
+                        model = anhDangChon!!,
                         contentDescription = "Ảnh phóng to",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -593,25 +662,26 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4F8)),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 5.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(10.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(16.dp))
                     .clickable { onImageClick() }
             ) {
-                Image(
-                    painter = painterResource(id = duLieu.image),
+                // Dùng Coil ở đây để load ảnh item sản phẩm
+                AsyncImage(
+                    model = duLieu.image,
                     contentDescription = duLieu.namedrink,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -625,14 +695,14 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
             ) {
                 Text(
                     text = duLieu.namedrink,
-                    fontSize = 20.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 
                 Text(
                     text = "${duLieu.price}đ",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MauCam,
                     modifier = Modifier.padding(vertical = 10.dp)
@@ -648,42 +718,48 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                     ) {
                         IconButton(
                             onClick = { /* Giảm */ },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(26.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.minus), contentDescription = "Trừ", tint = Color.Gray,
-                                modifier = Modifier.size(32.dp))
+                                modifier = Modifier.size(26.dp))
                         }
                         
                         Text(
                             text = "${duLieu.increasing}",
                             modifier = Modifier.padding(horizontal = 8.dp),
-                            fontSize = 21.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Bold
                         )
 
                         IconButton(
                             onClick = { /* Tăng */ },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(26.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.plus), contentDescription = "Cộng", tint = MauCam,
-                                modifier = Modifier.size(32.dp))
+                                modifier = Modifier.size(26.dp))
+                        }
+
+                    }
+                    Row(){
+                        IconButton(onClick = { /* Thêm vào giỏ */ },
+                            modifier = Modifier.size(40.dp).padding(start = 10.dp)
+                        ) {
+                            Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
+                                modifier = Modifier.size(40.dp))
                         }
                     }
 
+                    Row(
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
 
-                    Row {
-                        IconButton(onClick = { /* Thêm vào giỏ */ },
-                            modifier = Modifier.size(32.dp)) {
-                            Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
-                                modifier = Modifier.size(32.dp))
-                        }
                         Button(
                             onClick = { /* Mua ngay */ },
                             colors = ButtonDefaults.buttonColors(containerColor = MauCam),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                             modifier = Modifier
-                                .height(38.dp)
+                                .height(36.dp)
                                 .padding(start = 8.dp)
                         ) {
                             Text(
