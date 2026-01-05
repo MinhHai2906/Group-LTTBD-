@@ -2,6 +2,7 @@ package com.example.wateronl
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 
 open class ThanhPhanUi(
     @DrawableRes val image: Int,
@@ -67,6 +71,7 @@ open class NhomUI(
 @Composable
 fun TrangChuContent() {
     var search by remember { mutableStateOf("") }
+    var anhDangChon by remember { mutableStateOf<Int?>(null) }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -111,12 +116,12 @@ fun TrangChuContent() {
 
                 val buttonList = listOf(
                     "Tất cả",
-                    "Nước ép",
-                    "Caffe",
-                    "Các loại trà",
+                    "Coffee",
+                    "Cookies Đá Xay",
+                    "Đá Xay",
                     "Yaourt",
                     "Soda",
-                    "Trà sữa"
+                    "Nước ép"
                 )
 
                 LazyRow(
@@ -156,8 +161,18 @@ fun TrangChuContent() {
                     nameMon = "Coffee",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
-                            image = R.drawable.anhcaffe,
-                            namedrink = "Cà phê đen",
+                            image = R.drawable.cfbacsiu,
+                            namedrink = "Bạc sĩu",
+                            price = 28000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.cfda,
+                            namedrink = "Cà phê đá",
                             price = 25000,
                             minus = R.drawable.ic_minus,
                             increasing = 1,
@@ -166,9 +181,9 @@ fun TrangChuContent() {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
-                            image = R.drawable.anhcaffe,
-                            namedrink = "Cà phê sữa",
-                            price = 30000,
+                            image = R.drawable.cfmuoi,
+                            namedrink = "Cà phê muối",
+                            price = 33000,
                             minus = R.drawable.ic_minus,
                             increasing = 1,
                             plus = R.drawable.ic_plus,
@@ -176,8 +191,151 @@ fun TrangChuContent() {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
-                            image = R.drawable.anhcaffe,
-                            namedrink = "Bạc xỉu",
+                            image = R.drawable.cfsua,
+                            namedrink = "Cà phê sữa",
+                            price = 28000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        )
+                    )
+                ),//NhómUI cafe
+                NhomUI(
+                    imageDrink = R.drawable.attcaffe,
+                    nameMon = "Cookies đá xay",
+                    danhSachThanhPhan = listOf(
+                    ThanhPhanUi(
+                        image = R.drawable.cookiesdaudx,
+                        namedrink = "Cookies Dâu",
+                        price = 40000,
+                        minus = R.drawable.ic_minus,
+                        increasing = 1,
+                        plus = R.drawable.ic_plus,
+                        shop = R.drawable.ic_giohang,
+                        buy = "Mua ngay"
+                    ),
+                    ThanhPhanUi(
+                        image = R.drawable.cookieschocolatepepermintdx,
+                        namedrink = "Cookies Chocolate Pepermint",
+                        price = 45000,
+                        minus = R.drawable.ic_minus,
+                        increasing = 1,
+                        plus = R.drawable.ic_plus,
+                        shop = R.drawable.ic_giohang,
+                        buy = "Mua ngay"
+                    ),
+                    ThanhPhanUi(
+                        image = R.drawable.cookiesxoaidx,
+                        namedrink = "Cookies Xoài",
+                        price = 40000,
+                        minus = R.drawable.ic_minus,
+                        increasing = 1,
+                        plus = R.drawable.ic_plus,
+                        shop = R.drawable.ic_giohang,
+                        buy = "Mua ngay"
+                    ),
+                    ThanhPhanUi(
+                        image = R.drawable.cookieshazelnutdx,
+                        namedrink = "Cookies Hazelnut",
+                        price = 43000,
+                        minus = R.drawable.ic_minus,
+                        increasing = 1,
+                        plus = R.drawable.ic_plus,
+                        shop = R.drawable.ic_giohang,
+                        buy = "Mua ngay"
+                    ),
+                        ThanhPhanUi(
+                            image = R.drawable.cookiesdaumatchadx,
+                            namedrink = "Cookies Matcha",
+                            price = 40000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.cookiesvietquatcreamcheesedx,
+                            namedrink = "Cookies Việt Quất Cream Cheese",
+                            price = 45000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        )
+                )
+            ),//NhómUI cookies đá xay
+
+                NhomUI(
+                    imageDrink = R.drawable.attcaffe,
+                    nameMon = "Đá xay",
+                    danhSachThanhPhan = listOf(
+                        ThanhPhanUi(
+                            image = R.drawable.daxaydao,
+                            namedrink = "Đá Xay Đào",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.daxaykiwi,
+                            namedrink = "Đá xay Kiwi",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.daxaydautay,
+                            namedrink = "Đá Xay Dâu Tây",
+                            price = 38000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.daxaymatcha,
+                            namedrink = "Đá Xay Matcha",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.daxaykhoaimon,
+                            namedrink = "Đá Xay Khoai Môn",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.daxaychocolate,
+                            namedrink = "Đá Xay Chocolate",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.daxayphucbontu,
+                            namedrink = "Đá Xay Phúc Bồn Tử",
                             price = 35000,
                             minus = R.drawable.ic_minus,
                             increasing = 1,
@@ -186,7 +344,167 @@ fun TrangChuContent() {
                             buy = "Mua ngay"
                         )
                     )
-                )
+                ),//NhómUI  Đá xay
+                NhomUI(
+                    imageDrink = R.drawable.attcaffe,
+                    nameMon = "Sữa chua",
+                    danhSachThanhPhan = listOf(
+                        ThanhPhanUi(
+                            image = R.drawable.suachuanho,
+                            namedrink = "Sữa chua nho",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.suachuavidao,
+                            namedrink = "Sữa Chua Đào",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.suachuachanhday,
+                            namedrink = "Sữa Chua Chanh Dây",
+                            price = 32000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+
+                    )
+                ),//NhómUI  Sữa chua
+                NhomUI(
+                    imageDrink = R.drawable.attcaffe,
+                    nameMon = "Soda",
+                    danhSachThanhPhan = listOf(
+                        ThanhPhanUi(
+                            image = R.drawable.sodadao,
+                            namedrink = "Soda Đào",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.sodaxoai,
+                            namedrink = "Soda Xoài",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.sodakiwwi,
+                            namedrink = "Soda Kiwi",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.sodamamxoi,
+                            namedrink = "Soda Mâm xôi",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.sodavietquat,
+                            namedrink = "Soda Việt Quốc",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.sodacafechanhbacha,
+                            namedrink = "Soda Caffe Chanh Bạc Hà",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+
+                        )
+                ),//NhómUI  Soda
+                NhomUI(
+                    imageDrink = R.drawable.attcaffe,
+                    nameMon = "Các loại Trà",
+                    danhSachThanhPhan = listOf(
+                        ThanhPhanUi(
+                            image = R.drawable.traatiso,
+                            namedrink = "Trà Atiso",
+                            price = 40000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.tracamsa,
+                            namedrink = "Trà Cam Xả",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.traolongsen,
+                            namedrink = "Trà Olong Sen",
+                            price = 38000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.travaihoahong,
+                            namedrink = "Trà Vải Hoa Hồng",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.tratraicaynhietdoi,
+                            namedrink = "Trà Trái Cây Nhiệt Đới",
+                            price = 35000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        )
+                ),//NhómUI  TRÀ
             )
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -216,10 +534,52 @@ fun TrangChuContent() {
                     }
 
                     nhom.danhSachThanhPhan.forEach { thanhPhan ->
-                        TheHienThiThanhPhan(thanhPhan, onClick = {
-                            // Xử lý click
-                        })
+                        TheHienThiThanhPhan(thanhPhan,
+                            onClick = { /* Xử lý click*/ },
+                            onImageClick = {
+                                // Khi click vào ảnh, lưu ID ảnh vào biến state để hiển thị Dialog
+                                anhDangChon = thanhPhan.image
+                            })
                         Spacer(modifier = Modifier.height(15.dp))
+                    }
+                }
+            }
+        }
+        // Phần hiển thị Dialog phóng to ảnh
+        if (anhDangChon != null) {
+            Dialog(
+                onDismissRequest = { anhDangChon = null },
+                properties = DialogProperties(usePlatformDefaultWidth = false) // Full width
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.9f))
+                        .clickable { anhDangChon = null },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = anhDangChon!!),
+                        contentDescription = "Ảnh phóng to",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentScale = ContentScale.Fit
+                    )
+
+
+                    IconButton(
+                        onClick = { anhDangChon = null },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Đóng",
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 }
             }
@@ -228,7 +588,7 @@ fun TrangChuContent() {
 }
 
 @Composable
-fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit) {
+fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4F8)),
         modifier = Modifier
@@ -248,6 +608,7 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(100.dp)
                     .clip(RoundedCornerShape(12.dp))
+                    .clickable { onImageClick() }
             ) {
                 Image(
                     painter = painterResource(id = duLieu.image),
