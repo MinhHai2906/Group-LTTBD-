@@ -3,6 +3,7 @@ package com.example.wateronl
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -27,10 +28,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,9 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,10 +73,14 @@ open class NhomUI(
     val danhSachThanhPhan: List<ThanhPhanUi>
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrangChuContent() {
     var search by remember { mutableStateOf("") }
     var anhDangChon by remember { mutableStateOf<Int?>(null) }
+
+    val interactionSource = remember { MutableInteractionSource() }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -87,32 +95,73 @@ fun TrangChuContent() {
             )
         ) {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().padding(top=40.dp)
             ) {
-                OutlinedTextField(
+                // Thay thế OutlinedTextField bằng BasicTextField để tùy chỉnh chiều cao và padding
+                BasicTextField(
                     value = search,
                     onValueChange = { search = it },
-                    placeholder = { Text("Tìm kiếm sản phẩm", fontSize = 14.sp) },
                     modifier = Modifier
-                        .fillMaxWidth().heightIn(min=2.dp)
+                        .fillMaxWidth()
+                        .height(50.dp) // Đặt chiều cao nhỏ gọn (50dp)
                         .padding(horizontal = 30.dp)
                         .align(Alignment.TopCenter)
-                        .padding(top = 40.dp)
-                        .shadow(elevation = 20.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.Search, contentDescription = null,
-                            modifier = Modifier.size(28.dp).padding(end = 10.dp)
+                        .padding(top = 10.dp)
+                        .shadow(elevation = 20.dp, shape = RoundedCornerShape(24.dp)),
+                    textStyle = TextStyle(
+                        fontSize = 17.sp, // Font chữ to 17sp
+                        color = Color.Black
+                    ),
+                    singleLine = true,
+                    interactionSource = interactionSource,
+                    cursorBrush = SolidColor(Color.Black),
+                    decorationBox = { innerTextField ->
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = search,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = true,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = interactionSource,
+                            isError = false,
+                            placeholder = { 
+                                Text(
+                                    "Tìm kiếm sản phẩm", 
+                                    fontSize = 17.sp,
+                                    color = Color.Gray
+                                ) 
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    Icons.Default.Search, contentDescription = null,
+                                    modifier = Modifier.size(24.dp).padding(end = 4.dp),
+                                    tint = Color.Gray
+                                )
+                            },
+                            contentPadding = PaddingValues(start = 16.dp, end = 8.dp, top = 0.dp, bottom = 0.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                disabledContainerColor = Color.White,
+                                focusedBorderColor = Color(0xFFD5AD90),
+                                unfocusedBorderColor = MauCam.copy(alpha = 0.2f)
+                            ),
+                            container = {
+                                OutlinedTextFieldDefaults.ContainerBox(
+                                    enabled = true,
+                                    isError = false,
+                                    interactionSource = interactionSource,
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedContainerColor = Color.White,
+                                        unfocusedContainerColor = Color.White,
+                                        focusedBorderColor = Color(0xFFD5AD90),
+                                        unfocusedBorderColor = MauCam.copy(alpha = 0.2f)
+                                    ),
+                                    shape = RoundedCornerShape(24.dp)
+                                )
+                            }
                         )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        disabledContainerColor = Color.White,
-                        focusedBorderColor = Color(0xFFD5AD90),
-                        unfocusedBorderColor = MauCam.copy(alpha = 0.2f)
-                    )
+                    }
                 )
 
                 val buttonList = listOf(
@@ -129,7 +178,7 @@ fun TrangChuContent() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 17.dp),
+                        .padding(bottom = 22.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
@@ -141,9 +190,9 @@ fun TrangChuContent() {
                                 containerColor = Color.White,
                                 contentColor = Color.Black
                             ),
-                            modifier = Modifier.height(40.dp)
+                            modifier = Modifier.height(36.dp)
                         ) {
-                            Text(text = nameDrink, fontSize = 14.sp)
+                            Text(text = nameDrink, fontSize = 13.sp)
                         }
                     }
                 }
@@ -380,16 +429,6 @@ fun TrangChuContent() {
                             shop = R.drawable.ic_giohang,
                             buy = "Mua ngay"
                         ),
-                        ThanhPhanUi(
-                            image = R.drawable.suachuavietquoc,
-                            namedrink = "Sữa Chua Việt Quất",
-                            price = 32000,
-                            minus = R.drawable.ic_minus,
-                            increasing = 1,
-                            plus = R.drawable.ic_plus,
-                            shop = R.drawable.ic_giohang,
-                            buy = "Mua ngay"
-                        ),
 
                     )
                 ),//NhómUI  Sữa chua
@@ -516,74 +555,20 @@ fun TrangChuContent() {
                         ),
                         )
                 ),//NhómUI  TRÀ
-                NhomUI(
-                    imageDrink = R.drawable.attcaffe,
-                    nameMon = "Các Nước Ép",
-                    danhSachThanhPhan = listOf(
-                        ThanhPhanUi(
-                            image = R.drawable.nebuoi,
-                            namedrink = "Nước Ép Bưởi",
-                            price = 35000,
-                            minus = R.drawable.ic_minus,
-                            increasing = 1,
-                            plus = R.drawable.ic_plus,
-                            shop = R.drawable.ic_giohang,
-                            buy = "Mua ngay"
-                        ),
-                        ThanhPhanUi(
-                            image = R.drawable.nethom,
-                            namedrink = "Nước Ép Thơm",
-                            price = 35000,
-                            minus = R.drawable.ic_minus,
-                            increasing = 1,
-                            plus = R.drawable.ic_plus,
-                            shop = R.drawable.ic_giohang,
-                            buy = "Mua ngay"
-                        ),
-                        ThanhPhanUi(
-                            image = R.drawable.necam,
-                            namedrink = "Nước Ép Cam",
-                            price = 35000,
-                            minus = R.drawable.ic_minus,
-                            increasing = 1,
-                            plus = R.drawable.ic_plus,
-                            shop = R.drawable.ic_giohang,
-                            buy = "Mua ngay"
-                        ),
-                        ThanhPhanUi(
-                            image = R.drawable.netao,
-                            namedrink = "Nước Ép Táo",
-                            price = 35000,
-                            minus = R.drawable.ic_minus,
-                            increasing = 1,
-                            plus = R.drawable.ic_plus,
-                            shop = R.drawable.ic_giohang,
-                            buy = "Mua ngay"
-                        ),
-                        ThanhPhanUi(
-                            image = R.drawable.neduahau,
-                            namedrink = "Nước Ép Dưa Hấu",
-                            price = 35000,
-                            minus = R.drawable.ic_minus,
-                            increasing = 1,
-                            plus = R.drawable.ic_plus,
-                            shop = R.drawable.ic_giohang,
-                            buy = "Mua ngay"
-                        ),
-                    )
-                ),//NhómUI  Nước ép
             )
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 20.dp)
             ) {
-
+                // Duyệt qua từng nhóm
                 duLieuDrink.forEach { nhom ->
+                    // 1. Header Nhóm (tên nhóm và icon) được coi là 1 item riêng
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
+                            // Dùng Coil ở đây để load icon nhóm cho nhẹ
                             AsyncImage(
                                 model = nhom.imageDrink,
                                 contentDescription = null,
@@ -596,16 +581,18 @@ fun TrangChuContent() {
                             Text(
                                 text = nhom.nameMon,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 22.sp,
+                                fontSize = 27.sp,
                                 color = Color.Black
                             )
                         }
                     }
 
+                    // 2. Danh sách sản phẩm của nhóm, mỗi sản phẩm là 1 item riêng
                     items(nhom.danhSachThanhPhan) { thanhPhan ->
                         TheHienThiThanhPhan(thanhPhan,
                             onClick = { /* Xử lý click*/ },
                             onImageClick = {
+                                // Khi click vào ảnh, lưu ID ảnh vào biến state để hiển thị Dialog
                                 anhDangChon = thanhPhan.image
                             })
                         Spacer(modifier = Modifier.height(15.dp))
@@ -662,21 +649,21 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4F8)),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp)
+            .padding(vertical = 8.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(10.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .clickable { onImageClick() }
             ) {
                 // Dùng Coil ở đây để load ảnh item sản phẩm
@@ -695,14 +682,14 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
             ) {
                 Text(
                     text = duLieu.namedrink,
-                    fontSize = 17.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 
                 Text(
                     text = "${duLieu.price}đ",
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MauCam,
                     modifier = Modifier.padding(vertical = 10.dp)
@@ -718,53 +705,47 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                     ) {
                         IconButton(
                             onClick = { /* Giảm */ },
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(32.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.minus), contentDescription = "Trừ", tint = Color.Gray,
-                                modifier = Modifier.size(26.dp))
+                                modifier = Modifier.size(32.dp))
                         }
                         
                         Text(
                             text = "${duLieu.increasing}",
                             modifier = Modifier.padding(horizontal = 8.dp),
-                            fontSize = 17.sp,
+                            fontSize = 21.sp,
                             fontWeight = FontWeight.Bold
                         )
 
                         IconButton(
                             onClick = { /* Tăng */ },
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(32.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.plus), contentDescription = "Cộng", tint = MauCam,
-                                modifier = Modifier.size(26.dp))
+                                modifier = Modifier.size(32.dp))
                         }
-
                     }
-                    Row(){
+
+
+                    Row {
                         IconButton(onClick = { /* Thêm vào giỏ */ },
-                            modifier = Modifier.size(40.dp).padding(start = 10.dp)
-                        ) {
+                            modifier = Modifier.size(29.dp).padding(start = 20.dp)) {
                             Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
-                                modifier = Modifier.size(40.dp))
+                                modifier = Modifier.size(29.dp))
                         }
-                    }
-
-                    Row(
-                        modifier = Modifier.padding(end = 16.dp)
-                    ) {
-
                         Button(
                             onClick = { /* Mua ngay */ },
                             colors = ButtonDefaults.buttonColors(containerColor = MauCam),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                             modifier = Modifier
-                                .height(36.dp)
+                                .height(30.dp)
                                 .padding(start = 8.dp)
                         ) {
                             Text(
                                 text = duLieu.buy,
-                                fontSize = 12.sp,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
