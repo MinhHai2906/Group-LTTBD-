@@ -2,9 +2,12 @@ package com.example.wateronl
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
@@ -22,13 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
 private val NavItems = listOf(
     NavItem("Trang chủ", Icons.Default.Home, "home"),
     NavItem("Giỏ hàng", Icons.Default.ShoppingCart, "cart"),
-    NavItem("Setting", Icons.Default.Settings, "setting")
+    NavItem("Cá nhân", Icons.Default.Person, "canhan")
 )
 
 @Composable
@@ -64,7 +68,11 @@ fun ThanhBottomBar(
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit
 ) {
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color.Transparent, // Đặt nền trong suốt
+        tonalElevation = 0.dp,
+        modifier = Modifier.height(65.dp) // Giảm chiều cao xuống 65dp
+    ) {
         NavItems.forEachIndexed { index, navItem ->
             NavigationBarItem(
                 selected = selectedIndex == index,
@@ -72,7 +80,9 @@ fun ThanhBottomBar(
                 icon = {
                     Icon(
                         imageVector = navItem.icon,
-                        contentDescription = navItem.label
+                        contentDescription = navItem.label,
+                        // Dịch chuyển icon xuống dưới 6dp để gần chữ hơn
+                        modifier = Modifier.offset(y = 9.dp)
                     )
                 },
                 label = {
@@ -82,10 +92,10 @@ fun ThanhBottomBar(
                     )
                 },
                         colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFFFFC107),
-                selectedTextColor = Color(0xFFFFC107),
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
+                        selectedIconColor = MauCam,
+                selectedTextColor = MauCam,
+                unselectedIconColor = Color.Black,
+                unselectedTextColor = Color.Black,
                 indicatorColor = Color.Transparent
             )
             )
