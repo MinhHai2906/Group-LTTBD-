@@ -1,6 +1,5 @@
 package com.example.wateronl
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,14 +28,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -49,11 +45,31 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 @Composable
-fun GioHangScreen(){
-    var isCheckedAll by remember { mutableStateOf(false) }
-
+fun GioHangScreen(onBackClick: () -> Unit){
     val duLieuGioHang = GioHangData.danhSachSanPham
-    val tongTien = GioHangData.tinhTongTien()
+    val sanPhamDaChon = remember { mutableStateListOf<ThanhPhanUi>() }
+
+    // Lắng nghe sự thay đổi của duLieuGioHang và cập nhật lại sanPhamDaChon
+    LaunchedEffect(duLieuGioHang.toList()) {
+        // Tạo một danh sách mới chứa các sản phẩm đã được cập nhật số lượng
+        val sanPhamDaChonMoi = mutableListOf<ThanhPhanUi>()
+        sanPhamDaChon.forEach { spChon ->
+            // Tìm sản phẩm tương ứng trong giỏ hàng để lấy số lượng mới nhất
+            val sanPhamTrongGio = duLieuGioHang.find { it.namedrink == spChon.namedrink }
+            if (sanPhamTrongGio != null) {
+                sanPhamDaChonMoi.add(sanPhamTrongGio)
+            }
+        }
+        // Cập nhật lại toàn bộ danh sách đã chọn
+        sanPhamDaChon.clear()
+        sanPhamDaChon.addAll(sanPhamDaChonMoi)
+    }
+
+    val tongTien = sanPhamDaChon.sumOf { it.price * it.increasing }
+
+    // 3. Trạng thái của checkbox "Tất cả" phụ thuộc vào 2 danh sách trên
+    val isCheckedAll = duLieuGioHang.isNotEmpty() && sanPhamDaChon.size == duLieuGioHang.size
+    // --- Hết quản lý State mới ---
 
     Column(
         modifier=Modifier.fillMaxSize(),
@@ -65,15 +81,21 @@ fun GioHangScreen(){
             modifier=Modifier.fillMaxWidth().padding(top=30.dp),
             contentAlignment = Alignment.Center
         ){
-            Icon(
-                painter = painterResource(id=R.drawable.ic_back),
-                contentDescription = "back",
-                tint = MauCam,
+            IconButton(
+                onClick = onBackClick,
                 modifier = Modifier
-                    .size(50.dp)
+                    .align(Alignment.CenterStart).size(50.dp)
                     .padding(start = 20.dp)
-                    .align(Alignment.CenterStart)
-            )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "back",
+                    tint = MauCam,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .align(Alignment.CenterStart)
+                )
+            }
 
             Text(
                 text="Giỏ hàng",
@@ -92,10 +114,25 @@ fun GioHangScreen(){
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             contentPadding = PaddingValues(bottom = 10.dp)
         ) {
-            items(duLieuGioHang) { sanPham ->
-                ItemGioHang(sanPham, onDelete = {
-                    GioHangData.xoaKhoiGio(sanPham)
-                })
+            items(duLieuGioHang, key = { it.namedrink }) { sanPham ->
+                // Kiểm tra xem item này có trong danh sách đã chọn hay không
+                val isItemSelected = sanPhamDaChon.contains(sanPham)
+
+                ItemGioHang(
+                    sanPham = sanPham,
+                    isChecked = isItemSelected,
+                    onCheckedChange = { isChecked ->
+                        if (isChecked) {
+                            sanPhamDaChon.add(sanPham)
+                        } else {
+                            sanPhamDaChon.remove(sanPham)
+                        }
+                    },
+                    onDelete = {
+                        GioHangData.xoaKhoiGio(sanPham)
+                        sanPhamDaChon.remove(sanPham) // Đồng thời xóa khỏi danh sách đã chọn
+                    }
+                )
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
@@ -150,7 +187,14 @@ fun GioHangScreen(){
                     ) {
                         Checkbox(
                             checked = isCheckedAll,
-                            onCheckedChange = { isCheckedAll = it },
+                            onCheckedChange = { shouldCheckAll ->
+                                if (shouldCheckAll) {
+                                    sanPhamDaChon.clear()
+                                    sanPhamDaChon.addAll(duLieuGioHang)
+                                } else {
+                                    sanPhamDaChon.clear()
+                                }
+                            },
                             colors = CheckboxDefaults.colors(
                                 checkedColor = MauCam,
                                 uncheckedColor = Color.Gray,
@@ -181,8 +225,12 @@ fun GioHangScreen(){
 }
 
 @Composable
-fun ItemGioHang(sanPham: ThanhPhanUi, onDelete: () -> Unit) {
-    var isChecked by remember { mutableStateOf(false) }
+fun ItemGioHang(
+    sanPham: ThanhPhanUi,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onDelete: () -> Unit
+) {
 
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4F8)),
@@ -200,7 +248,7 @@ fun ItemGioHang(sanPham: ThanhPhanUi, onDelete: () -> Unit) {
         ) {
             Checkbox(
                 checked = isChecked,
-                onCheckedChange = { isChecked = it },
+                onCheckedChange = onCheckedChange,
                 colors = CheckboxDefaults.colors(
                     checkedColor = MauCam,
                     uncheckedColor = Color.Gray,
@@ -299,6 +347,6 @@ fun ItemGioHang(sanPham: ThanhPhanUi, onDelete: () -> Unit) {
 @Composable
 fun PreviewGioHang(){
     MaterialTheme {
-        GioHangScreen()
+        GioHangScreen(onBackClick = {})
     }
 }

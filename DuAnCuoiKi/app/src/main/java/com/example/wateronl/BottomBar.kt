@@ -52,11 +52,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = innerPadding.calculateBottomPadding()) 
+                .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             when (selectedIndex) {
                 0 -> TrangChuContent()
-                1 -> GioHangScreen()
+                1 -> GioHangScreen(onBackClick = { selectedIndex = 0 })
                 2 -> SettingScreen()
             }
         }
@@ -69,9 +69,9 @@ fun ThanhBottomBar(
     onItemSelected: (Int) -> Unit
 ) {
     NavigationBar(
-        containerColor = Color.Transparent, // Đặt nền trong suốt
+        containerColor = Color.Transparent,
         tonalElevation = 0.dp,
-        modifier = Modifier.height(65.dp) // Giảm chiều cao xuống 65dp
+        modifier = Modifier.height(65.dp)
     ) {
         NavItems.forEachIndexed { index, navItem ->
             NavigationBarItem(
@@ -81,7 +81,6 @@ fun ThanhBottomBar(
                     Icon(
                         imageVector = navItem.icon,
                         contentDescription = navItem.label,
-                        // Dịch chuyển icon xuống dưới 6dp để gần chữ hơn
                         modifier = Modifier.offset(y = 9.dp)
                     )
                 },
