@@ -1,5 +1,6 @@
 package com.example.wateronl
 
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,18 +48,21 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import androidx.compose.ui.platform.LocalContext
 
-open class ThanhPhanUi(
+data  class ThanhPhanUi(
     @get:DrawableRes val image: Int,
     val namedrink: String,
     val price: Int,
@@ -178,7 +183,7 @@ fun TrangChuContent() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 22.dp),
+                        .padding(bottom = 26.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
@@ -190,9 +195,11 @@ fun TrangChuContent() {
                                 containerColor = Color.White,
                                 contentColor = Color.Black
                             ),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Text(text = nameDrink, fontSize = 13.sp)
+                            Text(text = nameDrink, fontSize = 13.sp,
+                                textAlign= TextAlign.Center)
                         }
                     }
                 }
@@ -645,6 +652,8 @@ fun TrangChuContent() {
 
 @Composable
 fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick: () -> Unit) {
+    val context = LocalContext.current
+    var soLuong by remember { mutableIntStateOf(duLieu.increasing) }
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4F8)),
         modifier = Modifier
@@ -704,7 +713,7 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(
-                            onClick = { /* Giảm */ },
+                            onClick = {  if (soLuong > 1) soLuong--},
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.minus), contentDescription = "Trừ", tint = Color.Gray,
@@ -712,33 +721,38 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                         }
                         
                         Text(
-                            text = "${duLieu.increasing}",
+                            text = "$soLuong",
                             modifier = Modifier.padding(horizontal = 8.dp),
                             fontSize = 21.sp,
                             fontWeight = FontWeight.Bold
                         )
 
                         IconButton(
-                            onClick = { /* Tăng */ },
+                            onClick = { soLuong++  },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.plus), contentDescription = "Cộng", tint = MauCam,
                                 modifier = Modifier.size(32.dp))
                         }
+                        IconButton( onClick = {
+                            val sanPhamVoiSoLuong = duLieu.copy(increasing = soLuong)
+                            GioHangData.themVaoGio(sanPhamVoiSoLuong)
+                            Toast.makeText(context, "Đã thêm $soLuong ${duLieu.namedrink} vào giỏ!", Toast.LENGTH_SHORT).show()
+                        },
+                            modifier = Modifier.size(50.dp).padding(start = 20.dp)) {
+                            Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
+                                modifier = Modifier.size(50.dp))
                     }
 
 
                     Row {
-                        IconButton(onClick = { /* Thêm vào giỏ */ },
-                            modifier = Modifier.size(29.dp).padding(start = 20.dp)) {
-                            Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
-                                modifier = Modifier.size(29.dp))
+
                         }
                         Button(
                             onClick = { /* Mua ngay */ },
                             colors = ButtonDefaults.buttonColors(containerColor = MauCam),
                             shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                             modifier = Modifier
                                 .height(30.dp)
                                 .padding(start = 8.dp)
@@ -747,7 +761,9 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                                 text = duLieu.buy,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
+                                textAlign = TextAlign.Center
+
                             )
                         }
                     }

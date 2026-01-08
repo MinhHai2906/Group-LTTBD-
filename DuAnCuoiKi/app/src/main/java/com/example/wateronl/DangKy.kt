@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.sp
 val MauNenKem = Color(0xFFFDF6E3)
 val MauTrangCard = Color(0xFFFFFFFF)
 val MauNauDam = Color(0xFF4A3B32)
-val MauCam = Color(0xFFD4A373)
+val MauCam = Color(0xFFCB8745)
 val MauNenInput = Color(0xFFFEFAE0)
 
 @Composable
