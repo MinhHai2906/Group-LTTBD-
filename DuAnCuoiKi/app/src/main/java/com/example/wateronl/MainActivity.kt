@@ -61,6 +61,15 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        // màn hình giỏ hàng nhấn bạc quay lại trang chủ
+                        composable("gio_hang_route") {
+                        GioHangScreen(
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
+                            )
+                        }
+
                     }
                 }
             }
