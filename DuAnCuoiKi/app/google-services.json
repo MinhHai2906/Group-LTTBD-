@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "568231836814",
+    "project_id": "app-ban-nuoc",
+    "storage_bucket": "app-ban-nuoc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568231836814:android:2933f6dbf80ef9959adddf",
+        "android_client_info": {
+          "package_name": "com.example.wateronl"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "568231836814-jugb9r6idgdfddhde8p9rkdg7dgu2qhh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wateronl",
+            "certificate_hash": "6a7229d398bbbcb4b8346b55820954321a657f30"
+          }
+        },
+        {
+          "client_id": "568231836814-3121ks3amj3219a2sts8e9ujc8c879ot.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj4w674jgH7LconVDjeITOOXRpnwcGXYw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "568231836814-3121ks3amj3219a2sts8e9ujc8c879ot.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

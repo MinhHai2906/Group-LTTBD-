@@ -1,7 +1,6 @@
 package com.example.wateronl
 
 import android.widget.Toast
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,218 +39,108 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
-val MauNenKem = Color(0xFFFDF6E3)
-val MauTrangCard = Color(0xFFFFFFFF)
-val MauNauDam = Color(0xFF4A3B32)
-val MauCam = Color(0xFFD4A373)
-val MauNenInput = Color(0xFFFEFAE0)
-
+// --- PHAN 1: LOGIC ---
 @Composable
-fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
-    // Khai báo state
+fun ManHinhDangKy(
+    onQuayLaiDangNhap: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val loginState by viewModel.loginState.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(loginState) {
+        if (loginState == "OK") {
+            Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_LONG).show()
+            viewModel.resetState()
+            onQuayLaiDangNhap()
+        } else if (loginState != null) {
+            Toast.makeText(context, loginState, Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+    }
+
+    GiaoDienDangKy(
+        isLoading = isLoading,
+        onDangKy = { email, pass, ten -> viewModel.dangKyTaiKhoan(email, pass, ten) },
+        onQuayLaiDangNhap = onQuayLaiDangNhap
+    )
+}
+
+// --- PHAN 2: GIAO DIEN ---
+@Composable
+fun GiaoDienDangKy(
+    isLoading: Boolean,
+    onDangKy: (String, String, String) -> Unit,
+    onQuayLaiDangNhap: () -> Unit
+) {
     var tenNguoiDung by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
     var xacNhanMatKhau by remember { mutableStateOf("") }
-
-    // Các biến quản lý hệ thống
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MauNenKem)
-
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                focusManager.clearFocus()
-            }
+        modifier = Modifier.fillMaxSize().background(MauNenKem).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { focusManager.clearFocus() }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        if (isLoading) CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = MauCam)
 
-            // HEADER
-            Column(
-                modifier = Modifier
-                    .height(300.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(120.dp)
-                ) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MauCam.copy(alpha = 0.2f),
-                        modifier = Modifier.fillMaxSize()
-                    ) {}
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo Coffee",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(100.dp).clip(CircleShape)
-                    )
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.height(300.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(120.dp)) {
+                    Surface(shape = CircleShape, color = MauCam.copy(alpha = 0.2f), modifier = Modifier.fillMaxSize()) {}
+                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Logo", contentScale = ContentScale.Fit, modifier = Modifier.size(100.dp).clip(CircleShape))
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                Text(text = "Xin chào!"
-                    , fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MauNauDam)
-                Text(text = "Relax and Chill",
-                    fontSize = 14.sp,
-                    color = MauNauDam.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(top = 8.dp))
+                Text(text = "Chào người mới!", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                Text(text = "Hãy tham gia cùng chúng tôi", fontSize = 14.sp, color = MauNauDam.copy(alpha = 0.6f), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
             }
 
-            // BODY
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                color = MauTrangCard,
-                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
-                shadowElevation = 10.dp
-            ) {
-                Column(
-                    modifier = Modifier.padding(32.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // TAB
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)) {
-                        Column(modifier = Modifier.weight(1f)
-                            .clickable { onQuayLaiDangNhap() },
-                            horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "Đăng nhập",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Gray
-                            )
+            Surface(modifier = Modifier.fillMaxWidth().weight(1f), color = MauTrangCard, shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp), shadowElevation = 10.dp) {
+                Column(modifier = Modifier.padding(32.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                        Column(modifier = Modifier.weight(1f).clickable { onQuayLaiDangNhap() }, horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "Đăng nhập", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
                         }
-                        Column(modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "Đăng ký",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MauNauDam)
+                        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "Đăng ký", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Box(modifier = Modifier
-                                .width(80.dp)
-                                .height(3.dp)
-                                .background(MauCam))
+                            Box(modifier = Modifier.width(80.dp).height(3.dp).background(MauCam))
                         }
                     }
 
-                    // INPUTS
-                    // 1. Tên người dùng
-                    O_Nhap_Lieu_Tuy_Chinh(
-                        value = tenNguoiDung,
-                        onValueChange = { tenNguoiDung = it },
-                        placeholder = "Tên người dùng",
-                        icon = Icons.Default.Person,
-                        capitalization = KeyboardCapitalization.None,
-                        imeAction = ImeAction.Next
-                    )
+                    O_Nhap_Lieu_Tuy_Chinh(value = tenNguoiDung, onValueChange = { tenNguoiDung = it }, placeholder = "Tên người dùng", icon = Icons.Default.Person)
+                    O_Nhap_Lieu_Tuy_Chinh(value = email, onValueChange = { email = it }, placeholder = "Địa chỉ email", icon = Icons.Default.Email, keyboardType = KeyboardType.Email)
+                    O_Nhap_Lieu_Tuy_Chinh(value = matKhau, onValueChange = { matKhau = it }, placeholder = "Mật khẩu", icon = Icons.Default.Lock, isPassword = true)
+                    O_Nhap_Lieu_Tuy_Chinh(value = xacNhanMatKhau, onValueChange = { xacNhanMatKhau = it }, placeholder = "Xác nhận mật khẩu", icon = Icons.Default.Lock, isPassword = true, imeAction = ImeAction.Done, onAction = { focusManager.clearFocus() })
 
-                    // 2. Email
-                    O_Nhap_Lieu_Tuy_Chinh(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = "Địa chỉ email",
-                        icon = Icons.Default.Email,
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    )
-
-                    // 3. Mật khẩu
-                    O_Nhap_Lieu_Tuy_Chinh(
-                        value = matKhau,
-                        onValueChange = { matKhau = it },
-                        placeholder = "Mật khẩu",
-                        icon = Icons.Default.Lock,
-                        isPassword = true,
-                        imeAction = ImeAction.Next
-                    )
-
-                    // 4. Xác nhận mật khẩu
-                    O_Nhap_Lieu_Tuy_Chinh(
-                        value = xacNhanMatKhau,
-                        onValueChange = { xacNhanMatKhau = it },
-                        placeholder = "Xác nhận mật khẩu",
-                        icon = Icons.Default.Lock,
-                        isPassword = true,
-                        imeAction = ImeAction.Done,
-                        onAction = {
-                            focusManager.clearFocus()
-                        }
-                    )
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // BUTTON
                     Button(
                         onClick = {
                             keyboardController?.hide()
-                            focusManager.clearFocus()
-
                             val cleanEmail = email.trim()
-
-                            // LOGIC KIỂM TRA
-                            if (tenNguoiDung.isEmpty() || cleanEmail.isEmpty() || matKhau.isEmpty()) {
-                                Toast.makeText(context, "Vui lòng điền đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
-                                Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (matKhau.contains(" ")) {
-                                Toast.makeText(context, "Mật khẩu không được chứa khoảng trắng!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (matKhau.length < 6) {
-                                Toast.makeText(context, "Mật khẩu phải từ 6 ký tự trở lên!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (matKhau.isNotEmpty() && !matKhau[0].isLetterOrDigit()) {
-                                Toast.makeText(context, "Mật khẩu phải bắt đầu bằng chữ hoặc số!", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (matKhau != xacNhanMatKhau) {
-                                Toast.makeText(context, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show()
-                            }
-                            else {
-                                Toast.makeText(context, "Đăng ký thành công! Hãy đăng nhập ngay.", Toast.LENGTH_LONG).show()
-                                onQuayLaiDangNhap()
-                            }
+                            if (cleanEmail.isEmpty() || matKhau.isEmpty()) Toast.makeText(context, "Thiếu thông tin!", Toast.LENGTH_SHORT).show()
+                            else if (matKhau != xacNhanMatKhau) Toast.makeText(context, "Mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
+                            else onDangKy(cleanEmail, matKhau, tenNguoiDung)
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .shadow(10.dp, RoundedCornerShape(16.dp), spotColor = MauCam),
+                        modifier = Modifier.fillMaxWidth().height(56.dp).shadow(10.dp, RoundedCornerShape(16.dp), spotColor = MauCam),
                         colors = ButtonDefaults.buttonColors(containerColor = MauCam),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        enabled = !isLoading
                     ) {
-                        Text(
-                            text = "Đăng ký",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        Text(text = "Đăng ký", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White)
                     }
-
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
@@ -259,73 +148,26 @@ fun ManHinhDangKy(onQuayLaiDangNhap: () -> Unit) {
     }
 }
 
+// O Nhap Lieu giu nguyen nhu cu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun O_Nhap_Lieu_Tuy_Chinh(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    icon: ImageVector,
-    isPassword: Boolean = false,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
-    imeAction: ImeAction = ImeAction.Next,
-    onAction: () -> Unit = {}
-) {
+fun O_Nhap_Lieu_Tuy_Chinh(value: String, onValueChange: (String) -> Unit, placeholder: String, icon: ImageVector, isPassword: Boolean = false, keyboardType: KeyboardType = KeyboardType.Text, capitalization: KeyboardCapitalization = KeyboardCapitalization.None, imeAction: ImeAction = ImeAction.Next, onAction: () -> Unit = {}) {
     var hienMatKhau by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-
     TextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = { Text(text = placeholder, color = MauNauDam.copy(alpha = 0.4f)) },
-        leadingIcon = { Icon(imageVector = icon, contentDescription = null, tint = MauCam) },
-
-        keyboardOptions = KeyboardOptions(
-            keyboardType = if (isPassword) KeyboardType.Password else keyboardType,
-            capitalization = capitalization,
-            imeAction = imeAction
-        ),
-
-        keyboardActions = KeyboardActions(
-            onNext = { focusManager.moveFocus(FocusDirection.Down) },
-            onDone = {
-                focusManager.clearFocus()
-                onAction()
-            },
-            onGo = {
-                focusManager.clearFocus()
-                onAction()
-            }
-        ),
-
-        trailingIcon = if (isPassword) {
-            {
-                IconButton(onClick = { hienMatKhau = !hienMatKhau }) {
-                    Icon(
-                        imageVector = if (hienMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = null,
-                        tint = MauNauDam.copy(alpha = 0.4f)
-                    )
-                }
-            }
-        } else null,
+        value = value, onValueChange = onValueChange, placeholder = { Text(text = placeholder, color = MauNauDam.copy(alpha = 0.4f)) }, leadingIcon = { Icon(imageVector = icon, contentDescription = null, tint = MauCam) },
+        keyboardOptions = KeyboardOptions(keyboardType = if (isPassword) KeyboardType.Password else keyboardType, capitalization = capitalization, imeAction = imeAction),
+        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }, onDone = { focusManager.clearFocus(); onAction() }),
+        trailingIcon = if (isPassword) { { IconButton(onClick = { hienMatKhau = !hienMatKhau }) { Icon(imageVector = if (hienMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = null, tint = MauNauDam.copy(alpha = 0.4f)) } } } else null,
         visualTransformation = if (isPassword && !hienMatKhau) PasswordVisualTransformation() else VisualTransformation.None,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MauNenInput,
-            unfocusedContainerColor = MauNenInput,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = MauCam
-        ),
-        shape = RoundedCornerShape(16.dp),
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth().height(56.dp)
+        colors = TextFieldDefaults.colors(focusedContainerColor = MauNenInput, unfocusedContainerColor = MauNenInput, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = MauCam),
+        shape = RoundedCornerShape(16.dp), singleLine = true, modifier = Modifier.fillMaxWidth().height(56.dp)
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+// --- PHAN 3: PREVIEW ---
+@Preview(showBackground = true)
 @Composable
 fun PreviewDangKy() {
-    ManHinhDangKy(onQuayLaiDangNhap = {})
+    GiaoDienDangKy(isLoading = false, onDangKy = { _,_,_ -> }, onQuayLaiDangNhap = {})
 }

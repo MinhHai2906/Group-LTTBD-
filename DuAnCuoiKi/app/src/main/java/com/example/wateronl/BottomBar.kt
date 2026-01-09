@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +35,7 @@ private val NavItems = listOf(
 )
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(modifier: Modifier = Modifier, onDangXuat: () -> Unit) {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -57,7 +56,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
             when (selectedIndex) {
                 0 -> TrangChuContent()
                 1 -> GioHangScreen()
-                2 -> SettingScreen()
+                2 -> ManHinhCaNhan(onDangXuat = onDangXuat)
+
             }
         }
     }
@@ -107,6 +107,6 @@ fun ThanhBottomBar(
 @Composable
 fun PreviewMainScreen() {
     MaterialTheme {
-        MainScreen()
+        MainScreen(onDangXuat = {})
     }
 }

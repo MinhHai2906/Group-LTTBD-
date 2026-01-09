@@ -35,53 +35,28 @@ class MainActivity : ComponentActivity() {
                             ManHinhDangNhap(
                                 onChuyenSangDangKy = { navController.navigate("dang_ky") },
                                 onDangNhapThanhCong = {
+                                    // Đăng nhập xong thì vào trang chủ, xóa luôn lịch sử back về login
                                     navController.navigate("trang_chu") {
                                         popUpTo("dang_nhap") { inclusive = true }
                                     }
-                                },
-                                onQuenMatKhau = { navController.navigate("quen_mk") }
+                                }
                             )
                         }
 
-                        // 2. Màn Dky
+                        // 2. Màn Đăng Ký
                         composable("dang_ky") {
                             ManHinhDangKy(
                                 onQuayLaiDangNhap = { navController.popBackStack() }
                             )
                         }
 
-                        // 3. Màn TChu (Chứa BottomBar)
+                        // 3. Màn Trang Chủ
                         composable("trang_chu") {
-                            MainScreen()
-                        }
-
-                        // 4. Màn quen mk
-                        composable("quen_mk") {
-                            ManHinhQuenMK(
-                                onQuayLai = { navController.popBackStack() },
-                                onGuiYeuCau = {
-                                    navController.navigate("xac_thuc_otp")
-                                }
-                            )
-                        }
-
-                        // 5. Màn nhap otp
-                        composable("xac_thuc_otp") {
-                            ManHinhXacThucOTP(
-                                onQuayLai = { navController.popBackStack() },
-                                onXacThucThanhCong = {
-                                    navController.navigate("mat_khau_moi")
-                                }
-                            )
-                        }
-
-                        // 6. Màn mk mới
-                        composable("mat_khau_moi") {
-                            ManHinhMatKhauMoi(
-                                onQuayLai = { navController.popBackStack() },
-                                onDoiMatKhauThanhCong = {
+                            MainScreen(
+                                onDangXuat = {
+                                    // Xử lý đăng xuất: Quay về màn đăng nhập và xóa lịch sử
                                     navController.navigate("dang_nhap") {
-                                        popUpTo("dang_nhap") { inclusive = true }
+                                        popUpTo("trang_chu") { inclusive = true }
                                     }
                                 }
                             )
