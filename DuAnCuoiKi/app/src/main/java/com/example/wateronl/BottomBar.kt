@@ -55,7 +55,7 @@ fun MainScreen(modifier: Modifier = Modifier, onDangXuat: () -> Unit) {
         ) {
             when (selectedIndex) {
                 0 -> TrangChuContent()
-                1 -> GioHangScreen()
+                1 -> GioHangScreen(onBackClick = { selectedIndex = 0 })
                 2 -> ManHinhCaNhan(onDangXuat = onDangXuat)
 
             }
