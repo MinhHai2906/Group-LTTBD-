@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wateronl.ui.theme.WaterOnlTheme
+import com.google.firebase.auth.FirebaseAuth // Them import nay
 
 class MainActivity : ComponentActivity() {
 
@@ -23,11 +24,18 @@ class MainActivity : ComponentActivity() {
             WaterOnlTheme {
                 val navController = rememberNavController()
 
+                // --- DOAN CODE KIEM TRA DANG NHAP ---
+                val auth = FirebaseAuth.getInstance()
+                // Neu currentUser khac null (da dang nhap) -> vao thang "trang_chu"
+                // Nguoc lai -> vao "dang_nhap"
+                val manHinhKhoiDong = if (auth.currentUser != null) "trang_chu" else "dang_nhap"
+                // ------------------------------------
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
 
                     NavHost(
                         navController = navController,
-                        startDestination = "dang_nhap",
+                        startDestination = manHinhKhoiDong, // Su dung bien vua tao thay vi chuoi cung
                         modifier = Modifier.fillMaxSize()
                     ) {
                         // 1. Màn Đăng Nhập
@@ -61,15 +69,15 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        // màn hình giỏ hàng nhấn bạc quay lại trang chủ
+
+                        // 4. Màn Giỏ Hàng
                         composable("gio_hang_route") {
-                        GioHangScreen(
-                            onBackClick = {
-                                navController.popBackStack()
-                            }
+                            GioHangScreen(
+                                onBackClick = {
+                                    navController.popBackStack()
+                                }
                             )
                         }
-
                     }
                 }
             }
