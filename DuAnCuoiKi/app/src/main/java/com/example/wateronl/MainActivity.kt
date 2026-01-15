@@ -12,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wateronl.ui.theme.WaterOnlTheme
-import com.google.firebase.auth.FirebaseAuth // Them import nay
 
 class MainActivity : ComponentActivity() {
 
@@ -24,26 +23,30 @@ class MainActivity : ComponentActivity() {
             WaterOnlTheme {
                 val navController = rememberNavController()
 
-                // --- DOAN CODE KIEM TRA DANG NHAP ---
-                val auth = FirebaseAuth.getInstance()
-                // Neu currentUser khac null (da dang nhap) -> vao thang "trang_chu"
-                // Nguoc lai -> vao "dang_nhap"
-                val manHinhKhoiDong = if (auth.currentUser != null) "trang_chu" else "dang_nhap"
-                // ------------------------------------
-
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
 
                     NavHost(
                         navController = navController,
-                        startDestination = manHinhKhoiDong, // Su dung bien vua tao thay vi chuoi cung
+                        startDestination = "man_hinh_cho",
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        // 0. Màn Hình Chờ (Splash)
+                        composable("man_hinh_cho") {
+                            ManHinhCho(
+                                onDieuHuong = { manHinhTiepTheo ->
+                                    navController.navigate(manHinhTiepTheo) {
+                                        // Xoa man hinh cho khoi lich su (khong back lai duoc)
+                                        popUpTo("man_hinh_cho") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
                         // 1. Màn Đăng Nhập
                         composable("dang_nhap") {
                             ManHinhDangNhap(
                                 onChuyenSangDangKy = { navController.navigate("dang_ky") },
                                 onDangNhapThanhCong = {
-                                    // Đăng nhập xong thì vào trang chủ, xóa luôn lịch sử back về login
                                     navController.navigate("trang_chu") {
                                         popUpTo("dang_nhap") { inclusive = true }
                                     }
@@ -62,7 +65,6 @@ class MainActivity : ComponentActivity() {
                         composable("trang_chu") {
                             MainScreen(
                                 onDangXuat = {
-                                    // Xử lý đăng xuất: Quay về màn đăng nhập và xóa lịch sử
                                     navController.navigate("dang_nhap") {
                                         popUpTo("trang_chu") { inclusive = true }
                                     }
