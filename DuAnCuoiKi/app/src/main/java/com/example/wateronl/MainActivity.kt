@@ -23,8 +23,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             WaterOnlTheme {
                 val navController = rememberNavController()
-                val currentUser = FirebaseAuth.getInstance().currentUser
-                val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
 
@@ -39,8 +37,8 @@ class MainActivity : ComponentActivity() {
                                 onChuyenSangDangKy = { navController.navigate("dang_ky") },
                                 onDangNhapThanhCong = {
                                     // Đăng nhập xong thì vào trang chủ, xóa luôn lịch sử back về login
-                                    navController.navigate("trang_chu") { 
-                                        popUpTo("dang_nhap") { inclusive = true } 
+                                    navController.navigate("trang_chu") {
+                                        popUpTo("dang_nhap") { inclusive = true }
                                     }
                                 }
                             )
@@ -67,20 +65,22 @@ class MainActivity : ComponentActivity() {
                         }
                         // màn hình giỏ hàng nhấn bạc quay lại trang chủ
                         composable("gio_hang_route") {
-                        GioHangScreen(
-                            onBackClick = {
-                                navController.popBackStack()
-                            },
-                            navController = navController
+                            GioHangScreen(
+                                onBackClick = {
+                                    navController.popBackStack()
+                                },
+                                navController = navController
                             )
                         }
+
                         composable("thanh_toan") {
+                            val currentUser = FirebaseAuth.getInstance().currentUser
+                            val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
                             ThanhToan(
                                 userName = userName,
                                 onBackClick = { navController.popBackStack() }
-                                )
+                            )
                         }
-
                     }
                 }
             }
