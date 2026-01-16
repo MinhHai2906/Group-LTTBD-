@@ -70,8 +70,6 @@ class LoginViewModel : ViewModel() {
                 }
             }
     }
-
-    // --- SỬA LẠI HÀM NÀY: Thêm callback để báo kết quả ---
     fun quenMatKhau(email: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
         if (email.isEmpty()) {
             onThatBai("Vui lòng nhập Email!")
@@ -86,7 +84,5 @@ class LoginViewModel : ViewModel() {
                 }
             }
     }
-    // -----------------------------------------------------
-
     fun resetState() { _loginState.value = null }
 }

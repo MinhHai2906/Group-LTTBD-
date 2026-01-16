@@ -11,34 +11,22 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-
-    // --- CAC BIEN HIEN THI ---
     private val _hoTen = MutableStateFlow("Đang tải...")
     val hoTen = _hoTen.asStateFlow()
-
     private val _email = MutableStateFlow("...")
     val email = _email.asStateFlow()
-
     private val _sdt = MutableStateFlow("")
     val sdt = _sdt.asStateFlow()
-
     private val _diaChi = MutableStateFlow("")
     val diaChi = _diaChi.asStateFlow()
-
     private val _gioiTinh = MutableStateFlow("Nam")
     val gioiTinh = _gioiTinh.asStateFlow()
-
     private val _ngaySinh = MutableStateFlow("")
     val ngaySinh = _ngaySinh.asStateFlow()
-
-    // --- BIẾN MỚI: CÀI ĐẶT ---
-    private val _nhanThongBao = MutableStateFlow(true) // Mặc định là Bật
+    private val _nhanThongBao = MutableStateFlow(true)
     val nhanThongBao = _nhanThongBao.asStateFlow()
-    // -------------------------
-
     private val _laTaiKhoanGoogle = MutableStateFlow(false)
     val laTaiKhoanGoogle = _laTaiKhoanGoogle.asStateFlow()
-
     private val _avatarCode = MutableStateFlow("avatar_1")
     val avatarCode = _avatarCode.asStateFlow()
 
@@ -72,18 +60,14 @@ class ProfileViewModel : ViewModel() {
 
                         val gtDb = document.getString("gioiTinh") ?: "Nam"
                         val nsDb = document.getString("ngaySinh") ?: ""
-
-                        // LẤY TRẠNG THÁI THÔNG BÁO (Nếu chưa có thì mặc định là true)
                         val thongBaoDb = document.getBoolean("nhanThongBao") ?: true
-
                         if (ten != null) _hoTen.value = ten
                         if (sdtDb != null) _sdt.value = sdtDb
                         if (diaChiDb != null) _diaChi.value = diaChiDb
                         _avatarCode.value = avtDb
                         _gioiTinh.value = gtDb
                         _ngaySinh.value = nsDb
-
-                        _nhanThongBao.value = thongBaoDb // Cập nhật vào biến
+                        _nhanThongBao.value = thongBaoDb
                     }
                 }
         }
@@ -122,8 +106,6 @@ class ProfileViewModel : ViewModel() {
                 }
         }
     }
-
-    // --- HÀM MỚI: CẬP NHẬT CÀI ĐẶT ---
     fun capNhatCaiDat(nhanThongBaoMoi: Boolean) {
         val uid = auth.currentUser?.uid
         if (uid != null) {

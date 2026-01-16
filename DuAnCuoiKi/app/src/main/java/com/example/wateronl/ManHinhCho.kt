@@ -28,17 +28,17 @@ import kotlinx.coroutines.delay
 fun ManHinhCho(
     onDieuHuong: (String) -> Unit
 ) {
-    // 1. Animation xoay (0 -> 360 độ liên tục)
+    // Animation xoay
     val infiniteTransition = rememberInfiniteTransition(label = "loading_anim")
     val angle by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing) // Xoay 1 vòng trong 1 giây
+            animation = tween(1000, easing = LinearEasing) // 1 vòng trong 1 giây
         ), label = "rotation"
     )
 
-    // Animation hiện dần (Alpha)
+    // Animation hiện dần
     val startAnimation = remember { mutableStateOf(false) }
     val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation.value) 1f else 0f,
@@ -64,7 +64,7 @@ fun ManHinhCho(
             .background(Color(0xFFFDFBF7)),
         contentAlignment = Alignment.Center
     ) {
-        // Phần Logo và Chữ (Giữ nguyên)
+        // logo và text
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -80,8 +80,8 @@ fun ManHinhCho(
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Text("WaterOnl", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-            Text("Giải khát mọi lúc mọi nơi", fontSize = 16.sp, color = MauNauDam.copy(alpha = 0.6f), modifier = Modifier.padding(top = 8.dp))
+            Text("Chờ một chút", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+            Text("Có nước cho bạn ngay đây", fontSize = 16.sp, color = MauNauDam.copy(alpha = 0.6f), modifier = Modifier.padding(top = 8.dp))
         }
 
         Box(

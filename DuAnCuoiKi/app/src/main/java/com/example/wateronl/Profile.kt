@@ -47,8 +47,6 @@ fun ManHinhCaNhan(
     val ngaySinh by viewModel.ngaySinh.collectAsState()
     val avatarCode by viewModel.avatarCode.collectAsState()
     val laGoogle by viewModel.laTaiKhoanGoogle.collectAsState()
-
-    // Lấy biến Cài đặt từ ViewModel
     val nhanThongBao by viewModel.nhanThongBao.collectAsState()
 
     GiaoDienCaNhan(
@@ -59,7 +57,7 @@ fun ManHinhCaNhan(
         gioiTinh = gioiTinh,
         ngaySinh = ngaySinh,
         avatarCode = avatarCode,
-        nhanThongBao = nhanThongBao, // Truyền vào giao diện
+        nhanThongBao = nhanThongBao,
         hienNutDoiMatKhau = !laGoogle,
         onDangXuat = {
             viewModel.dangXuat()
@@ -84,12 +82,12 @@ fun GiaoDienCaNhan(
     ten: String, email: String, sdt: String, diaChi: String,
     gioiTinh: String, ngaySinh: String,
     avatarCode: String,
-    nhanThongBao: Boolean, // Tham số mới
+    nhanThongBao: Boolean,
     hienNutDoiMatKhau: Boolean,
     onDangXuat: () -> Unit, onDoiTen: (String) -> Unit, onDoiMatKhau: (String) -> Unit,
     onLuuThongTin: (String, String, String, String) -> Unit,
     onDoiAvatar: (String) -> Unit,
-    onLuuCaiDat: (Boolean) -> Unit // Callback mới
+    onLuuCaiDat: (Boolean) -> Unit
 ) {
     // Cac bien Dialog
     var hienDialogDoiTen by remember { mutableStateOf(false) }
@@ -100,17 +98,17 @@ fun GiaoDienCaNhan(
     var hienDialogAvatar by remember { mutableStateOf(false) }
     var hienDialogXacNhanDangXuat by remember { mutableStateOf(false) }
 
-    // BIẾN CHO DIALOG CÀI ĐẶT
+    // biến dialog cài đặt
     var hienDialogCaiDat by remember { mutableStateOf(false) }
 
-    // Dialog Thong Tin (Sua lai de them Gioi tinh/Ngay sinh)
+    // Dialog thông tin
     var hienDialogThongTin by remember { mutableStateOf(false) }
     var sdtNhap by remember { mutableStateOf("") }
     var diaChiNhap by remember { mutableStateOf("") }
     var gioiTinhNhap by remember { mutableStateOf("Nam") }
     var ngaySinhNhap by remember { mutableStateOf("") }
 
-    // --- DIALOG 1: DOI TEN ---
+    // dialog đổi tên
     if (hienDialogDoiTen) {
         AlertDialog(
             onDismissRequest = { hienDialogDoiTen = false },
@@ -121,7 +119,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 2: DOI MAT KHAU ---
+    // dialog đổi mk
     if (hienDialogDoiMK) {
         AlertDialog(
             onDismissRequest = { hienDialogDoiMK = false },
@@ -138,7 +136,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 3: THONG TIN CA NHAN (Full option) ---
+    // dialog thông tin cá nhân
     if (hienDialogThongTin) {
         AlertDialog(
             onDismissRequest = { hienDialogThongTin = false },
@@ -167,7 +165,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 4: CHON AVATAR ---
+    // dialog chọn avt
     if (hienDialogAvatar) {
         AlertDialog(
             onDismissRequest = { hienDialogAvatar = false },
@@ -183,7 +181,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 5: XAC NHAN DANG XUAT ---
+    // dialog xác nhân đăng xuất
     if (hienDialogXacNhanDangXuat) {
         AlertDialog(
             onDismissRequest = { hienDialogXacNhanDangXuat = false },
@@ -195,14 +193,14 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 6: CÀI ĐẶT (MỚI) ---
+    // dialog cài đặt
     if (hienDialogCaiDat) {
         AlertDialog(
             onDismissRequest = { hienDialogCaiDat = false },
             title = { Text("Cài đặt ứng dụng", fontWeight = FontWeight.Bold) },
             text = {
                 Column {
-                    // Mục 1: Thông báo
+                    // Thông báo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -220,7 +218,7 @@ fun GiaoDienCaNhan(
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
 
-                    // Mục 2: Ngôn ngữ
+                    // Ngôn ngữ
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -231,7 +229,7 @@ fun GiaoDienCaNhan(
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
 
-                    // Mục 3: Phiên bản
+                    // Phiên bản
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -249,7 +247,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- GIAO DIEN CHINH ---
+    // giao diện chính
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF9F9F9)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Thông tin cá nhân", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MauNauDam, modifier = Modifier.padding(top = 16.dp, bottom = 32.dp))
 
@@ -272,8 +270,6 @@ fun GiaoDienCaNhan(
         }
 
         Spacer(modifier = Modifier.height(40.dp))
-
-        // Doi ten muc nay thanh Ho so ca nhan cho chuyen nghiep hon
         MucChonProfile(Icons.Default.Person, "Hồ sơ cá nhân") {
             sdtNhap = sdt
             diaChiNhap = diaChi
@@ -284,7 +280,7 @@ fun GiaoDienCaNhan(
 
         if (hienNutDoiMatKhau) MucChonProfile(Icons.Default.Lock, "Thay mật khẩu") { hienDialogDoiMK = true }
 
-        // --- SỬA DÒNG NÀY: KÍCH HOẠT DIALOG CÀI ĐẶT ---
+        // kích hoạt dialog cài đặt
         MucChonProfile(Icons.Default.Settings, "Cài đặt") { hienDialogCaiDat = true }
 
         // Bam vao day se hien dialog xac nhan truoc khi out

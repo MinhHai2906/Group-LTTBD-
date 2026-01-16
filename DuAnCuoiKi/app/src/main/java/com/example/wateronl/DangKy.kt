@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-// --- PHAN 1: LOGIC ---
 @Composable
 fun ManHinhDangKy(
     onQuayLaiDangNhap: () -> Unit,
@@ -73,7 +72,7 @@ fun ManHinhDangKy(
     )
 }
 
-// --- PHAN 2: GIAO DIEN ---
+// giao diện
 @Composable
 fun GiaoDienDangKy(
     isLoading: Boolean,

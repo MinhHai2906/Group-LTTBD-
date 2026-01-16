@@ -28,12 +28,11 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        // --- SỬA LẠI: Bắt đầu từ màn hình chờ để kiểm tra đăng nhập ---
+                        // Bắt đầu từ màn hình chờ để kiểm tra đăng nhập
                         startDestination = "man_hinh_cho",
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        // --- 0. THÊM LẠI: Màn Hình Chờ (Splash) ---
-                        // Đây là phần bị thiếu khiến App không tự đăng nhập được
+                        // Màn hình chờ
                         composable("man_hinh_cho") {
                             ManHinhCho(
                                 onDieuHuong = { manHinhTiepTheo ->
@@ -45,7 +44,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 1. Màn Đăng Nhập
+                        // màn hình đnhap
                         composable("dang_nhap") {
                             ManHinhDangNhap(
                                 onChuyenSangDangKy = { navController.navigate("dang_ky") },
@@ -58,14 +57,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 2. Màn Đăng Ký
+                        // màn đăng ký
                         composable("dang_ky") {
                             ManHinhDangKy(
                                 onQuayLaiDangNhap = { navController.popBackStack() }
                             )
                         }
 
-                        // 3. Màn Trang Chủ (Chứa Bottom Bar của bạn cùng nhóm)
+                        // màn trang chủ
                         composable("trang_chu") {
                             MainScreen(
                                 onDangXuat = {
@@ -78,7 +77,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 4. Các màn hình chức năng khác (Giữ nguyên của bạn cùng nhóm)
+                        // 4. Các màn hình chức năng khác
                         composable("gio_hang_route") {
                             GioHangScreen(
                                 onBackClick = {

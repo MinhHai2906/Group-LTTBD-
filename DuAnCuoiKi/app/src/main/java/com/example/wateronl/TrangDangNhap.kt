@@ -48,7 +48,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 
-// --- PHAN 1: LOGIC ---
 @Composable
 fun ManHinhDangNhap(
     onChuyenSangDangKy: () -> Unit,
@@ -92,7 +91,7 @@ fun ManHinhDangNhap(
         onDangNhap = { email, pass -> viewModel.dangNhap(email, pass) },
         onChuyenSangDangKy = onChuyenSangDangKy,
         onGoogleLogin = { launcher.launch(googleSignInClient.signInIntent) },
-        // Xu ly logic Quen mat khau o day
+        // Xu ly logic quen mat khau
         onQuenMatKhau = { emailCanGui ->
             viewModel.quenMatKhau(
                 email = emailCanGui,
@@ -103,7 +102,7 @@ fun ManHinhDangNhap(
     )
 }
 
-// --- PHAN 2: GIAO DIEN ---
+// Giao diện
 @Composable
 fun GiaoDienDangNhap(
     isLoading: Boolean,
@@ -115,7 +114,7 @@ fun GiaoDienDangNhap(
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
 
-    // Bien cho Dialog Quen mat khau
+    // Bien Dialog quen mat khau
     var hienDialogQuenMK by remember { mutableStateOf(false) }
     var emailQuenMK by remember { mutableStateOf("") }
 
@@ -123,7 +122,7 @@ fun GiaoDienDangNhap(
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
 
-    // --- DIALOG QUEN MAT KHAU ---
+    // dialog quên mk
     if (hienDialogQuenMK) {
         AlertDialog(
             onDismissRequest = { hienDialogQuenMK = false },
@@ -157,7 +156,6 @@ fun GiaoDienDangNhap(
             containerColor = Color.White
         )
     }
-    // ----------------------------
 
     Box(modifier = Modifier.fillMaxSize().background(MauNenKem).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { focusManager.clearFocus() }) {
         if (isLoading) CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = MauCam)
@@ -192,11 +190,11 @@ fun GiaoDienDangNhap(
                     O_Nhap_Lieu_Tuy_Chinh(value = email, onValueChange = { email = it }, placeholder = "Địa chỉ email", icon = Icons.Default.Email, keyboardType = KeyboardType.Email)
                     O_Nhap_Lieu_Tuy_Chinh(value = matKhau, onValueChange = { matKhau = it }, placeholder = "Mật khẩu", icon = Icons.Default.Lock, isPassword = true, imeAction = ImeAction.Done, onAction = { keyboardController?.hide(); onDangNhap(email, matKhau) })
 
-                    // Nut Quen mat khau (SUA LOGIC TAI DAY)
+                    // Nut quen mat khau
                     TextButton(
                         onClick = {
                             if (email.isNotEmpty()) {
-                                // Neu da nhap email o o chinh -> Gui luon
+                                // Neu da nhap email -> Gui luon
                                 onQuenMatKhau(email)
                             } else {
                                 // Neu chua nhap -> Hien Dialog
@@ -225,7 +223,7 @@ fun GiaoDienDangNhap(
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White)
                     }
 
-                    // Hoac dang nhap bang Google
+                    // dang nhap bang Google
                     Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                         HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
                         Text(text = "Hoặc", modifier = Modifier.padding(horizontal = 8.dp), color = Color.Gray)
@@ -248,7 +246,7 @@ fun GiaoDienDangNhap(
     }
 }
 
-// O Nhap Lieu giu nguyen (tai su dung lai ham cu)
+// O Nhap lieu giu nguyen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun O_Nhap_Lieu_Tuy_Chinh(value: String, onValueChange: (String) -> Unit, placeholder: String, icon: ImageVector, isPassword: Boolean = false, keyboardType: KeyboardType = KeyboardType.Text, imeAction: ImeAction = ImeAction.Next, onAction: () -> Unit = {}) {

@@ -1,8 +1,6 @@
 package com.example.wateronl
 
-// File này dùng để định nghĩa danh sách Avatar có sẵn trong App
 object AvatarList {
-    // Map: Mã Avatar (Lưu trên Firestore) -> Hình ảnh (Trong Drawable)
     val danhSach = mapOf(
         "avatar_1" to R.drawable.avatar_1,
         "avatar_2" to R.drawable.avatar_2,
@@ -15,8 +13,6 @@ object AvatarList {
         "avatar_9" to R.drawable.avatar_9,
         "avatar_10" to R.drawable.avatar_10
     )
-
-    // Hàm lấy ID ảnh từ mã code (Mặc định là avatar_1 nếu không tìm thấy)
     fun layAnhTuMa(code: String?): Int {
         return danhSach[code] ?: R.drawable.avatar_1
     }
