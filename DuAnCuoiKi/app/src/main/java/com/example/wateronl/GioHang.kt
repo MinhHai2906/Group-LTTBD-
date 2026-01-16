@@ -1,5 +1,6 @@
 package com.example.wateronl
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,18 +37,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 
+object ThanhToanData {
+    var danhSachThanhToan = mutableStateListOf<ThanhPhanUi>()
+
+    fun setDanhSachThanhToan(items: List<ThanhPhanUi>) {
+        danhSachThanhToan.clear()
+        danhSachThanhToan.addAll(items)
+    }
+}
+
 @Composable
-fun GioHangScreen(onBackClick: () -> Unit){
+fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
     val duLieuGioHang = GioHangData.danhSachSanPham
     val sanPhamDaChon = remember { mutableStateListOf<ThanhPhanUi>() }
+    val context = LocalContext.current
 
     // Lắng nghe sự thay đổi của duLieuGioHang và cập nhật lại sanPhamDaChon
     LaunchedEffect(duLieuGioHang.toList()) {
@@ -205,7 +219,14 @@ fun GioHangScreen(onBackClick: () -> Unit){
                     }
 
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            if (sanPhamDaChon.isEmpty()) {
+                                Toast.makeText(context, "Bạn cần chọn món cần thanh toán", Toast.LENGTH_SHORT).show()
+                            } else {
+                                ThanhToanData.setDanhSachThanhToan(sanPhamDaChon.toList())
+                                navController.navigate("thanh_toan")
+                            }
+                        },
                         modifier = Modifier.weight(1f).height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE59C54)),
                         shape = RoundedCornerShape(40.dp),
@@ -347,6 +368,6 @@ fun ItemGioHang(
 @Composable
 fun PreviewGioHang(){
     MaterialTheme {
-        GioHangScreen(onBackClick = {})
+        GioHangScreen(onBackClick = {}, navController = rememberNavController())
     }
 }

@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wateronl.ui.theme.WaterOnlTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
 
@@ -22,6 +23,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             WaterOnlTheme {
                 val navController = rememberNavController()
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
 
@@ -36,8 +39,8 @@ class MainActivity : ComponentActivity() {
                                 onChuyenSangDangKy = { navController.navigate("dang_ky") },
                                 onDangNhapThanhCong = {
                                     // Đăng nhập xong thì vào trang chủ, xóa luôn lịch sử back về login
-                                    navController.navigate("trang_chu") {
-                                        popUpTo("dang_nhap") { inclusive = true }
+                                    navController.navigate("trang_chu") { 
+                                        popUpTo("dang_nhap") { inclusive = true } 
                                     }
                                 }
                             )
@@ -58,7 +61,8 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("dang_nhap") {
                                         popUpTo("trang_chu") { inclusive = true }
                                     }
-                                }
+                                },
+                                navController = navController
                             )
                         }
                         // màn hình giỏ hàng nhấn bạc quay lại trang chủ
@@ -66,8 +70,15 @@ class MainActivity : ComponentActivity() {
                         GioHangScreen(
                             onBackClick = {
                                 navController.popBackStack()
-                            }
+                            },
+                            navController = navController
                             )
+                        }
+                        composable("thanh_toan") {
+                            ThanhToan(
+                                userName = userName,
+                                onBackClick = { navController.popBackStack() }
+                                )
                         }
 
                     }

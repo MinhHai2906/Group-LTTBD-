@@ -1,5 +1,6 @@
 package com.example.wateronl
 
+import android.view.Gravity
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -59,8 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
 
 data  class ThanhPhanUi(
     @get:DrawableRes val image: Int,
@@ -73,16 +75,17 @@ data  class ThanhPhanUi(
     val buy: String,
 )
 open class NhomUI(
-    @get:DrawableRes val imageDrink: Int,
+
     val nameMon: String,
     val danhSachThanhPhan: List<ThanhPhanUi>
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrangChuContent() {
+fun TrangChuContent(navController: NavController) {
     var search by remember { mutableStateOf("") }
     var anhDangChon by remember { mutableStateOf<Int?>(null) }
+    var selectedCategory by remember { mutableStateOf("Tất cả") }
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -172,10 +175,11 @@ fun TrangChuContent() {
                 val buttonList = listOf(
                     "Tất cả",
                     "Coffee",
-                    "Cookies Đá Xay",
-                    "Đá Xay",
-                    "Yaourt",
+                    "Cookies đá xay",
+                    "Đá xay",
+                    "Sữa chua",
                     "Soda",
+                    "Các loại Trà",
                     "Nước ép"
                 )
 
@@ -188,12 +192,13 @@ fun TrangChuContent() {
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
                     items(buttonList) { nameDrink ->
+                        val isSelected = selectedCategory == nameDrink
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = { selectedCategory = nameDrink },
                             shape = RoundedCornerShape(20.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color.Black
+                                containerColor = if (isSelected) MauCam else Color.White,
+                                contentColor = if (isSelected) Color.White else Color.Black
                             ),
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                             modifier = Modifier.height(36.dp)
@@ -214,7 +219,6 @@ fun TrangChuContent() {
         ) {
             val duLieuDrink = listOf(
                 NhomUI(
-                    imageDrink = R.drawable.attcaffe,
                     nameMon = "Coffee",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
@@ -260,7 +264,6 @@ fun TrangChuContent() {
                     )
                 ),//NhómUI cafe
                 NhomUI(
-                    imageDrink = R.drawable.attcaffe,
                     nameMon = "Cookies đá xay",
                     danhSachThanhPhan = listOf(
                     ThanhPhanUi(
@@ -327,7 +330,6 @@ fun TrangChuContent() {
             ),//NhómUI cookies đá xay
 
                 NhomUI(
-                    imageDrink = R.drawable.attcaffe,
                     nameMon = "Đá xay",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
@@ -403,7 +405,6 @@ fun TrangChuContent() {
                     )
                 ),//NhómUI  Đá xay
                 NhomUI(
-                    imageDrink = R.drawable.attcaffe,
                     nameMon = "Sữa chua",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
@@ -440,7 +441,6 @@ fun TrangChuContent() {
                     )
                 ),//NhómUI  Sữa chua
                 NhomUI(
-                    imageDrink = R.drawable.attcaffe,
                     nameMon = "Soda",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
@@ -507,7 +507,6 @@ fun TrangChuContent() {
                         )
                 ),//NhómUI  Soda
                 NhomUI(
-                    imageDrink = R.drawable.attcaffe,
                     nameMon = "Các loại Trà",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
@@ -562,34 +561,86 @@ fun TrangChuContent() {
                         ),
                         )
                 ),//NhómUI  TRÀ
+                NhomUI(
+                    nameMon = "Nước ép",
+                    danhSachThanhPhan = listOf(
+                        ThanhPhanUi(
+                            image = R.drawable.nethom,
+                            namedrink = "Nước p thơm",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.nebuoi,
+                            namedrink = "Nước ép bưởi",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.netao,
+                            namedrink = "Nước ép táo",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.necam,
+                            namedrink = "Nước ép cam",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            image = R.drawable.neduahau,
+                            namedrink = "Nước ép dưa hấu",
+                            price = 30000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                    )
+                )
             )
+
+            val filteredDuLieuDrink = if (selectedCategory == "Tất cả") {
+                duLieuDrink
+            } else {
+                duLieuDrink.filter { it.nameMon == selectedCategory }
+            }
+
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 20.dp)
             ) {
                 // Duyệt qua từng nhóm
-                duLieuDrink.forEach { nhom ->
+                filteredDuLieuDrink.forEach { nhom ->
                     // 1. Header Nhóm (tên nhóm và icon) được coi là 1 item riêng
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
-                            // Dùng Coil ở đây để load icon nhóm cho nhẹ
-                            AsyncImage(
-                                model = nhom.imageDrink,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .padding(end = 8.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop
-                            )
                             Text(
                                 text = nhom.nameMon,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 27.sp,
-                                color = Color.Black
+                                color = MauCam
                             )
                         }
                     }
@@ -601,7 +652,8 @@ fun TrangChuContent() {
                             onImageClick = {
                                 // Khi click vào ảnh, lưu ID ảnh vào biến state để hiển thị Dialog
                                 anhDangChon = thanhPhan.image
-                            })
+                            },
+                        navController = navController)
                         Spacer(modifier = Modifier.height(15.dp))
                     }
                 }
@@ -651,7 +703,7 @@ fun TrangChuContent() {
 }
 
 @Composable
-fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick: () -> Unit) {
+fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick: () -> Unit, navController: NavController) {
     val context = LocalContext.current
     var soLuong by remember { mutableIntStateOf(duLieu.increasing) }
     Card(
@@ -714,34 +766,36 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                     ) {
                         IconButton(
                             onClick = {  if (soLuong > 1) soLuong--},
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(25.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.minus), contentDescription = "Trừ", tint = Color.Gray,
-                                modifier = Modifier.size(32.dp))
+                                modifier = Modifier.size(25.dp))
                         }
                         
                         Text(
                             text = "$soLuong",
                             modifier = Modifier.padding(horizontal = 8.dp),
-                            fontSize = 21.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
 
                         IconButton(
                             onClick = { soLuong++  },
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(25.dp)
                         ) {
                             Icon(painter = painterResource(id = duLieu.plus), contentDescription = "Cộng", tint = MauCam,
-                                modifier = Modifier.size(32.dp))
+                                modifier = Modifier.size(25.dp))
                         }
                         IconButton( onClick = {
                             val sanPhamVoiSoLuong = duLieu.copy(increasing = soLuong)
                             GioHangData.themVaoGio(sanPhamVoiSoLuong)
-                            Toast.makeText(context, "Đã thêm $soLuong ${duLieu.namedrink} vào giỏ!", Toast.LENGTH_SHORT).show()
+                            val toast = Toast.makeText(context, "Đã thêm $soLuong ${duLieu.namedrink} vào giỏ!", Toast.LENGTH_SHORT)
+                            toast.setGravity(Gravity.CENTER, 0, 0)
+                            toast.show()
                         },
-                            modifier = Modifier.size(50.dp).padding(start = 20.dp)) {
+                            modifier = Modifier.size(47.dp).padding(start = 20.dp)) {
                             Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
-                                modifier = Modifier.size(50.dp))
+                                modifier = Modifier.size(47.dp))
                     }
 
 
@@ -749,13 +803,17 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
 
                         }
                         Button(
-                            onClick = { /* Mua ngay */ },
+                            onClick = { 
+                                val sanPhamVoiSoLuong = duLieu.copy(increasing = soLuong)
+                                ThanhToanData.setDanhSachThanhToan(listOf(sanPhamVoiSoLuong))
+                                navController.navigate("thanh_toan")
+                             },
                             colors = ButtonDefaults.buttonColors(containerColor = MauCam),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                             modifier = Modifier
                                 .height(30.dp)
-                                .padding(start = 8.dp)
+                                .padding(start = 17.dp)
                         ) {
                             Text(
                                 text = duLieu.buy,
@@ -777,6 +835,6 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
 @Composable
 fun PreviewTrangChu() {
     MaterialTheme {
-        TrangChuContent()
+        TrangChuContent(navController = rememberNavController())
     }
 }
