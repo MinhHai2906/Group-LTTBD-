@@ -29,10 +29,15 @@ class ProfileViewModel : ViewModel() {
     val laTaiKhoanGoogle = _laTaiKhoanGoogle.asStateFlow()
     private val _avatarCode = MutableStateFlow("avatar_1")
     val avatarCode = _avatarCode.asStateFlow()
+    private val _hangThanhVien = MutableStateFlow("Thành viên Mới")
+    val hangThanhVien = _hangThanhVien.asStateFlow()
+    private val _tongTienTichLuy = MutableStateFlow(0L)
+    val tongTienTichLuy = _tongTienTichLuy.asStateFlow()
 
     init {
         layThongTinCaNhan()
         kiemTraLoaiTaiKhoan()
+        tinhHangThanhVien()
     }
 
     fun kiemTraLoaiTaiKhoan() {
@@ -73,6 +78,37 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    //Tính hạng thành viên
+    fun tinhHangThanhVien() {
+        val uid = auth.currentUser?.uid ?: return
+
+        // Vào bảng don_hang, tìm tất cả đơn của uid này
+        db.collection("don_hang")
+            .whereEqualTo("uid", uid)
+            .get()
+            .addOnSuccessListener { documents ->
+                var tongTien = 0L
+                for (doc in documents) {
+                    // Cộng dồn tiền
+                    val tienDon = doc.getDouble("tongTien")?.toLong() ?: 0L
+                    tongTien += tienDon
+                }
+
+                _tongTienTichLuy.value = tongTien
+
+                // phân hạng
+                if (tongTien >= 5000000) {
+                    _hangThanhVien.value = "Thành viên Vàng 👑"
+                } else if (tongTien >= 1000000) {
+                    _hangThanhVien.value = "Thành viên Bạc 🥈"
+                } else {
+                    _hangThanhVien.value = "Thành viên Mới"
+                }
+            }
+            .addOnFailureListener {
+                _hangThanhVien.value = "Không thể tính hạng"
+            }
+    }
     fun dangXuat() {
         auth.signOut()
     }

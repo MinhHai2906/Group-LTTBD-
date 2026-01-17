@@ -48,6 +48,8 @@ fun ManHinhCaNhan(
     val avatarCode by viewModel.avatarCode.collectAsState()
     val laGoogle by viewModel.laTaiKhoanGoogle.collectAsState()
     val nhanThongBao by viewModel.nhanThongBao.collectAsState()
+    val hangThanhVien by viewModel.hangThanhVien.collectAsState()
+    val tongTien by viewModel.tongTienTichLuy.collectAsState()
 
     GiaoDienCaNhan(
         ten = ten,
@@ -57,22 +59,16 @@ fun ManHinhCaNhan(
         gioiTinh = gioiTinh,
         ngaySinh = ngaySinh,
         avatarCode = avatarCode,
+        hangThanhVien = hangThanhVien,
+        tongTien = tongTien,
         nhanThongBao = nhanThongBao,
         hienNutDoiMatKhau = !laGoogle,
-        onDangXuat = {
-            viewModel.dangXuat()
-            onDangXuat()
-        },
-        onDoiTen = { tenMoi -> viewModel.capNhatHoTen(tenMoi) },
-        onDoiMatKhau = { mkMoi ->
-            viewModel.doiMatKhau(mkMoi, { Toast.makeText(context, "Thành công!", Toast.LENGTH_SHORT).show() }, { Toast.makeText(context, "Lỗi: $it", Toast.LENGTH_SHORT).show() })
-        },
-        onLuuThongTin = { s, d, g, n ->
-            viewModel.capNhatThongTinChiTiet(s, d, g, n)
-            Toast.makeText(context, "Đã lưu hồ sơ!", Toast.LENGTH_SHORT).show()
-        },
-        onDoiAvatar = { maMoi -> viewModel.doiAvatar(maMoi) },
-        onLuuCaiDat = { trangThaiMoi -> viewModel.capNhatCaiDat(trangThaiMoi) }
+        onDangXuat = { viewModel.dangXuat(); onDangXuat() },
+        onDoiTen = { viewModel.capNhatHoTen(it) },
+        onDoiMatKhau = { mk -> viewModel.doiMatKhau(mk, { Toast.makeText(context, "Thành công!", Toast.LENGTH_SHORT).show() }, { Toast.makeText(context, "Lỗi: $it", Toast.LENGTH_SHORT).show() }) },
+        onLuuThongTin = { s, d, g, n -> viewModel.capNhatThongTinChiTiet(s, d, g, n); Toast.makeText(context, "Đã lưu!", Toast.LENGTH_SHORT).show() },
+        onDoiAvatar = { viewModel.doiAvatar(it) },
+        onLuuCaiDat = { viewModel.capNhatCaiDat(it) }
     )
 }
 
@@ -81,6 +77,8 @@ fun GiaoDienCaNhan(
     ten: String, email: String, sdt: String, diaChi: String,
     gioiTinh: String, ngaySinh: String,
     avatarCode: String,
+    hangThanhVien: String,
+    tongTien: Long,
     nhanThongBao: Boolean,
     hienNutDoiMatKhau: Boolean,
     onDangXuat: () -> Unit, onDoiTen: (String) -> Unit, onDoiMatKhau: (String) -> Unit,
@@ -97,15 +95,23 @@ fun GiaoDienCaNhan(
     var hienDialogAvatar by remember { mutableStateOf(false) }
     var hienDialogXacNhanDangXuat by remember { mutableStateOf(false) }
     var hienDialogCaiDat by remember { mutableStateOf(false) }
+    var hienDialogHangThanhVien by remember { mutableStateOf(false) }
 
-    // Dialog thông tin (Xem & Sửa)
+    // Dialog thông tin
     var hienDialogThongTin by remember { mutableStateOf(false) }
     var sdtNhap by remember { mutableStateOf("") }
     var diaChiNhap by remember { mutableStateOf("") }
     var gioiTinhNhap by remember { mutableStateOf("Nam") }
     var ngaySinhNhap by remember { mutableStateOf("") }
 
-    // --- DIALOG 1: ĐỔI TÊN ---
+    //Tính màu hạng
+    val mauHang = when {
+        hangThanhVien.contains("Vàng") -> Color(0xFFFFD700) // Vàng Gold
+        hangThanhVien.contains("Bạc") -> Color(0xFFC0C0C0)  // Bạc
+        else -> MauCam
+    }
+
+    // dialog đổi tên
     if (hienDialogDoiTen) {
         AlertDialog(
             onDismissRequest = { hienDialogDoiTen = false },
@@ -116,7 +122,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 2: ĐỔI MẬT KHẨU ---
+    // dialog đổi mk
     if (hienDialogDoiMK) {
         AlertDialog(
             onDismissRequest = { hienDialogDoiMK = false },
@@ -133,14 +139,14 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 3: HỒ SƠ CÁ NHÂN (CHI TIẾT) ---
+    // dialog hồ sơ cá nhân
     if (hienDialogThongTin) {
         AlertDialog(
             onDismissRequest = { hienDialogThongTin = false },
             title = { Text("Hồ sơ chi tiết", fontWeight = FontWeight.Bold) },
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    // Thêm Email (Chỉ xem - ReadOnly) để người dùng biết mình đang dùng mail nào
+                    // thêm Email để người dùng biết mình đang dùng mail nào
                     OutlinedTextField(
                         value = email, onValueChange = {},
                         label = { Text("Email (Không thể đổi)") },
@@ -176,7 +182,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 4: CHỌN AVATAR ---
+    // dialog chọn avt
     if (hienDialogAvatar) {
         AlertDialog(
             onDismissRequest = { hienDialogAvatar = false },
@@ -192,7 +198,38 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 5: XÁC NHẬN ĐĂNG XUẤT ---
+    // dialog hạng thành viên
+    if (hienDialogHangThanhVien) {
+        AlertDialog(
+            onDismissRequest = { hienDialogHangThanhVien = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Star, contentDescription = null, tint = mauHang)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Hạng thành viên", fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(hangThanhVien, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = mauHang)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Tổng chi tiêu tích lũy:", fontSize = 14.sp, color = Color.Gray)
+                    Text("${tongTien}đ", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("(Mua càng nhiều, hạng càng cao!)", fontSize = 12.sp, color = Color.Gray, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+                }
+            },
+            confirmButton = { TextButton(onClick = { hienDialogHangThanhVien = false }) { Text("Đóng", color = MauCam) } },
+            containerColor = Color.White
+        )
+    }
+
+    // dialog xác nhận đăng xuất
     if (hienDialogXacNhanDangXuat) {
         AlertDialog(
             onDismissRequest = { hienDialogXacNhanDangXuat = false },
@@ -204,7 +241,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- DIALOG 6: CÀI ĐẶT ---
+    // dialog cài đặt
     if (hienDialogCaiDat) {
         AlertDialog(
             onDismissRequest = { hienDialogCaiDat = false },
@@ -230,11 +267,9 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- GIAO DIỆN CHÍNH (Đã dọn dẹp sạch sẽ) ---
+    // giao diện chính
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF9F9F9)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Thông tin cá nhân", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MauNauDam, modifier = Modifier.padding(top = 16.dp, bottom = 32.dp))
-
-        // --- HEADER: CHỈ CÒN AVATAR & TÊN ---
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(contentAlignment = Alignment.BottomEnd) {
                 Image(painter = painterResource(id = AvatarList.layAnhTuMa(avatarCode)), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(80.dp).clip(CircleShape).border(2.dp, Color.LightGray, CircleShape).clickable { hienDialogAvatar = true })
@@ -242,18 +277,20 @@ fun GiaoDienCaNhan(
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                // Chỉ hiện tên, xóa hết các thông tin khác ở đây
                 Text(ten, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                Text("Thành viên thân thiết", fontSize = 14.sp, color = MauCam) // Thêm dòng này nhìn cho đỡ trống
+                val mauHang = when {
+                    hangThanhVien.contains("Vàng") -> Color(0xFFFFD700)
+                    hangThanhVien.contains("Bạc") -> Color(0xFFC0C0C0)
+                    else -> MauCam // Mặc định
+                }
+                Text(hangThanhVien, fontSize = 15.sp, color = mauHang, fontWeight = FontWeight.Bold)
             }
             Icon(Icons.Default.Edit, null, tint = Color.Gray, modifier = Modifier.size(24.dp).clickable { tenMoiNhap = ten; hienDialogDoiTen = true })
         }
-        // -------------------------------------
 
         Spacer(modifier = Modifier.height(40.dp))
 
         MucChonProfile(Icons.Default.Person, "Hồ sơ cá nhân") {
-            // Khi bấm vào đây mới load dữ liệu chi tiết lên Dialog
             sdtNhap = sdt
             diaChiNhap = diaChi
             gioiTinhNhap = gioiTinh
@@ -261,10 +298,13 @@ fun GiaoDienCaNhan(
             hienDialogThongTin = true
         }
 
+        // hạng thành viên
+        MucChonProfile(Icons.Default.Star, "Hạng thành viên") {
+            hienDialogHangThanhVien = true
+        }
+
         if (hienNutDoiMatKhau) MucChonProfile(Icons.Default.Lock, "Thay mật khẩu") { hienDialogDoiMK = true }
-
         MucChonProfile(Icons.Default.Settings, "Cài đặt") { hienDialogCaiDat = true }
-
         MucChonProfile(Icons.Default.ExitToApp, "Đăng xuất", true) { hienDialogXacNhanDangXuat = true }
     }
 }
@@ -286,5 +326,22 @@ fun MucChonProfile(icon: ImageVector, tieuDe: String, isRed: Boolean = false, on
 @Preview(showBackground = true)
 @Composable
 fun PreviewProfile() {
-    GiaoDienCaNhan("Test Name", "test@gmail.com", "0909", "HCM", "Nam", "01/01/2000", "avatar_1", true, true, {}, {}, {}, {_,_,_,_->}, {}, {})
+    GiaoDienCaNhan(ten = "Nguyễn Văn A",
+        email = "test@gmail.com",
+        sdt = "0909123456",
+        diaChi = "TP.HCM",
+        gioiTinh = "Nam",
+        ngaySinh = "01/01/2000",
+        avatarCode = "avatar_1",
+        hangThanhVien = "Thành viên Vàng 👑",
+        tongTien = 6500000,
+        nhanThongBao = true,
+        hienNutDoiMatKhau = true,
+        onDangXuat = {},
+        onDoiTen = {},
+        onDoiMatKhau = {},
+        onLuuThongTin = { _, _, _, _ -> },
+        onDoiAvatar = {},
+        onLuuCaiDat = {}
+    )
 }
