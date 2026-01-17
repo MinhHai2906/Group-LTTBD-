@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -21,8 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 private val NavItems = listOf(
     NavItem("Trang chủ", Icons.Default.Home, "home"),
     NavItem("Giỏ hàng", Icons.Default.ShoppingCart, "cart"),
+    NavItem("Đơn hàng", Icons.Default.Description, "orders"),
     NavItem("Cá nhân", Icons.Default.Person, "canhan")
 )
 
@@ -58,12 +62,30 @@ fun MainScreen(modifier: Modifier = Modifier, onDangXuat: () -> Unit,navControll
             when (selectedIndex) {
                 0 -> TrangChuContent(navController = navController)
                 1 -> GioHangScreen(onBackClick = { selectedIndex = 0 }, navController = navController)
-                2 -> ManHinhCaNhan(onDangXuat = onDangXuat)
+                2 -> DonHangScreen()
+                3 -> ManHinhCaNhan(onDangXuat = onDangXuat)
 
             }
         }
     }
 }
+
+@Composable
+fun DonHangScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Màn hình Đơn hàng\n(Đang phát triển)",
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            color = Color.Gray,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+    }
+}
+
 
 @Composable
 fun ThanhBottomBar(
