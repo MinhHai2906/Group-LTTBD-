@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // 4. Các màn hình chức năng khác
+                        // Các màn hình chức năng khác
                         composable("gio_hang_route") {
                             GioHangScreen(
                                 onBackClick = {
