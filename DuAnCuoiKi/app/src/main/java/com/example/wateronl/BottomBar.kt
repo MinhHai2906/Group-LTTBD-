@@ -77,7 +77,7 @@ fun DonHangScreen() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Màn hình Đơn hàng\n(Đang phát triển)",
+            text = "Màn hình đơn hàng",
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             color = Color.Gray,
@@ -93,9 +93,9 @@ fun ThanhBottomBar(
     onItemSelected: (Int) -> Unit
 ) {
     NavigationBar(
-        containerColor = Color.Transparent, // Đặt nền trong suốt
+        containerColor = Color.Transparent,
         tonalElevation = 0.dp,
-        modifier = Modifier.height(65.dp) // Giảm chiều cao xuống 65dp
+        modifier = Modifier.height(65.dp)
     ) {
         NavItems.forEachIndexed { index, navItem ->
             NavigationBarItem(
@@ -105,7 +105,6 @@ fun ThanhBottomBar(
                     Icon(
                         imageVector = navItem.icon,
                         contentDescription = navItem.label,
-                        // Dịch chuyển icon xuống dưới 6dp để gần chữ hơn
                         modifier = Modifier.offset(y = 9.dp)
                     )
                 },
