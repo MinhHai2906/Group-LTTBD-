@@ -566,7 +566,7 @@ fun TrangChuContent(navController: NavController) {
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
                             image = R.drawable.nethom,
-                            namedrink = "Nước p thơm",
+                            namedrink = "Nước ép thơm",
                             price = 30000,
                             minus = R.drawable.ic_minus,
                             increasing = 1,

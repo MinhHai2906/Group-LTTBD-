@@ -12,12 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,6 +34,7 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,18 +53,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ThanhToan(userName: String, onBackClick: () -> Unit) {
+fun ThanhToan(userName: String, onBackClick: () -> Unit, navController: NavController) {
     val itemsToPay = ThanhToanData.danhSachThanhToan
     val totalPrice = itemsToPay.sumOf { it.price * it.increasing }
     var note by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("Nhấn để chọn địa chỉ") }
     val paymentOptions = listOf("Thanh toán khi nhận hàng", "Thanh toán chuyển khoản")
     var selectedPaymentOption by remember { mutableStateOf(paymentOptions[0]) }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val newAddressResult = navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<String>("selected_address")
+        ?.observeAsState()
+
+    newAddressResult?.value?.let {
+        address = it
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.remove<String>("selected_address")
+    }
 
 
     Column(
@@ -120,6 +140,15 @@ fun ThanhToan(userName: String, onBackClick: () -> Unit) {
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Black
+                )
+            }
+
+            item {
+                DiaChiCard(
+                    address = address,
+                    onEditAddress = {
+                        navController.navigate("map_screen")
+                    }
                 )
             }
 
@@ -241,20 +270,68 @@ fun ThanhToan(userName: String, onBackClick: () -> Unit) {
                     onClick = { /* Handle payment confirmation */ },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 45.dp, vertical = 8.dp)
+                        .padding(horizontal = 60.dp, vertical = 8.dp)
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE59C54)),
                     shape = RoundedCornerShape(40.dp)
                 ) {
                     Text(
                         text = "Xác nhận thanh toán",
-                        fontSize = 22.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         textAlign = TextAlign.Center
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onEditAddress() }
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = "Location Icon",
+                tint = MauCam,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Địa chỉ nhận hàng",
+                    fontSize = 10.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = address,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                    maxLines = 3
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Edit Address",
+                tint = Color.Gray
+            )
         }
     }
 }
@@ -320,6 +397,6 @@ fun ThanhToanItem(item: ThanhPhanUi) {
 @Composable
 fun PreviewThanhToan() {
     MaterialTheme {
-        ThanhToan(userName = "Khách", onBackClick = {})
+        ThanhToan(userName = "Khách", onBackClick = {}, navController = rememberNavController())
     }
 }

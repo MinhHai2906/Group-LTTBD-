@@ -8,11 +8,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.wateronl.ui.theme.WaterOnlTheme
 import com.google.firebase.auth.FirebaseAuth
+import org.osmdroid.config.Configuration
 
 class MainActivity : ComponentActivity() {
 
@@ -20,6 +23,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        Configuration.getInstance().userAgentValue = packageName
+
         setContent {
             WaterOnlTheme {
                 val navController = rememberNavController()
@@ -92,6 +98,25 @@ class MainActivity : ComponentActivity() {
                             val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
                             ThanhToan(
                                 userName = userName,
+                                onBackClick = { navController.popBackStack() },
+                                navController = navController
+                            )
+                        }
+
+                        composable(
+                            route = "map_screen?initialAddress={initialAddress}",
+                            arguments = listOf(navArgument("initialAddress") {
+                                type = NavType.StringType
+                                nullable = true
+                            })
+                        ) { backStackEntry ->
+                            val initialAddress = backStackEntry.arguments?.getString("initialAddress")
+                            MapScreen(
+                                initialAddress = initialAddress,
+                                onAddressSelected = {
+                                    navController.previousBackStackEntry?.savedStateHandle?.set("selected_address", it)
+                                    navController.popBackStack()
+                                },
                                 onBackClick = { navController.popBackStack() }
                             )
                         }
