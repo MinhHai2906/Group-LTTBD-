@@ -267,7 +267,7 @@ fun GiaoDienCaNhan(
         )
     }
 
-    // --- GIAO DIỆN CHÍNH ---
+    // giao diện chính
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF9F9F9)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Thông tin cá nhân", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MauNauDam, modifier = Modifier.padding(top = 16.dp, bottom = 32.dp))
 
@@ -313,7 +313,6 @@ fun GiaoDienCaNhan(
     }
 }
 
-// Giữ nguyên các hàm helper ở cuối file
 @Composable
 fun ThanhHoanThienHoSo(tiLe: Float) {
     Column {

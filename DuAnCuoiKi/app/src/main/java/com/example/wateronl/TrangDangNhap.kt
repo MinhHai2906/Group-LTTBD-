@@ -156,7 +156,6 @@ fun GiaoDienDangNhap(
                         }
                     }
 
-                    // --- SỬ DỤNG HÀM NHẬP LIỆU MỚI ---
                     O_Nhap_Lieu_Co_Nhan(
                         nhan = "Email",
                         giaTri = email,
@@ -182,7 +181,6 @@ fun GiaoDienDangNhap(
                             if(isFormValid) { keyboardController?.hide(); onDangNhap(email, matKhau) }
                         }
                     )
-                    // ---------------------------------
 
                     TextButton(onClick = { if (email.isNotEmpty()) onQuenMatKhau(email) else hienDialogQuenMK = true }, modifier = Modifier.align(Alignment.End)) {
                         Text("Quên mật khẩu?", color = MauCam, fontWeight = FontWeight.SemiBold)
@@ -223,7 +221,7 @@ fun GiaoDienDangNhap(
     }
 }
 
-// --- HÀM NHẬP LIỆU CHUNG (Label nằm trên) ---
+// hàm nhập liệu chung
 @Composable
 fun O_Nhap_Lieu_Co_Nhan(
     nhan: String,
@@ -240,7 +238,6 @@ fun O_Nhap_Lieu_Co_Nhan(
     var hienMatKhau by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // 1. NHÃN (Nằm tĩnh ở trên)
         Text(
             text = nhan,
             fontWeight = FontWeight.Bold,
@@ -248,8 +245,6 @@ fun O_Nhap_Lieu_Co_Nhan(
             color = MauNauDam,
             modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
         )
-
-        // 2. Ô NHẬP (Chỉ chứa placeholder)
         OutlinedTextField(
             value = giaTri,
             onValueChange = onValueChange,
@@ -266,18 +261,16 @@ fun O_Nhap_Lieu_Co_Nhan(
                 onDone = { onDone?.invoke() }
             ),
             singleLine = true,
-            shape = RoundedCornerShape(16.dp), // Bo tròn mềm mại
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MauNenInput, // Nền màu kem
-                unfocusedContainerColor = MauNenInput, // Nền màu kem
-                focusedBorderColor = MauCam, // Viền khi bấm vào
-                unfocusedBorderColor = Color.Transparent, // Viền ẩn khi không bấm (cho sạch)
+                focusedContainerColor = MauNenInput,
+                unfocusedContainerColor = MauNenInput,
+                focusedBorderColor = MauCam,
+                unfocusedBorderColor = Color.Transparent,
                 errorBorderColor = Color.Red
             ),
             modifier = Modifier.fillMaxWidth()
         )
-
-        // 3. THÔNG BÁO LỖI (Nằm dưới)
         if (loi != null) {
             Text(
                 text = loi,

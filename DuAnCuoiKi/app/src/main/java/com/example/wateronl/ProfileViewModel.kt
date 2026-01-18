@@ -11,13 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-
-    // --- 1. BIẾN LOADING (MỚI) ---
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
-
-    // --- 2. BIẾN ĐỘ HOÀN THIỆN HỒ SƠ (MỚI) ---
-    private val _mucDoHoanThien = MutableStateFlow(0f) // 0.0 đến 1.0 (0% - 100%)
+    private val _mucDoHoanThien = MutableStateFlow(0f)
     val mucDoHoanThien = _mucDoHoanThien.asStateFlow()
 
     // Các biến cũ
@@ -50,14 +46,14 @@ class ProfileViewModel : ViewModel() {
         tinhHangThanhVien()
     }
 
-    // --- HÀM TÍNH ĐỘ HOÀN THIỆN ---
+    // hoàm tính độ hoàn thiện profile
     private fun tinhMucDoHoanThien() {
         var diem = 0f
-        if (_hoTen.value.isNotEmpty()) diem += 0.2f       // Có tên: +20%
-        if (_sdt.value.isNotEmpty()) diem += 0.2f         // Có SĐT: +20%
-        if (_diaChi.value.isNotEmpty()) diem += 0.2f      // Có Địa chỉ: +20%
-        if (_ngaySinh.value.isNotEmpty()) diem += 0.2f    // Có Ngày sinh: +20%
-        if (_avatarCode.value != "avatar_1") diem += 0.2f // Đã đổi Avatar: +20% (Mặc định là avatar_1)
+        if (_hoTen.value.isNotEmpty()) diem += 0.2f
+        if (_sdt.value.isNotEmpty()) diem += 0.2f
+        if (_diaChi.value.isNotEmpty()) diem += 0.2f
+        if (_ngaySinh.value.isNotEmpty()) diem += 0.2f
+        if (_avatarCode.value != "avatar_1") diem += 0.2f
 
         _mucDoHoanThien.value = diem
     }
@@ -69,7 +65,7 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun layThongTinCaNhan() {
-        _isLoading.value = true // Bắt đầu tải
+        _isLoading.value = true
         val user = auth.currentUser
         val uid = user?.uid
 
@@ -97,10 +93,10 @@ class ProfileViewModel : ViewModel() {
                         _ngaySinh.value = nsDb
                         _nhanThongBao.value = thongBaoDb
 
-                        // Tính điểm sau khi tải xong
+                        // Tính điểm sau khi tải
                         tinhMucDoHoanThien()
                     }
-                    _isLoading.value = false // Tải xong -> Tắt Skeleton
+                    _isLoading.value = false
                 }
                 .addOnFailureListener {
                     _isLoading.value = false
@@ -133,8 +129,6 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun dangXuat() { auth.signOut() }
-
-    // Các hàm cập nhật (đã thêm đoạn gọi lại tinhMucDoHoanThien sau khi sửa)
     fun capNhatHoTen(tenMoi: String) {
         val uid = auth.currentUser?.uid
         if (uid != null) {

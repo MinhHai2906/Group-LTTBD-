@@ -123,7 +123,6 @@ fun GiaoDienDangKy(
                         }
                     }
 
-                    // --- CÁC Ô NHẬP LIỆU (Label trên) ---
                     O_Nhap_Lieu_Co_Nhan(
                         nhan = "Tên người dùng", giaTri = tenNguoiDung, goiY = "Nhập tên...", icon = Icons.Default.Person, loi = nameError,
                         onValueChange = { validateName(it) },
