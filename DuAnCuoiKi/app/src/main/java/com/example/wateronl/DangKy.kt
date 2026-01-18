@@ -1,5 +1,6 @@
 package com.example.wateronl
 
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,8 +18,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -37,9 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,7 +67,6 @@ fun ManHinhDangKy(
     )
 }
 
-// giao diện
 @Composable
 fun GiaoDienDangKy(
     isLoading: Boolean,
@@ -83,88 +77,103 @@ fun GiaoDienDangKy(
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
     var xacNhanMatKhau by remember { mutableStateOf("") }
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val context = LocalContext.current
 
-    Box(
-        modifier = Modifier.fillMaxSize().background(MauNenKem).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { focusManager.clearFocus() }
-    ) {
+    fun validateName(input: String) { tenNguoiDung = input; nameError = if (input.isNotBlank()) null else "Tên không được để trống" }
+    fun validateEmail(input: String) { email = input; emailError = if (Patterns.EMAIL_ADDRESS.matcher(input).matches()) null else "Email không hợp lệ" }
+    fun validatePassword(input: String) { matKhau = input; passwordError = if (input.length >= 6) null else "Mật khẩu phải từ 6 ký tự"; if (xacNhanMatKhau.isNotEmpty()) confirmPasswordError = if (xacNhanMatKhau == input) null else "Mật khẩu không khớp" }
+    fun validateConfirmPassword(input: String) { xacNhanMatKhau = input; confirmPasswordError = if (input == matKhau) null else "Mật khẩu không khớp" }
+
+    val isFormValid = nameError == null && emailError == null && passwordError == null && confirmPasswordError == null && tenNguoiDung.isNotBlank() && email.isNotBlank() && matKhau.isNotBlank() && xacNhanMatKhau.isNotBlank()
+
+    Box(modifier = Modifier.fillMaxSize().background(MauNenKem).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { focusManager.clearFocus() }) {
         if (isLoading) CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = MauCam)
 
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
-            Column(modifier = Modifier.height(300.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(120.dp)) {
+
+            // Header
+            Column(modifier = Modifier.height(220.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(100.dp)) {
                     Surface(shape = CircleShape, color = MauCam.copy(alpha = 0.2f), modifier = Modifier.fillMaxSize()) {}
-                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Logo", contentScale = ContentScale.Fit, modifier = Modifier.size(100.dp).clip(CircleShape))
+                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.size(80.dp).clip(CircleShape))
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(text = "Chào người mới!", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                Text(text = "Hãy tham gia cùng chúng tôi", fontSize = 14.sp, color = MauNauDam.copy(alpha = 0.6f), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Chào người mới!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                Text("Hãy tham gia cùng chúng tôi", fontSize = 13.sp, color = MauNauDam.copy(alpha = 0.6f))
             }
 
+            // Form
             Surface(modifier = Modifier.fillMaxWidth().weight(1f), color = MauTrangCard, shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp), shadowElevation = 10.dp) {
-                Column(modifier = Modifier.padding(32.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         Column(modifier = Modifier.weight(1f).clickable { onQuayLaiDangNhap() }, horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "Đăng nhập", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                            Text("Đăng nhập", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
                         }
                         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "Đăng ký", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Đăng ký", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                            Spacer(modifier = Modifier.height(6.dp))
                             Box(modifier = Modifier.width(80.dp).height(3.dp).background(MauCam))
                         }
                     }
 
-                    O_Nhap_Lieu_Tuy_Chinh(value = tenNguoiDung, onValueChange = { tenNguoiDung = it }, placeholder = "Tên người dùng", icon = Icons.Default.Person)
-                    O_Nhap_Lieu_Tuy_Chinh(value = email, onValueChange = { email = it }, placeholder = "Địa chỉ email", icon = Icons.Default.Email, keyboardType = KeyboardType.Email)
-                    O_Nhap_Lieu_Tuy_Chinh(value = matKhau, onValueChange = { matKhau = it }, placeholder = "Mật khẩu", icon = Icons.Default.Lock, isPassword = true)
-                    O_Nhap_Lieu_Tuy_Chinh(value = xacNhanMatKhau, onValueChange = { xacNhanMatKhau = it }, placeholder = "Xác nhận mật khẩu", icon = Icons.Default.Lock, isPassword = true, imeAction = ImeAction.Done, onAction = { focusManager.clearFocus() })
+                    // --- CÁC Ô NHẬP LIỆU (Label trên) ---
+                    O_Nhap_Lieu_Co_Nhan(
+                        nhan = "Tên người dùng", giaTri = tenNguoiDung, goiY = "Nhập tên...", icon = Icons.Default.Person, loi = nameError,
+                        onValueChange = { validateName(it) },
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    O_Nhap_Lieu_Co_Nhan(
+                        nhan = "Email", giaTri = email, goiY = "...@gmail.com", icon = Icons.Default.Email, loi = emailError,
+                        onValueChange = { validateEmail(it) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
 
+                    O_Nhap_Lieu_Co_Nhan(
+                        nhan = "Mật khẩu", giaTri = matKhau, goiY = "Nhập mật khẩu...", icon = Icons.Default.Lock, loi = passwordError, isPassword = true,
+                        onValueChange = { validatePassword(it) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
+
+                    O_Nhap_Lieu_Co_Nhan(
+                        nhan = "Xác nhận mật khẩu", giaTri = xacNhanMatKhau, goiY = "Nhập lại mật khẩu...", icon = Icons.Default.Lock, loi = confirmPasswordError, isPassword = true,
+                        onValueChange = { validateConfirmPassword(it) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                        onDone = {
+                            focusManager.clearFocus()
+                            if (isFormValid) { keyboardController?.hide(); onDangKy(email.trim(), matKhau, tenNguoiDung.trim()) }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(
-                        onClick = {
-                            keyboardController?.hide()
-                            val cleanEmail = email.trim()
-                            if (cleanEmail.isEmpty() || matKhau.isEmpty()) Toast.makeText(context, "Thiếu thông tin!", Toast.LENGTH_SHORT).show()
-                            else if (matKhau != xacNhanMatKhau) Toast.makeText(context, "Mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
-                            else onDangKy(cleanEmail, matKhau, tenNguoiDung)
-                        },
-                        modifier = Modifier.fillMaxWidth().height(56.dp).shadow(10.dp, RoundedCornerShape(16.dp), spotColor = MauCam),
-                        colors = ButtonDefaults.buttonColors(containerColor = MauCam),
+                        onClick = { keyboardController?.hide(); onDangKy(email.trim(), matKhau, tenNguoiDung.trim()) },
+                        modifier = Modifier.fillMaxWidth().height(56.dp).shadow(8.dp, RoundedCornerShape(16.dp), spotColor = if(isFormValid) MauCam else Color.Gray),
+                        colors = ButtonDefaults.buttonColors(containerColor = MauCam, disabledContainerColor = Color.Gray),
                         shape = RoundedCornerShape(16.dp),
-                        enabled = !isLoading
+                        enabled = !isLoading && isFormValid
                     ) {
-                        Text(text = "Đăng ký", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Đăng ký", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = Color.White)
                     }
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
         }
     }
 }
 
-// O Nhap Lieu giu nguyen nhu cu
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun O_Nhap_Lieu_Tuy_Chinh(value: String, onValueChange: (String) -> Unit, placeholder: String, icon: ImageVector, isPassword: Boolean = false, keyboardType: KeyboardType = KeyboardType.Text, capitalization: KeyboardCapitalization = KeyboardCapitalization.None, imeAction: ImeAction = ImeAction.Next, onAction: () -> Unit = {}) {
-    var hienMatKhau by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-    TextField(
-        value = value, onValueChange = onValueChange, placeholder = { Text(text = placeholder, color = MauNauDam.copy(alpha = 0.4f)) }, leadingIcon = { Icon(imageVector = icon, contentDescription = null, tint = MauCam) },
-        keyboardOptions = KeyboardOptions(keyboardType = if (isPassword) KeyboardType.Password else keyboardType, capitalization = capitalization, imeAction = imeAction),
-        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }, onDone = { focusManager.clearFocus(); onAction() }),
-        trailingIcon = if (isPassword) { { IconButton(onClick = { hienMatKhau = !hienMatKhau }) { Icon(imageVector = if (hienMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = null, tint = MauNauDam.copy(alpha = 0.4f)) } } } else null,
-        visualTransformation = if (isPassword && !hienMatKhau) PasswordVisualTransformation() else VisualTransformation.None,
-        colors = TextFieldDefaults.colors(focusedContainerColor = MauNenInput, unfocusedContainerColor = MauNenInput, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = MauCam),
-        shape = RoundedCornerShape(16.dp), singleLine = true, modifier = Modifier.fillMaxWidth().height(56.dp)
-    )
-}
-
-// --- PHAN 3: PREVIEW ---
 @Preview(showBackground = true)
 @Composable
 fun PreviewDangKy() {

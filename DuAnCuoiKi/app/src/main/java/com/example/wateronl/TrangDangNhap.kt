@@ -1,5 +1,6 @@
 package com.example.wateronl
 
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -58,7 +58,6 @@ fun ManHinhDangNhap(
     val loginState by viewModel.loginState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // Cấu hình Google Sign In
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken("568231836814-3121ks3amj3219a2sts8e9ujc8c879ot.apps.googleusercontent.com")
         .requestEmail()
@@ -91,18 +90,12 @@ fun ManHinhDangNhap(
         onDangNhap = { email, pass -> viewModel.dangNhap(email, pass) },
         onChuyenSangDangKy = onChuyenSangDangKy,
         onGoogleLogin = { launcher.launch(googleSignInClient.signInIntent) },
-        // Xu ly logic quen mat khau
         onQuenMatKhau = { emailCanGui ->
-            viewModel.quenMatKhau(
-                email = emailCanGui,
-                onThanhCong = { Toast.makeText(context, "Đã gửi mail reset! Hãy kiểm tra hộp thư.", Toast.LENGTH_LONG).show() },
-                onThatBai = { loi -> Toast.makeText(context, loi, Toast.LENGTH_SHORT).show() }
-            )
+            viewModel.quenMatKhau(email = emailCanGui, onThanhCong = { Toast.makeText(context, "Đã gửi mail reset!", Toast.LENGTH_SHORT).show() }, onThatBai = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() })
         }
     )
 }
 
-// Giao diện
 @Composable
 fun GiaoDienDangNhap(
     isLoading: Boolean,
@@ -113,120 +106,103 @@ fun GiaoDienDangNhap(
 ) {
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+    val isFormValid = emailError == null && passwordError == null && email.isNotEmpty() && matKhau.isNotEmpty()
 
-    // Bien Dialog quen mat khau
+    fun validateEmail(input: String) { email = input; emailError = if (Patterns.EMAIL_ADDRESS.matcher(input).matches()) null else "Email không hợp lệ" }
+    fun validatePassword(input: String) { matKhau = input; passwordError = if (input.length >= 6) null else "Mật khẩu phải từ 6 ký tự" }
+
     var hienDialogQuenMK by remember { mutableStateOf(false) }
     var emailQuenMK by remember { mutableStateOf("") }
-
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val context = LocalContext.current
 
-    // dialog quên mk
     if (hienDialogQuenMK) {
-        AlertDialog(
-            onDismissRequest = { hienDialogQuenMK = false },
-            title = { Text("Quên mật khẩu?", fontWeight = FontWeight.Bold) },
-            text = {
-                Column {
-                    Text("Nhập email để nhận link đặt lại mật khẩu:", fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = emailQuenMK,
-                        onValueChange = { emailQuenMK = it },
-                        label = { Text("Email của bạn") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (emailQuenMK.isNotEmpty()) {
-                        onQuenMatKhau(emailQuenMK)
-                        hienDialogQuenMK = false
-                    } else {
-                        Toast.makeText(context, "Vui lòng nhập email", Toast.LENGTH_SHORT).show()
-                    }
-                }) { Text("Gửi", color = MauCam) }
-            },
-            dismissButton = {
-                TextButton(onClick = { hienDialogQuenMK = false }) { Text("Hủy", color = Color.Gray) }
-            },
-            containerColor = Color.White
-        )
+        AlertDialog(onDismissRequest = { hienDialogQuenMK = false }, title = { Text("Quên mật khẩu?") },
+            text = { Column { Text("Nhập email:"); Spacer(Modifier.height(8.dp)); OutlinedTextField(value = emailQuenMK, onValueChange = { emailQuenMK = it }, modifier = Modifier.fillMaxWidth()) } },
+            confirmButton = { TextButton({ if(emailQuenMK.isNotEmpty()) { onQuenMatKhau(emailQuenMK); hienDialogQuenMK = false } }) { Text("Gửi", color = MauCam) } },
+            dismissButton = { TextButton({ hienDialogQuenMK = false }) { Text("Hủy") } }, containerColor = Color.White)
     }
 
     Box(modifier = Modifier.fillMaxSize().background(MauNenKem).clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { focusManager.clearFocus() }) {
         if (isLoading) CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = MauCam)
 
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
-            // Header (Logo)
-            Column(modifier = Modifier.height(300.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(120.dp)) {
+
+            // Header
+            Column(modifier = Modifier.height(220.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(100.dp)) {
                     Surface(shape = CircleShape, color = MauCam.copy(alpha = 0.2f), modifier = Modifier.fillMaxSize()) {}
-                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = "Logo", contentScale = ContentScale.Fit, modifier = Modifier.size(100.dp).clip(CircleShape))
+                    Image(painter = painterResource(id = R.drawable.logo), contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.size(80.dp).clip(CircleShape))
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(text = "Chào mừng bạn đã trở lại!", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                Text(text = "Giải khát mọi lúc mọi nơi", fontSize = 14.sp, color = MauNauDam.copy(alpha = 0.6f),textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Chào mừng trở lại!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                Text("Giải khát mọi lúc mọi nơi", fontSize = 13.sp, color = MauNauDam.copy(alpha = 0.6f))
             }
 
-            // Form nhap lieu
+            // Form
             Surface(modifier = Modifier.fillMaxWidth().weight(1f), color = MauTrangCard, shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp), shadowElevation = 10.dp) {
-                Column(modifier = Modifier.padding(32.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    // Tab chuyen doi
-                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) { // Tăng spacing lên 16 cho thoáng
+
+                    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "Đăng nhập", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Đăng nhập", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                            Spacer(modifier = Modifier.height(6.dp))
                             Box(modifier = Modifier.width(80.dp).height(3.dp).background(MauCam))
                         }
                         Column(modifier = Modifier.weight(1f).clickable { onChuyenSangDangKy() }, horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "Đăng ký", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                            Text("Đăng ký", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
                         }
                     }
 
-                    O_Nhap_Lieu_Tuy_Chinh(value = email, onValueChange = { email = it }, placeholder = "Địa chỉ email", icon = Icons.Default.Email, keyboardType = KeyboardType.Email)
-                    O_Nhap_Lieu_Tuy_Chinh(value = matKhau, onValueChange = { matKhau = it }, placeholder = "Mật khẩu", icon = Icons.Default.Lock, isPassword = true, imeAction = ImeAction.Done, onAction = { keyboardController?.hide(); onDangNhap(email, matKhau) })
+                    // --- SỬ DỤNG HÀM NHẬP LIỆU MỚI ---
+                    O_Nhap_Lieu_Co_Nhan(
+                        nhan = "Email",
+                        giaTri = email,
+                        goiY = "...@gmail.com",
+                        onValueChange = { validateEmail(it) },
+                        icon = Icons.Default.Email,
+                        loi = emailError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
 
-                    // Nut quen mat khau
-                    TextButton(
-                        onClick = {
-                            if (email.isNotEmpty()) {
-                                // Neu da nhap email -> Gui luon
-                                onQuenMatKhau(email)
-                            } else {
-                                // Neu chua nhap -> Hien Dialog
-                                hienDialogQuenMK = true
-                            }
-                        },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text(text = "Quên mật khẩu?", color = MauCam, fontWeight = FontWeight.SemiBold)
+                    O_Nhap_Lieu_Co_Nhan(
+                        nhan = "Mật khẩu",
+                        giaTri = matKhau,
+                        goiY = "Nhập mật khẩu...",
+                        onValueChange = { validatePassword(it) },
+                        icon = Icons.Default.Lock,
+                        loi = passwordError,
+                        isPassword = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                        onDone = {
+                            focusManager.clearFocus()
+                            if(isFormValid) { keyboardController?.hide(); onDangNhap(email, matKhau) }
+                        }
+                    )
+                    // ---------------------------------
+
+                    TextButton(onClick = { if (email.isNotEmpty()) onQuenMatKhau(email) else hienDialogQuenMK = true }, modifier = Modifier.align(Alignment.End)) {
+                        Text("Quên mật khẩu?", color = MauCam, fontWeight = FontWeight.SemiBold)
                     }
 
-                    // Nut Dang nhap
                     Button(
-                        onClick = {
-                            keyboardController?.hide()
-                            if (email.isEmpty() || matKhau.isEmpty()) Toast.makeText(context, "Vui lòng nhập đầy đủ!", Toast.LENGTH_SHORT).show()
-                            else onDangNhap(email, matKhau)
-                        },
-                        modifier = Modifier.fillMaxWidth().height(56.dp).shadow(10.dp, RoundedCornerShape(16.dp), spotColor = MauCam),
-                        colors = ButtonDefaults.buttonColors(containerColor = MauCam),
+                        onClick = { keyboardController?.hide(); onDangNhap(email, matKhau) },
+                        modifier = Modifier.fillMaxWidth().height(56.dp).shadow(8.dp, RoundedCornerShape(16.dp), spotColor = if(isFormValid) MauCam else Color.Gray),
+                        colors = ButtonDefaults.buttonColors(containerColor = MauCam, disabledContainerColor = Color.Gray),
                         shape = RoundedCornerShape(16.dp),
-                        enabled = !isLoading
+                        enabled = !isLoading && isFormValid
                     ) {
-                        Text(text = "Đăng nhập", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Đăng nhập", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = Color.White)
                     }
 
-                    // dang nhap bang Google
-                    Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
-                        Text(text = "Hoặc", modifier = Modifier.padding(horizontal = 8.dp), color = Color.Gray)
+                        Text("Hoặc", modifier = Modifier.padding(horizontal = 8.dp), color = Color.Gray, fontSize = 12.sp)
                         HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
                     }
 
@@ -236,31 +212,81 @@ fun GiaoDienDangNhap(
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)
                     ) {
-                        Image(painter = painterResource(id = R.drawable.ic_google), contentDescription = null, modifier = Modifier.size(24.dp)) // Ban can co anh ic_google trong drawable
+                        Image(painterResource(id = R.drawable.ic_google), null, modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = "Đăng nhập bằng Google", color = Color.Black, fontSize = 16.sp)
+                        Text("Đăng nhập bằng Google", color = Color.Black, fontSize = 16.sp)
                     }
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
         }
     }
 }
 
-// O Nhap lieu giu nguyen
-@OptIn(ExperimentalMaterial3Api::class)
+// --- HÀM NHẬP LIỆU CHUNG (Label nằm trên) ---
 @Composable
-fun O_Nhap_Lieu_Tuy_Chinh(value: String, onValueChange: (String) -> Unit, placeholder: String, icon: ImageVector, isPassword: Boolean = false, keyboardType: KeyboardType = KeyboardType.Text, imeAction: ImeAction = ImeAction.Next, onAction: () -> Unit = {}) {
+fun O_Nhap_Lieu_Co_Nhan(
+    nhan: String,
+    giaTri: String,
+    goiY: String,
+    onValueChange: (String) -> Unit,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    loi: String? = null,
+    isPassword: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    onNext: (() -> Unit)? = null,
+    onDone: (() -> Unit)? = null
+) {
     var hienMatKhau by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-    TextField(
-        value = value, onValueChange = onValueChange, placeholder = { Text(text = placeholder, color = MauNauDam.copy(alpha = 0.4f)) }, leadingIcon = { Icon(imageVector = icon, contentDescription = null, tint = MauCam) },
-        keyboardOptions = KeyboardOptions(keyboardType = if (isPassword) KeyboardType.Password else keyboardType, imeAction = imeAction),
-        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }, onDone = { focusManager.clearFocus(); onAction() }),
-        trailingIcon = if (isPassword) { { IconButton(onClick = { hienMatKhau = !hienMatKhau }) { Icon(imageVector = if (hienMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = null, tint = MauNauDam.copy(alpha = 0.4f)) } } } else null,
-        visualTransformation = if (isPassword && !hienMatKhau) PasswordVisualTransformation() else VisualTransformation.None,
-        colors = TextFieldDefaults.colors(focusedContainerColor = MauNenInput, unfocusedContainerColor = MauNenInput, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent, cursorColor = MauCam),
-        shape = RoundedCornerShape(16.dp), singleLine = true, modifier = Modifier.fillMaxWidth().height(56.dp)
-    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // 1. NHÃN (Nằm tĩnh ở trên)
+        Text(
+            text = nhan,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            color = MauNauDam,
+            modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
+        )
+
+        // 2. Ô NHẬP (Chỉ chứa placeholder)
+        OutlinedTextField(
+            value = giaTri,
+            onValueChange = onValueChange,
+            placeholder = { Text(goiY, color = Color.Gray.copy(alpha = 0.5f), fontSize = 14.sp) },
+            leadingIcon = { Icon(icon, null, tint = MauCam) },
+            trailingIcon = if (isPassword) {
+                { IconButton({ hienMatKhau = !hienMatKhau }) { Icon(if (hienMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility, null, tint = Color.Gray) } }
+            } else null,
+            isError = loi != null,
+            visualTransformation = if (isPassword && !hienMatKhau) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = KeyboardActions(
+                onNext = { onNext?.invoke() },
+                onDone = { onDone?.invoke() }
+            ),
+            singleLine = true,
+            shape = RoundedCornerShape(16.dp), // Bo tròn mềm mại
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MauNenInput, // Nền màu kem
+                unfocusedContainerColor = MauNenInput, // Nền màu kem
+                focusedBorderColor = MauCam, // Viền khi bấm vào
+                unfocusedBorderColor = Color.Transparent, // Viền ẩn khi không bấm (cho sạch)
+                errorBorderColor = Color.Red
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // 3. THÔNG BÁO LỖI (Nằm dưới)
+        if (loi != null) {
+            Text(
+                text = loi,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)

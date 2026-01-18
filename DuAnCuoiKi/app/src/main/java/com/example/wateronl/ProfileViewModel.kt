@@ -11,7 +11,17 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val _hoTen = MutableStateFlow("Đang tải...")
+
+    // --- 1. BIẾN LOADING (MỚI) ---
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
+    // --- 2. BIẾN ĐỘ HOÀN THIỆN HỒ SƠ (MỚI) ---
+    private val _mucDoHoanThien = MutableStateFlow(0f) // 0.0 đến 1.0 (0% - 100%)
+    val mucDoHoanThien = _mucDoHoanThien.asStateFlow()
+
+    // Các biến cũ
+    private val _hoTen = MutableStateFlow("")
     val hoTen = _hoTen.asStateFlow()
     private val _email = MutableStateFlow("...")
     val email = _email.asStateFlow()
@@ -40,6 +50,18 @@ class ProfileViewModel : ViewModel() {
         tinhHangThanhVien()
     }
 
+    // --- HÀM TÍNH ĐỘ HOÀN THIỆN ---
+    private fun tinhMucDoHoanThien() {
+        var diem = 0f
+        if (_hoTen.value.isNotEmpty()) diem += 0.2f       // Có tên: +20%
+        if (_sdt.value.isNotEmpty()) diem += 0.2f         // Có SĐT: +20%
+        if (_diaChi.value.isNotEmpty()) diem += 0.2f      // Có Địa chỉ: +20%
+        if (_ngaySinh.value.isNotEmpty()) diem += 0.2f    // Có Ngày sinh: +20%
+        if (_avatarCode.value != "avatar_1") diem += 0.2f // Đã đổi Avatar: +20% (Mặc định là avatar_1)
+
+        _mucDoHoanThien.value = diem
+    }
+
     fun kiemTraLoaiTaiKhoan() {
         val user = auth.currentUser
         val isGoogle = user?.providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } ?: false
@@ -47,6 +69,7 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun layThongTinCaNhan() {
+        _isLoading.value = true // Bắt đầu tải
         val user = auth.currentUser
         val uid = user?.uid
 
@@ -62,10 +85,10 @@ class ProfileViewModel : ViewModel() {
                         val sdtDb = document.getString("sdt")
                         val diaChiDb = document.getString("diachi")
                         val avtDb = document.getString("avatarCode") ?: "avatar_1"
-
                         val gtDb = document.getString("gioiTinh") ?: "Nam"
                         val nsDb = document.getString("ngaySinh") ?: ""
                         val thongBaoDb = document.getBoolean("nhanThongBao") ?: true
+
                         if (ten != null) _hoTen.value = ten
                         if (sdtDb != null) _sdt.value = sdtDb
                         if (diaChiDb != null) _diaChi.value = diaChiDb
@@ -73,30 +96,32 @@ class ProfileViewModel : ViewModel() {
                         _gioiTinh.value = gtDb
                         _ngaySinh.value = nsDb
                         _nhanThongBao.value = thongBaoDb
+
+                        // Tính điểm sau khi tải xong
+                        tinhMucDoHoanThien()
                     }
+                    _isLoading.value = false // Tải xong -> Tắt Skeleton
                 }
+                .addOnFailureListener {
+                    _isLoading.value = false
+                }
+        } else {
+            _isLoading.value = false
         }
     }
 
-    //Tính hạng thành viên
     fun tinhHangThanhVien() {
         val uid = auth.currentUser?.uid ?: return
-
-        // Vào bảng don_hang, tìm tất cả đơn của uid này
         db.collection("don_hang")
             .whereEqualTo("uid", uid)
             .get()
             .addOnSuccessListener { documents ->
                 var tongTien = 0L
                 for (doc in documents) {
-                    // Cộng dồn tiền
                     val tienDon = doc.getDouble("tongTien")?.toLong() ?: 0L
                     tongTien += tienDon
                 }
-
                 _tongTienTichLuy.value = tongTien
-
-                // phân hạng
                 if (tongTien >= 5000000) {
                     _hangThanhVien.value = "Thành viên Vàng 👑"
                 } else if (tongTien >= 1000000) {
@@ -105,51 +130,34 @@ class ProfileViewModel : ViewModel() {
                     _hangThanhVien.value = "Thành viên Mới"
                 }
             }
-            .addOnFailureListener {
-                _hangThanhVien.value = "Không thể tính hạng"
-            }
-    }
-    fun dangXuat() {
-        auth.signOut()
     }
 
+    fun dangXuat() { auth.signOut() }
+
+    // Các hàm cập nhật (đã thêm đoạn gọi lại tinhMucDoHoanThien sau khi sửa)
     fun capNhatHoTen(tenMoi: String) {
         val uid = auth.currentUser?.uid
         if (uid != null) {
             val data = hashMapOf("ten" to tenMoi)
-            db.collection("users").document(uid)
-                .set(data, SetOptions.merge())
-                .addOnSuccessListener { _hoTen.value = tenMoi }
+            db.collection("users").document(uid).set(data, SetOptions.merge())
+                .addOnSuccessListener {
+                    _hoTen.value = tenMoi
+                    tinhMucDoHoanThien()
+                }
         }
     }
 
     fun capNhatThongTinChiTiet(sdtMoi: String, diaChiMoi: String, gioiTinhMoi: String, ngaySinhMoi: String) {
         val uid = auth.currentUser?.uid
         if (uid != null) {
-            val data = hashMapOf(
-                "sdt" to sdtMoi,
-                "diachi" to diaChiMoi,
-                "gioiTinh" to gioiTinhMoi,
-                "ngaySinh" to ngaySinhMoi
-            )
-            db.collection("users").document(uid)
-                .set(data, SetOptions.merge())
+            val data = hashMapOf("sdt" to sdtMoi, "diachi" to diaChiMoi, "gioiTinh" to gioiTinhMoi, "ngaySinh" to ngaySinhMoi)
+            db.collection("users").document(uid).set(data, SetOptions.merge())
                 .addOnSuccessListener {
                     _sdt.value = sdtMoi
                     _diaChi.value = diaChiMoi
                     _gioiTinh.value = gioiTinhMoi
                     _ngaySinh.value = ngaySinhMoi
-                }
-        }
-    }
-    fun capNhatCaiDat(nhanThongBaoMoi: Boolean) {
-        val uid = auth.currentUser?.uid
-        if (uid != null) {
-            val data = hashMapOf("nhanThongBao" to nhanThongBaoMoi)
-            db.collection("users").document(uid)
-                .set(data, SetOptions.merge())
-                .addOnSuccessListener {
-                    _nhanThongBao.value = nhanThongBaoMoi
+                    tinhMucDoHoanThien()
                 }
         }
     }
@@ -158,17 +166,25 @@ class ProfileViewModel : ViewModel() {
         val uid = auth.currentUser?.uid
         if (uid != null) {
             val data = hashMapOf("avatarCode" to maAvatarMoi)
-            db.collection("users").document(uid)
-                .set(data, SetOptions.merge())
-                .addOnSuccessListener { _avatarCode.value = maAvatarMoi }
+            db.collection("users").document(uid).set(data, SetOptions.merge())
+                .addOnSuccessListener {
+                    _avatarCode.value = maAvatarMoi
+                    tinhMucDoHoanThien()
+                }
+        }
+    }
+
+    fun capNhatCaiDat(nhanThongBaoMoi: Boolean) {
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            val data = hashMapOf("nhanThongBao" to nhanThongBaoMoi)
+            db.collection("users").document(uid).set(data, SetOptions.merge())
+                .addOnSuccessListener { _nhanThongBao.value = nhanThongBaoMoi }
         }
     }
 
     fun doiMatKhau(matKhauMoi: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
-        val user = auth.currentUser
-        user?.updatePassword(matKhauMoi)
-            ?.addOnCompleteListener { task ->
-                if (task.isSuccessful) onThanhCong() else onThatBai(task.exception?.message ?: "Lỗi đổi mật khẩu")
-            }
+        auth.currentUser?.updatePassword(matKhauMoi)
+            ?.addOnCompleteListener { task -> if (task.isSuccessful) onThanhCong() else onThatBai(task.exception?.message ?: "Lỗi") }
     }
 }

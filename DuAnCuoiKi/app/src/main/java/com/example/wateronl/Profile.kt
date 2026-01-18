@@ -1,6 +1,7 @@
 package com.example.wateronl
 
 import android.widget.Toast
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -19,10 +21,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +57,9 @@ fun ManHinhCaNhan(
     val hangThanhVien by viewModel.hangThanhVien.collectAsState()
     val tongTien by viewModel.tongTienTichLuy.collectAsState()
 
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mucDoHoanThien by viewModel.mucDoHoanThien.collectAsState()
+
     GiaoDienCaNhan(
         ten = ten,
         email = email,
@@ -63,6 +72,8 @@ fun ManHinhCaNhan(
         tongTien = tongTien,
         nhanThongBao = nhanThongBao,
         hienNutDoiMatKhau = !laGoogle,
+        isLoading = isLoading,
+        mucDoHoanThien = mucDoHoanThien,
         onDangXuat = { viewModel.dangXuat(); onDangXuat() },
         onDoiTen = { viewModel.capNhatHoTen(it) },
         onDoiMatKhau = { mk -> viewModel.doiMatKhau(mk, { Toast.makeText(context, "Thành công!", Toast.LENGTH_SHORT).show() }, { Toast.makeText(context, "Lỗi: $it", Toast.LENGTH_SHORT).show() }) },
@@ -81,37 +92,36 @@ fun GiaoDienCaNhan(
     tongTien: Long,
     nhanThongBao: Boolean,
     hienNutDoiMatKhau: Boolean,
+    isLoading: Boolean,
+    mucDoHoanThien: Float,
     onDangXuat: () -> Unit, onDoiTen: (String) -> Unit, onDoiMatKhau: (String) -> Unit,
     onLuuThongTin: (String, String, String, String) -> Unit,
     onDoiAvatar: (String) -> Unit,
     onLuuCaiDat: (Boolean) -> Unit
 ) {
-    // Cac bien Dialog
     var hienDialogDoiTen by remember { mutableStateOf(false) }
     var tenMoiNhap by remember { mutableStateOf("") }
     var hienDialogDoiMK by remember { mutableStateOf(false) }
     var matKhauMoi by remember { mutableStateOf("") }
+    var xacNhanMatKhauMoi by remember { mutableStateOf("") }
     var hienThiMatKhau by remember { mutableStateOf(false) }
     var hienDialogAvatar by remember { mutableStateOf(false) }
     var hienDialogXacNhanDangXuat by remember { mutableStateOf(false) }
     var hienDialogCaiDat by remember { mutableStateOf(false) }
     var hienDialogHangThanhVien by remember { mutableStateOf(false) }
-
-    // Dialog thông tin
     var hienDialogThongTin by remember { mutableStateOf(false) }
     var sdtNhap by remember { mutableStateOf("") }
     var diaChiNhap by remember { mutableStateOf("") }
     var gioiTinhNhap by remember { mutableStateOf("Nam") }
     var ngaySinhNhap by remember { mutableStateOf("") }
-
-    //Tính màu hạng
     val mauHang = when {
-        hangThanhVien.contains("Vàng") -> Color(0xFFFFD700) // Vàng Gold
-        hangThanhVien.contains("Bạc") -> Color(0xFFC0C0C0)  // Bạc
+        hangThanhVien.contains("Vàng") -> Color(0xFFFFD700)
+        hangThanhVien.contains("Bạc") -> Color(0xFFC0C0C0)
         else -> MauCam
     }
+    val context = LocalContext.current
 
-    // dialog đổi tên
+    // Dialog Đổi Tên
     if (hienDialogDoiTen) {
         AlertDialog(
             onDismissRequest = { hienDialogDoiTen = false },
@@ -128,44 +138,71 @@ fun GiaoDienCaNhan(
             onDismissRequest = { hienDialogDoiMK = false },
             title = { Text("Đổi mật khẩu", fontWeight = FontWeight.Bold) },
             text = {
-                OutlinedTextField(
-                    matKhauMoi, { matKhauMoi = it }, label = { Text("Mật khẩu mới") },
-                    visualTransformation = if (hienThiMatKhau) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = { IconButton({ hienThiMatKhau = !hienThiMatKhau }) { Icon(if (hienThiMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility, null) } }
-                )
+                Column {
+                    // Ô mật khẩu mới
+                    OutlinedTextField(
+                        value = matKhauMoi,
+                        onValueChange = { matKhauMoi = it },
+                        label = { Text("Mật khẩu mới") },
+                        visualTransformation = if (hienThiMatKhau) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = { IconButton({ hienThiMatKhau = !hienThiMatKhau }) { Icon(if (hienThiMatKhau) Icons.Default.VisibilityOff else Icons.Default.Visibility, null) } },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Ô nhập lại mật khẩu
+                    OutlinedTextField(
+                        value = xacNhanMatKhauMoi,
+                        onValueChange = { xacNhanMatKhauMoi = it },
+                        label = { Text("Nhập lại mật khẩu") },
+                        visualTransformation = if (hienThiMatKhau) VisualTransformation.None else PasswordVisualTransformation(),
+                        singleLine = true,
+                        isError = xacNhanMatKhauMoi.isNotEmpty() && xacNhanMatKhauMoi != matKhauMoi,
+                        supportingText = {
+                            if (xacNhanMatKhauMoi.isNotEmpty() && xacNhanMatKhauMoi != matKhauMoi) {
+                                Text("Mật khẩu không khớp", color = Color.Red, fontSize = 12.sp)
+                            }
+                        }
+                    )
+                }
             },
-            confirmButton = { TextButton({ if(matKhauMoi.length >= 6){ onDoiMatKhau(matKhauMoi); hienDialogDoiMK = false; matKhauMoi="" } }) { Text("Lưu", color = MauCam) } },
-            dismissButton = { TextButton({ hienDialogDoiMK = false }) { Text("Hủy") } }, containerColor = Color.White
+            confirmButton = {
+                TextButton({
+                    // Logic kiểm tra kỹ càng trước khi lưu
+                    if (matKhauMoi.length < 6) {
+                        Toast.makeText(context, "Mật khẩu phải từ 6 ký tự", Toast.LENGTH_SHORT).show()
+                    } else if (matKhauMoi != xacNhanMatKhauMoi) {
+                        Toast.makeText(context, "Mật khẩu không khớp", Toast.LENGTH_SHORT).show()
+                    } else {
+                        onDoiMatKhau(matKhauMoi)
+                        hienDialogDoiMK = false
+                        matKhauMoi = ""
+                        xacNhanMatKhauMoi = ""
+                    }
+                }) { Text("Lưu", color = MauCam) }
+            },
+            dismissButton = {
+                TextButton({ hienDialogDoiMK = false; matKhauMoi = ""; xacNhanMatKhauMoi = "" }) { Text("Hủy") }
+            },
+            containerColor = Color.White
         )
     }
 
-    // dialog hồ sơ cá nhân
+    // Các dialog khác giữ nguyên...
     if (hienDialogThongTin) {
         AlertDialog(
             onDismissRequest = { hienDialogThongTin = false },
             title = { Text("Hồ sơ chi tiết", fontWeight = FontWeight.Bold) },
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    // thêm Email để người dùng biết mình đang dùng mail nào
-                    OutlinedTextField(
-                        value = email, onValueChange = {},
-                        label = { Text("Email (Không thể đổi)") },
-                        readOnly = true,
-                        enabled = false,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            disabledTextColor = Color.Gray,
-                            disabledBorderColor = Color.LightGray
-                        )
-                    )
+                    OutlinedTextField(value = email, onValueChange = {}, label = { Text("Email (Không thể đổi)") }, readOnly = true, enabled = false, modifier = Modifier.fillMaxWidth(), colors = OutlinedTextFieldDefaults.colors(disabledTextColor = Color.Gray, disabledBorderColor = Color.LightGray))
                     Spacer(Modifier.height(8.dp))
-
                     OutlinedTextField(sdtNhap, { sdtNhap = it }, label = { Text("Số điện thoại") }, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(diaChiNhap, { diaChiNhap = it }, label = { Text("Địa chỉ") }, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(ngaySinhNhap, { ngaySinhNhap = it }, label = { Text("Ngày sinh (dd/mm/yyyy)") }, modifier = Modifier.fillMaxWidth())
-
                     Spacer(Modifier.height(12.dp))
                     Text("Giới tính:", fontWeight = FontWeight.Medium)
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -181,8 +218,6 @@ fun GiaoDienCaNhan(
             dismissButton = { TextButton({ hienDialogThongTin = false }) { Text("Hủy") } }, containerColor = Color.White
         )
     }
-
-    // dialog chọn avt
     if (hienDialogAvatar) {
         AlertDialog(
             onDismissRequest = { hienDialogAvatar = false },
@@ -197,115 +232,129 @@ fun GiaoDienCaNhan(
             confirmButton = {}, dismissButton = { TextButton({ hienDialogAvatar = false }) { Text("Đóng") } }, containerColor = Color.White
         )
     }
-
-    // dialog hạng thành viên
     if (hienDialogHangThanhVien) {
         AlertDialog(
             onDismissRequest = { hienDialogHangThanhVien = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = mauHang)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Hạng thành viên", fontWeight = FontWeight.Bold)
-                }
-            },
-            text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(hangThanhVien, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = mauHang)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Tổng chi tiêu tích lũy:", fontSize = 14.sp, color = Color.Gray)
-                    Text("${tongTien}đ", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("(Mua càng nhiều, hạng càng cao!)", fontSize = 12.sp, color = Color.Gray, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
-                }
-            },
-            confirmButton = { TextButton(onClick = { hienDialogHangThanhVien = false }) { Text("Đóng", color = MauCam) } },
-            containerColor = Color.White
+            title = { Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.Star, null, tint = mauHang); Spacer(Modifier.width(8.dp)); Text("Hạng thành viên", fontWeight = FontWeight.Bold) } },
+            text = { Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) { Text(hangThanhVien, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = mauHang); Spacer(Modifier.height(16.dp)); HorizontalDivider(); Spacer(Modifier.height(16.dp)); Text("Tổng chi tiêu:", fontSize = 14.sp, color = Color.Gray); Text("${tongTien}đ", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MauNauDam) } },
+            confirmButton = { TextButton({ hienDialogHangThanhVien = false }) { Text("Đóng", color = MauCam) } }, containerColor = Color.White
         )
     }
-
-    // dialog xác nhận đăng xuất
     if (hienDialogXacNhanDangXuat) {
         AlertDialog(
             onDismissRequest = { hienDialogXacNhanDangXuat = false },
             title = { Text("Đăng xuất") },
             text = { Text("Bạn có chắc chắn muốn đăng xuất không?") },
-            confirmButton = { TextButton(onClick = { hienDialogXacNhanDangXuat = false; onDangXuat() }) { Text("Đồng ý", color = Color.Red) } },
-            dismissButton = { TextButton(onClick = { hienDialogXacNhanDangXuat = false }) { Text("Hủy") } },
-            containerColor = Color.White
+            confirmButton = { TextButton({ hienDialogXacNhanDangXuat = false; onDangXuat() }) { Text("Đồng ý", color = Color.Red) } },
+            dismissButton = { TextButton({ hienDialogXacNhanDangXuat = false }) { Text("Hủy") } }, containerColor = Color.White
         )
     }
-
-    // dialog cài đặt
     if (hienDialogCaiDat) {
         AlertDialog(
             onDismissRequest = { hienDialogCaiDat = false },
             title = { Text("Cài đặt ứng dụng", fontWeight = FontWeight.Bold) },
             text = {
                 Column {
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column { Text("Nhận thông báo", fontWeight = FontWeight.Medium); Text("Nhận tin khuyến mãi mới nhất", fontSize = 12.sp, color = Color.Gray) }
-                        Switch(checked = nhanThongBao, onCheckedChange = { onLuuCaiDat(it) }, colors = SwitchDefaults.colors(checkedThumbColor = MauCam, checkedTrackColor = MauCam.copy(alpha = 0.2f)))
-                    }
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) { Column { Text("Nhận thông báo", fontWeight = FontWeight.Medium); Text("Nhận tin khuyến mãi", fontSize = 12.sp, color = Color.Gray) }
+                        Switch(checked = nhanThongBao, onCheckedChange = { onLuuCaiDat(it) }, colors = SwitchDefaults.colors(checkedThumbColor = MauCam, checkedTrackColor = MauCam.copy(alpha = 0.2f))) }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Ngôn ngữ", fontWeight = FontWeight.Medium); Text("Tiếng Việt", color = Color.Gray, fontSize = 14.sp)
-                    }
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) { Text("Ngôn ngữ"); Text("Tiếng Việt", color = Color.Gray) }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Phiên bản", fontWeight = FontWeight.Medium); Text("1.0.0 (Beta)", color = Color.Gray, fontSize = 14.sp)
-                    }
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) { Text("Phiên bản"); Text("1.0.0 (Beta)", color = Color.Gray) }
                 }
             },
-            confirmButton = { TextButton(onClick = { hienDialogCaiDat = false }) { Text("Đóng", color = MauCam) } },
-            containerColor = Color.White
+            confirmButton = { TextButton({ hienDialogCaiDat = false }) { Text("Đóng", color = MauCam) } }, containerColor = Color.White
         )
     }
 
-    // giao diện chính
+    // --- GIAO DIỆN CHÍNH ---
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF9F9F9)).padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Thông tin cá nhân", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MauNauDam, modifier = Modifier.padding(top = 16.dp, bottom = 32.dp))
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(contentAlignment = Alignment.BottomEnd) {
-                Image(painter = painterResource(id = AvatarList.layAnhTuMa(avatarCode)), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(80.dp).clip(CircleShape).border(2.dp, Color.LightGray, CircleShape).clickable { hienDialogAvatar = true })
-                Icon(Icons.Default.CameraAlt, null, modifier = Modifier.size(24.dp).background(Color.White, CircleShape).padding(4.dp), tint = MauCam)
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(ten, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
-                val mauHang = when {
-                    hangThanhVien.contains("Vàng") -> Color(0xFFFFD700)
-                    hangThanhVien.contains("Bạc") -> Color(0xFFC0C0C0)
-                    else -> MauCam // Mặc định
+
+        if (isLoading) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(80.dp).clip(CircleShape).shimmerEffect())
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.height(20.dp).fillMaxWidth(0.7f).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(modifier = Modifier.height(15.dp).fillMaxWidth(0.5f).clip(RoundedCornerShape(4.dp)).shimmerEffect())
                 }
-                Text(hangThanhVien, fontSize = 15.sp, color = mauHang, fontWeight = FontWeight.Bold)
             }
-            Icon(Icons.Default.Edit, null, tint = Color.Gray, modifier = Modifier.size(24.dp).clickable { tenMoiNhap = ten; hienDialogDoiTen = true })
+        } else {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(contentAlignment = Alignment.BottomEnd) {
+                    Image(painter = painterResource(id = AvatarList.layAnhTuMa(avatarCode)), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(80.dp).clip(CircleShape).border(2.dp, Color.LightGray, CircleShape).clickable { hienDialogAvatar = true })
+                    Icon(Icons.Default.CameraAlt, null, modifier = Modifier.size(24.dp).background(Color.White, CircleShape).padding(4.dp), tint = MauCam)
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(ten, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                    Text(hangThanhVien, fontSize = 15.sp, color = mauHang, fontWeight = FontWeight.Bold)
+
+                    if (mucDoHoanThien < 1.0f) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ThanhHoanThienHoSo(tiLe = mucDoHoanThien)
+                    }
+                }
+                Icon(Icons.Default.Edit, null, tint = Color.Gray, modifier = Modifier.size(24.dp).clickable { tenMoiNhap = ten; hienDialogDoiTen = true })
+            }
         }
 
         Spacer(modifier = Modifier.height(40.dp))
 
         MucChonProfile(Icons.Default.Person, "Hồ sơ cá nhân") {
-            sdtNhap = sdt
-            diaChiNhap = diaChi
-            gioiTinhNhap = gioiTinh
-            ngaySinhNhap = ngaySinh
-            hienDialogThongTin = true
+            sdtNhap = sdt; diaChiNhap = diaChi; gioiTinhNhap = gioiTinh; ngaySinhNhap = ngaySinh; hienDialogThongTin = true
         }
-
-        // hạng thành viên
-        MucChonProfile(Icons.Default.Star, "Hạng thành viên") {
-            hienDialogHangThanhVien = true
-        }
-
+        MucChonProfile(Icons.Default.Star, "Hạng thành viên") { hienDialogHangThanhVien = true }
         if (hienNutDoiMatKhau) MucChonProfile(Icons.Default.Lock, "Thay mật khẩu") { hienDialogDoiMK = true }
         MucChonProfile(Icons.Default.Settings, "Cài đặt") { hienDialogCaiDat = true }
         MucChonProfile(Icons.Default.ExitToApp, "Đăng xuất", true) { hienDialogXacNhanDangXuat = true }
+    }
+}
+
+// Giữ nguyên các hàm helper ở cuối file
+@Composable
+fun ThanhHoanThienHoSo(tiLe: Float) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Hoàn thiện hồ sơ: ", fontSize = 10.sp, color = Color.Gray)
+            Text("${(tiLe * 100).toInt()}%", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MauCam)
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(Color.LightGray.copy(alpha = 0.3f))
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(fraction = tiLe).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(MauCam)
+            )
+        }
+    }
+}
+
+fun Modifier.shimmerEffect(): Modifier = composed {
+    var size by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val startOffsetX by transition.animateFloat(
+        initialValue = -2 * size.width.toFloat(),
+        targetValue = 2 * size.width.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000)
+        ), label = "shimmer_anim"
+    )
+
+    background(
+        brush = Brush.linearGradient(
+            colors = listOf(
+                Color(0xFFEBEBEB),
+                Color(0xFFF5F5F5),
+                Color(0xFFEBEBEB),
+            ),
+            start = Offset(startOffsetX, 0f),
+            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+        )
+    ).onGloballyPositioned {
+        size = it.size
     }
 }
 
@@ -326,22 +375,5 @@ fun MucChonProfile(icon: ImageVector, tieuDe: String, isRed: Boolean = false, on
 @Preview(showBackground = true)
 @Composable
 fun PreviewProfile() {
-    GiaoDienCaNhan(ten = "Nguyễn Văn A",
-        email = "test@gmail.com",
-        sdt = "0909123456",
-        diaChi = "TP.HCM",
-        gioiTinh = "Nam",
-        ngaySinh = "01/01/2000",
-        avatarCode = "avatar_1",
-        hangThanhVien = "Thành viên Vàng 👑",
-        tongTien = 6500000,
-        nhanThongBao = true,
-        hienNutDoiMatKhau = true,
-        onDangXuat = {},
-        onDoiTen = {},
-        onDoiMatKhau = {},
-        onLuuThongTin = { _, _, _, _ -> },
-        onDoiAvatar = {},
-        onLuuCaiDat = {}
-    )
+    GiaoDienCaNhan(ten = "Nguyễn Văn A", email = "test@gmail.com", sdt = "0909123456", diaChi = "TP.HCM", gioiTinh = "Nam", ngaySinh = "01/01/2000", avatarCode = "avatar_1", hangThanhVien = "Thành viên Vàng 👑", tongTien = 6500000, nhanThongBao = true, hienNutDoiMatKhau = true, isLoading = false, mucDoHoanThien = 0.6f, onDangXuat = {}, onDoiTen = {}, onDoiMatKhau = {}, onLuuThongTin = { _, _, _, _ -> }, onDoiAvatar = {}, onLuuCaiDat = {})
 }
