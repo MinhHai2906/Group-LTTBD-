@@ -22,10 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,7 +32,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,15 +42,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,12 +76,8 @@ open class NhomUI(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrangChuContent(navController: NavController) {
-    var search by remember { mutableStateOf("") }
     var anhDangChon by remember { mutableStateOf<Int?>(null) }
     var selectedCategory by remember { mutableStateOf("Tất cả") }
-
-    val interactionSource = remember { MutableInteractionSource() }
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -96,7 +85,7 @@ fun TrangChuContent(navController: NavController) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(170.dp),
+                .height(120.dp),
             shape = RoundedCornerShape(bottomStart = 36.dp, bottomEnd = 36.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MauCam.copy(alpha = 0.2f)
@@ -105,73 +94,6 @@ fun TrangChuContent(navController: NavController) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(top=40.dp)
             ) {
-                // Thay thế OutlinedTextField bằng BasicTextField để tùy chỉnh chiều cao và padding
-                BasicTextField(
-                    value = search,
-                    onValueChange = { search = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp) // Đặt chiều cao nhỏ gọn (50dp)
-                        .padding(horizontal = 30.dp)
-                        .align(Alignment.TopCenter)
-                        .padding(top = 10.dp)
-                        .shadow(elevation = 20.dp, shape = RoundedCornerShape(24.dp)),
-                    textStyle = TextStyle(
-                        fontSize = 17.sp, // Font chữ to 17sp
-                        color = Color.Black
-                    ),
-                    singleLine = true,
-                    interactionSource = interactionSource,
-                    cursorBrush = SolidColor(Color.Black),
-                    decorationBox = { innerTextField ->
-                        OutlinedTextFieldDefaults.DecorationBox(
-                            value = search,
-                            innerTextField = innerTextField,
-                            enabled = true,
-                            singleLine = true,
-                            visualTransformation = VisualTransformation.None,
-                            interactionSource = interactionSource,
-                            isError = false,
-                            placeholder = { 
-                                Text(
-                                    "Tìm kiếm sản phẩm", 
-                                    fontSize = 17.sp,
-                                    color = Color.Gray
-                                ) 
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    Icons.Default.Search, contentDescription = null,
-                                    modifier = Modifier.size(24.dp).padding(end = 4.dp),
-                                    tint = Color.Gray
-                                )
-                            },
-                            contentPadding = PaddingValues(start = 16.dp, end = 8.dp, top = 0.dp, bottom = 0.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                disabledContainerColor = Color.White,
-                                focusedBorderColor = Color(0xFFD5AD90),
-                                unfocusedBorderColor = MauCam.copy(alpha = 0.2f)
-                            ),
-                            container = {
-                                OutlinedTextFieldDefaults.ContainerBox(
-                                    enabled = true,
-                                    isError = false,
-                                    interactionSource = interactionSource,
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedContainerColor = Color.White,
-                                        unfocusedContainerColor = Color.White,
-                                        focusedBorderColor = Color(0xFFD5AD90),
-                                        unfocusedBorderColor = MauCam.copy(alpha = 0.2f)
-                                    ),
-                                    shape = RoundedCornerShape(24.dp)
-                                )
-                            }
-                        )
-                    }
-                )
-
                 val buttonList = listOf(
                     "Tất cả",
                     "Coffee",
@@ -187,7 +109,7 @@ fun TrangChuContent(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 26.dp),
+                        .padding(bottom = 30.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
