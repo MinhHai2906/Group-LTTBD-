@@ -16,6 +16,19 @@ class LoginViewModel : ViewModel() {
 
     private val _loginState = MutableStateFlow<String?>(null)
     val loginState = _loginState.asStateFlow()
+    private fun chuyenLoiSangTiengViet(e: Exception?): String {
+        return when (e) {
+            is com.google.firebase.auth.FirebaseAuthInvalidUserException -> "Tài khoản không tồn tại hoặc bị khóa."
+            is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException -> "Sai email hoặc mật khẩu."
+            is com.google.firebase.auth.FirebaseAuthUserCollisionException -> "Email này đã được đăng ký."
+            is com.google.firebase.FirebaseNetworkException -> "Lỗi kết nối mạng. Vui lòng kiểm tra lại."
+            else -> {
+                val msg = e?.message ?: ""
+                if (msg.contains("supplied auth credential")) "Phiên đăng nhập hết hạn hoặc lỗi xác thực."
+                else "Lỗi: $msg"
+            }
+        }
+    }
 
     fun dangKyTaiKhoan(email: String, matKhau: String, ten: String) {
         _isLoading.value = true
@@ -27,11 +40,14 @@ class LoginViewModel : ViewModel() {
                         val userMap = hashMapOf("uid" to uid, "email" to email, "ten" to ten, "role" to "user")
                         db.collection("users").document(uid).set(userMap)
                             .addOnSuccessListener { _isLoading.value = false; _loginState.value = "OK" }
-                            .addOnFailureListener { _isLoading.value = false; _loginState.value = "Lỗi lưu: ${it.message}" }
+                            .addOnFailureListener {
+                                _isLoading.value = false
+                                _loginState.value = "Lỗi lưu: ${it.message}"
+                            }
                     }
                 } else {
                     _isLoading.value = false
-                    _loginState.value = task.exception?.message ?: "Đăng ký thất bại"
+                    _loginState.value = chuyenLoiSangTiengViet(task.exception)
                 }
             }
     }
@@ -41,8 +57,11 @@ class LoginViewModel : ViewModel() {
         auth.signInWithEmailAndPassword(email, matKhau)
             .addOnCompleteListener { task ->
                 _isLoading.value = false
-                if (task.isSuccessful) _loginState.value = "OK"
-                else _loginState.value = task.exception?.message ?: "Lỗi đăng nhập"
+                if (task.isSuccessful) {
+                    _loginState.value = "OK"
+                } else {
+                    _loginState.value = chuyenLoiSangTiengViet(task.exception)
+                }
             }
     }
 
@@ -66,10 +85,11 @@ class LoginViewModel : ViewModel() {
                     }
                 } else {
                     _isLoading.value = false
-                    _loginState.value = task.exception?.message ?: "Lỗi Google"
+                    _loginState.value = chuyenLoiSangTiengViet(task.exception)
                 }
             }
     }
+
     fun quenMatKhau(email: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
         if (email.isEmpty()) {
             onThatBai("Vui lòng nhập Email!")
@@ -80,9 +100,11 @@ class LoginViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     onThanhCong()
                 } else {
-                    onThatBai(task.exception?.message ?: "Lỗi gửi mail")
+                    // Sửa lại dòng này
+                    onThatBai(chuyenLoiSangTiengViet(task.exception))
                 }
             }
     }
+
     fun resetState() { _loginState.value = null }
 }
