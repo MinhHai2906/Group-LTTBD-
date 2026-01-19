@@ -1,6 +1,7 @@
 package com.example.wateronl
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,12 +12,13 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
+
     private val _mucDoHoanThien = MutableStateFlow(0f)
     val mucDoHoanThien = _mucDoHoanThien.asStateFlow()
 
-    // Các biến cũ
     private val _hoTen = MutableStateFlow("")
     val hoTen = _hoTen.asStateFlow()
     private val _email = MutableStateFlow("...")
@@ -46,7 +48,6 @@ class ProfileViewModel : ViewModel() {
         tinhHangThanhVien()
     }
 
-    // hoàm tính độ hoàn thiện profile
     private fun tinhMucDoHoanThien() {
         var diem = 0f
         if (_hoTen.value.isNotEmpty()) diem += 0.2f
@@ -54,13 +55,13 @@ class ProfileViewModel : ViewModel() {
         if (_diaChi.value.isNotEmpty()) diem += 0.2f
         if (_ngaySinh.value.isNotEmpty()) diem += 0.2f
         if (_avatarCode.value != "avatar_1") diem += 0.2f
-
         _mucDoHoanThien.value = diem
     }
 
     fun kiemTraLoaiTaiKhoan() {
         val user = auth.currentUser
-        val isGoogle = user?.providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } ?: false
+        val isGoogle =
+            user?.providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } ?: false
         _laTaiKhoanGoogle.value = isGoogle
     }
 
@@ -69,9 +70,7 @@ class ProfileViewModel : ViewModel() {
         val user = auth.currentUser
         val uid = user?.uid
 
-        if (user?.email != null) {
-            _email.value = user.email!!
-        }
+        if (user?.email != null) _email.value = user.email!!
 
         if (uid != null) {
             db.collection("users").document(uid).get()
@@ -92,15 +91,11 @@ class ProfileViewModel : ViewModel() {
                         _gioiTinh.value = gtDb
                         _ngaySinh.value = nsDb
                         _nhanThongBao.value = thongBaoDb
-
-                        // Tính điểm sau khi tải
                         tinhMucDoHoanThien()
                     }
                     _isLoading.value = false
                 }
-                .addOnFailureListener {
-                    _isLoading.value = false
-                }
+                .addOnFailureListener { _isLoading.value = false }
         } else {
             _isLoading.value = false
         }
@@ -108,49 +103,50 @@ class ProfileViewModel : ViewModel() {
 
     fun tinhHangThanhVien() {
         val uid = auth.currentUser?.uid ?: return
-        db.collection("don_hang")
-            .whereEqualTo("uid", uid)
-            .get()
+        db.collection("don_hang").whereEqualTo("uid", uid).get()
             .addOnSuccessListener { documents ->
                 var tongTien = 0L
                 for (doc in documents) {
-                    val tienDon = doc.getDouble("tongTien")?.toLong() ?: 0L
-                    tongTien += tienDon
+                    tongTien += doc.getDouble("tongTien")?.toLong() ?: 0L
                 }
                 _tongTienTichLuy.value = tongTien
-                if (tongTien >= 5000000) {
-                    _hangThanhVien.value = "Thành viên Vàng 👑"
-                } else if (tongTien >= 1000000) {
-                    _hangThanhVien.value = "Thành viên Bạc 🥈"
-                } else {
-                    _hangThanhVien.value = "Thành viên Mới"
-                }
+                if (tongTien >= 5000000) _hangThanhVien.value = "Thành viên Vàng 👑"
+                else if (tongTien >= 1000000) _hangThanhVien.value = "Thành viên Bạc 🥈"
+                else _hangThanhVien.value = "Thành viên Mới"
             }
     }
 
-    fun dangXuat() { auth.signOut() }
+    fun dangXuat() {
+        auth.signOut()
+    }
+
     fun capNhatHoTen(tenMoi: String) {
         val uid = auth.currentUser?.uid
         if (uid != null) {
             val data = hashMapOf("ten" to tenMoi)
             db.collection("users").document(uid).set(data, SetOptions.merge())
-                .addOnSuccessListener {
-                    _hoTen.value = tenMoi
-                    tinhMucDoHoanThien()
-                }
+                .addOnSuccessListener { _hoTen.value = tenMoi; tinhMucDoHoanThien() }
         }
     }
 
-    fun capNhatThongTinChiTiet(sdtMoi: String, diaChiMoi: String, gioiTinhMoi: String, ngaySinhMoi: String) {
+    fun capNhatThongTinChiTiet(
+        sdtMoi: String,
+        diaChiMoi: String,
+        gioiTinhMoi: String,
+        ngaySinhMoi: String
+    ) {
         val uid = auth.currentUser?.uid
         if (uid != null) {
-            val data = hashMapOf("sdt" to sdtMoi, "diachi" to diaChiMoi, "gioiTinh" to gioiTinhMoi, "ngaySinh" to ngaySinhMoi)
+            val data = hashMapOf(
+                "sdt" to sdtMoi,
+                "diachi" to diaChiMoi,
+                "gioiTinh" to gioiTinhMoi,
+                "ngaySinh" to ngaySinhMoi
+            )
             db.collection("users").document(uid).set(data, SetOptions.merge())
                 .addOnSuccessListener {
-                    _sdt.value = sdtMoi
-                    _diaChi.value = diaChiMoi
-                    _gioiTinh.value = gioiTinhMoi
-                    _ngaySinh.value = ngaySinhMoi
+                    _sdt.value = sdtMoi; _diaChi.value = diaChiMoi; _gioiTinh.value =
+                    gioiTinhMoi; _ngaySinh.value = ngaySinhMoi
                     tinhMucDoHoanThien()
                 }
         }
@@ -161,10 +157,7 @@ class ProfileViewModel : ViewModel() {
         if (uid != null) {
             val data = hashMapOf("avatarCode" to maAvatarMoi)
             db.collection("users").document(uid).set(data, SetOptions.merge())
-                .addOnSuccessListener {
-                    _avatarCode.value = maAvatarMoi
-                    tinhMucDoHoanThien()
-                }
+                .addOnSuccessListener { _avatarCode.value = maAvatarMoi; tinhMucDoHoanThien() }
         }
     }
 
@@ -179,6 +172,41 @@ class ProfileViewModel : ViewModel() {
 
     fun doiMatKhau(matKhauMoi: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
         auth.currentUser?.updatePassword(matKhauMoi)
-            ?.addOnCompleteListener { task -> if (task.isSuccessful) onThanhCong() else onThatBai(task.exception?.message ?: "Lỗi") }
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) onThanhCong() else onThatBai(
+                    task.exception?.message ?: "Lỗi"
+                )
+            }
+    }
+
+    // Xóa tkhoan
+    fun xoaTaiKhoan(matKhau: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
+        val user = auth.currentUser ?: return
+
+        // 1. Nếu là Google -> Xóa luôn
+        if (_laTaiKhoanGoogle.value) {
+            db.collection("users").document(user.uid).delete()
+            user.delete().addOnCompleteListener { task ->
+                if (task.isSuccessful) onThanhCong()
+                else onThatBai("Vui lòng đăng xuất và đăng nhập lại để thực hiện!")
+            }
+            return
+        }
+
+        // 2. Nếu là Email/Pass -> Phải xác thực lại bằng mật khẩu
+        val credential = EmailAuthProvider.getCredential(user.email!!, matKhau)
+        user.reauthenticate(credential).addOnCompleteListener { reAuthTask ->
+            if (reAuthTask.isSuccessful) {
+                // Xóa dữ liệu Firestore
+                db.collection("users").document(user.uid).delete()
+                // Xóa User Auth
+                user.delete().addOnCompleteListener { deleteTask ->
+                    if (deleteTask.isSuccessful) onThanhCong()
+                    else onThatBai(deleteTask.exception?.message ?: "Lỗi xóa")
+                }
+            } else {
+                onThatBai("Mật khẩu không đúng!")
+            }
+        }
     }
 }

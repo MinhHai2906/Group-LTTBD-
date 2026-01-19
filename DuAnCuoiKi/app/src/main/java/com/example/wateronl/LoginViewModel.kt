@@ -37,9 +37,16 @@ class LoginViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val uid = auth.currentUser?.uid
                     if (uid != null) {
-                        val userMap = hashMapOf("uid" to uid, "email" to email, "ten" to ten, "role" to "user")
+                        val userMap = hashMapOf(
+                            "uid" to uid,
+                            "email" to email,
+                            "ten" to ten,
+                            "role" to "user"
+                        )
                         db.collection("users").document(uid).set(userMap)
-                            .addOnSuccessListener { _isLoading.value = false; _loginState.value = "OK" }
+                            .addOnSuccessListener {
+                                _isLoading.value = false; _loginState.value = "OK"
+                            }
                             .addOnFailureListener {
                                 _isLoading.value = false
                                 _loginState.value = "Lỗi lưu: ${it.message}"
@@ -74,14 +81,20 @@ class LoginViewModel : ViewModel() {
                     val user = auth.currentUser
                     val uid = user?.uid
                     if (uid != null) {
-                        db.collection("users").document(uid).get().addOnSuccessListener { document ->
-                            if (!document.exists()) {
-                                val userMap = hashMapOf("uid" to uid, "email" to user.email, "ten" to user.displayName, "role" to "user")
-                                db.collection("users").document(uid).set(userMap)
+                        db.collection("users").document(uid).get()
+                            .addOnSuccessListener { document ->
+                                if (!document.exists()) {
+                                    val userMap = hashMapOf(
+                                        "uid" to uid,
+                                        "email" to user.email,
+                                        "ten" to user.displayName,
+                                        "role" to "user"
+                                    )
+                                    db.collection("users").document(uid).set(userMap)
+                                }
+                                _isLoading.value = false
+                                _loginState.value = "OK"
                             }
-                            _isLoading.value = false
-                            _loginState.value = "OK"
-                        }
                     }
                 } else {
                     _isLoading.value = false
@@ -100,11 +113,12 @@ class LoginViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     onThanhCong()
                 } else {
-                    // Sửa lại dòng này
                     onThatBai(chuyenLoiSangTiengViet(task.exception))
                 }
             }
     }
 
-    fun resetState() { _loginState.value = null }
+    fun resetState() {
+        _loginState.value = null
+    }
 }
