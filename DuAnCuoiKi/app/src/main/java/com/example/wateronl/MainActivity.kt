@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -30,95 +32,99 @@ class MainActivity : ComponentActivity() {
             WaterOnlTheme {
                 val navController = rememberNavController()
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
-
-                    NavHost(
-                        navController = navController,
-                        // Bắt đầu từ màn hình chờ để kiểm tra đăng nhập
-                        startDestination = "man_hinh_cho",
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        // Màn hình chờ
-                        composable("man_hinh_cho") {
-                            ManHinhCho(
-                                onDieuHuong = { manHinhTiepTheo ->
-                                    navController.navigate(manHinhTiepTheo) {
-                                        // Xóa màn hình chờ khỏi lịch sử để không back lại được
-                                        popUpTo("man_hinh_cho") { inclusive = true }
+                        NavHost(
+                            navController = navController,
+                            startDestination = "man_hinh_cho",
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            // 1. Màn hình chờ
+                            composable("man_hinh_cho") {
+                                ManHinhCho(
+                                    onDieuHuong = { manHinhTiepTheo ->
+                                        navController.navigate(manHinhTiepTheo) {
+                                            popUpTo("man_hinh_cho") { inclusive = true }
+                                        }
                                     }
-                                }
-                            )
-                        }
+                                )
+                            }
 
-                        // màn hình đnhap
-                        composable("dang_nhap") {
-                            ManHinhDangNhap(
-                                onChuyenSangDangKy = { navController.navigate("dang_ky") },
-                                onDangNhapThanhCong = {
-                                    // Đăng nhập xong thì vào trang chủ, xóa luôn lịch sử back về login
-                                    navController.navigate("trang_chu") {
-                                        popUpTo("dang_nhap") { inclusive = true }
+                            // 2. Màn hình Đăng nhập
+                            composable("dang_nhap") {
+                                ManHinhDangNhap(
+                                    onChuyenSangDangKy = { navController.navigate("dang_ky") },
+                                    onDangNhapThanhCong = {
+                                        navController.navigate("trang_chu") {
+                                            popUpTo("dang_nhap") { inclusive = true }
+                                        }
+                                        ThongBaoApp.hienThanhCong("Chào mừng bạn trở lại!")
                                     }
-                                }
-                            )
-                        }
+                                )
+                            }
 
-                        // màn đăng ký
-                        composable("dang_ky") {
-                            ManHinhDangKy(
-                                onQuayLaiDangNhap = { navController.popBackStack() }
-                            )
-                        }
+                            // 3. Màn hình Đăng ký
+                            composable("dang_ky") {
+                                ManHinhDangKy(
+                                    onQuayLaiDangNhap = { navController.popBackStack() }
+                                )
+                            }
 
-                        // màn trang chủ
-                        composable("trang_chu") {
-                            MainScreen(
-                                onDangXuat = {
-                                    // Xử lý đăng xuất: Quay về màn đăng nhập và xóa lịch sử
-                                    navController.navigate("dang_nhap") {
-                                        popUpTo("trang_chu") { inclusive = true }
-                                    }
-                                },
-                                navController = navController
-                            )
-                        }
+                            // 4. Trang chủ
+                            composable("trang_chu") {
+                                MainScreen(
+                                    onDangXuat = {
+                                        navController.navigate("dang_nhap") {
+                                            popUpTo("trang_chu") { inclusive = true }
+                                        }
+                                        ThongBaoApp.hienThanhCong("Đã đăng xuất thành công")
+                                    },
+                                    navController = navController
+                                )
+                            }
 
-                        // Các màn hình chức năng khác
-                        composable("gio_hang_route") {
-                            GioHangScreen(
-                                onBackClick = {
-                                    navController.popBackStack()
-                                },
-                                navController = navController
-                            )
-                        }
+                            // 5. Giỏ hàng
+                            composable("gio_hang_route") {
+                                GioHangScreen(
+                                    onBackClick = { navController.popBackStack() },
+                                    navController = navController
+                                )
+                            }
 
-                        composable("thanh_toan") {
-                            val currentUser = FirebaseAuth.getInstance().currentUser
-                            val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
-                            ThanhToan(
-                                userName = userName,
-                                onBackClick = { navController.popBackStack() },
-                                navController = navController
-                            )
-                        }
+                            // 6. Thanh toán
+                            composable("thanh_toan") {
+                                val currentUser = FirebaseAuth.getInstance().currentUser
+                                val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
+                                ThanhToan(
+                                    userName = userName,
+                                    onBackClick = { navController.popBackStack() },
+                                    navController = navController
+                                )
+                            }
 
-                        composable(
-                            route = "map_screen?initialAddress={initialAddress}",
-                            arguments = listOf(navArgument("initialAddress") {
-                                type = NavType.StringType
-                                nullable = true
-                            })
-                        ) { backStackEntry ->
-                            val initialAddress = backStackEntry.arguments?.getString("initialAddress")
-                            MapScreen(
-                                initialAddress = initialAddress,
-                                onAddressSelected = {
-                                    navController.previousBackStackEntry?.savedStateHandle?.set("selected_address", it)
-                                    navController.popBackStack()
-                                },
-                                onBackClick = { navController.popBackStack() }
-                            )
+                            // 7. Map
+                            composable(
+                                route = "map_screen?initialAddress={initialAddress}",
+                                arguments = listOf(navArgument("initialAddress") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                })
+                            ) { backStackEntry ->
+                                val initialAddress = backStackEntry.arguments?.getString("initialAddress")
+                                MapScreen(
+                                    initialAddress = initialAddress,
+                                    onAddressSelected = {
+                                        navController.previousBackStackEntry?.savedStateHandle?.set("selected_address", it)
+                                        navController.popBackStack()
+                                    },
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+                        }
+                        Box(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
+                            SnackbarThongBao()
                         }
                     }
                 }
