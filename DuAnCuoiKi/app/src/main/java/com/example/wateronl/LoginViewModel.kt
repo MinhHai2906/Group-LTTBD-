@@ -35,8 +35,10 @@ class LoginViewModel : ViewModel() {
         auth.createUserWithEmailAndPassword(email, matKhau)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid
+                    val user = auth.currentUser
+                    val uid = user?.uid
                     if (uid != null) {
+                        user.sendEmailVerification()
                         val userMap = hashMapOf(
                             "uid" to uid,
                             "email" to email,

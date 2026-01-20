@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,7 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -57,6 +58,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -106,6 +108,11 @@ fun ManHinhCaNhan(
     val tongTien by viewModel.tongTienTichLuy.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val mucDoHoanThien by viewModel.mucDoHoanThien.collectAsState()
+    val daXacThuc by viewModel.daXacThucEmail.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.kiemTraTrangThaiEmail()
+    }
+
     var loaiSheetHienTai by remember { mutableStateOf<LoaiSheet?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var hienDialogDangXuat by remember { mutableStateOf(false) }
@@ -126,7 +133,6 @@ fun ManHinhCaNhan(
     }
 
     fun moSheet(loai: LoaiSheet) {
-        // Reset dữ liệu khi mở sheet
         tempTen = ten; tempSdt = sdt; tempDiaChi = diaChi
         tempNgaySinh = ngaySinh; tempGioiTinh = gioiTinh
         tempMatKhauMoi = ""; tempXacNhanMatKhau = ""; tempMatKhauXoa = ""
@@ -156,10 +162,12 @@ fun ManHinhCaNhan(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .shimmerEffect())
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .shimmerEffect()
+                    )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Box(
@@ -205,26 +213,52 @@ fun ManHinhCaNhan(
                         )
                     }
                     Spacer(modifier = Modifier.width(16.dp))
+
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(ten, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MauNauDam)
+                        Text(
+                            text = ten,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MauNauDam,
+                            modifier = Modifier.clickable { moSheet(LoaiSheet.DOI_TEN) }
+                        )
+
                         Text(
                             hangThanhVien,
                             fontSize = 14.sp,
                             color = mauHang,
                             fontWeight = FontWeight.Bold
                         )
+
+                        if (!daXacThuc && !laGoogle) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(modifier = Modifier.clickable {
+                                viewModel.guiLaiEmailXacThuc(
+                                    onThanhCong = { ThongBaoApp.hienThanhCong("Đã gửi lại email!") },
+                                    onThatBai = { ThongBaoApp.hienLoi(it) }
+                                )
+                            }, verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Error,
+                                    null,
+                                    tint = Color.Red,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    "Chưa xác thực email (Bấm để gửi lại)",
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
                         if (mucDoHoanThien < 1.0f) {
                             Spacer(modifier = Modifier.height(8.dp))
                             ThanhHoanThienHoSo(tiLe = mucDoHoanThien)
                         }
                     }
-                    Icon(
-                        Icons.Default.Edit,
-                        null,
-                        tint = Color.Gray,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { moSheet(LoaiSheet.DOI_TEN) })
                 }
             }
 
@@ -252,10 +286,13 @@ fun ManHinhCaNhan(
                 sheetState = sheetState,
                 containerColor = Color.White
             ) {
-                Column(modifier = Modifier
-                    .padding(24.dp)
-                    .padding(bottom = 20.dp)
-                    .fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding()
+                        .padding(24.dp)
+                        .padding(bottom = 20.dp)
+                ) {
                     when (loaiSheetHienTai) {
                         LoaiSheet.DOI_TEN -> {
                             Text(
@@ -532,9 +569,10 @@ fun ManHinhCaNhan(
                                         .fillMaxWidth()
                                         .height(50.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = MauCam.copy(alpha = 0.1f)
-                                    ),
-                                    shape = RoundedCornerShape(12.dp)
+                                        containerColor = MauCam.copy(
+                                            alpha = 0.1f
+                                        )
+                                    ), shape = RoundedCornerShape(12.dp)
                                 ) {
                                     Text("Đóng", fontWeight = FontWeight.Bold, color = MauCam)
                                 }
@@ -647,9 +685,8 @@ fun ManHinhCaNhan(
                                         viewModel.xoaTaiKhoan(
                                             tempMatKhauXoa,
                                             onThanhCong = {
-                                                loaiSheetHienTai = null
-                                                onDangXuat()
-                                                ThongBaoApp.hienThanhCong("Đã xóa tài khoản vĩnh viễn")
+                                                loaiSheetHienTai =
+                                                    null; onDangXuat(); ThongBaoApp.hienThanhCong("Đã xóa tài khoản vĩnh viễn")
                                             },
                                             onThatBai = { ThongBaoApp.hienLoi(it) }
                                         )
@@ -668,6 +705,7 @@ fun ManHinhCaNhan(
                                 )
                             }
                         }
+
                         else -> {}
                     }
                 }
@@ -690,6 +728,7 @@ fun ManHinhCaNhan(
         )
     }
 }
+
 @Composable
 fun ThanhHoanThienHoSo(tiLe: Float) {
     Column {
@@ -730,11 +769,7 @@ fun Modifier.shimmerEffect(): Modifier = composed {
     )
     background(
         brush = Brush.linearGradient(
-            colors = listOf(
-                Color(0xFFEBEBEB),
-                Color(0xFFF5F5F5),
-                Color(0xFFEBEBEB)
-            ),
+            colors = listOf(Color(0xFFEBEBEB), Color(0xFFF5F5F5), Color(0xFFEBEBEB)),
             start = Offset(startOffsetX, 0f),
             end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
         )

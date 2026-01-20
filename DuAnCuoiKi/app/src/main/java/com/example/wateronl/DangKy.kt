@@ -63,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun ManHinhDangKy(
     onQuayLaiDangNhap: () -> Unit,
+    onDangKyThanhCong: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -71,9 +72,8 @@ fun ManHinhDangKy(
 
     LaunchedEffect(loginState) {
         if (loginState == "OK") {
-            Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_LONG).show()
             viewModel.resetState()
-            onQuayLaiDangNhap()
+            onDangKyThanhCong()
         } else if (loginState != null) {
             Toast.makeText(context, loginState, Toast.LENGTH_SHORT).show()
             viewModel.resetState()
@@ -200,9 +200,11 @@ fun GiaoDienDangKy(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
 
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
                         Column(
                             modifier = Modifier
                                 .weight(1f)
@@ -227,10 +229,12 @@ fun GiaoDienDangKy(
                                 color = MauNauDam
                             )
                             Spacer(modifier = Modifier.height(6.dp))
-                            Box(modifier = Modifier
-                                .width(80.dp)
-                                .height(3.dp)
-                                .background(MauCam))
+                            Box(
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .height(3.dp)
+                                    .background(MauCam)
+                            )
                         }
                     }
 

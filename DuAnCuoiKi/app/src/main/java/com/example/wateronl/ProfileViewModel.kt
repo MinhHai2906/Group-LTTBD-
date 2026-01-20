@@ -41,11 +41,27 @@ class ProfileViewModel : ViewModel() {
     val hangThanhVien = _hangThanhVien.asStateFlow()
     private val _tongTienTichLuy = MutableStateFlow(0L)
     val tongTienTichLuy = _tongTienTichLuy.asStateFlow()
+    private val _daXacThucEmail = MutableStateFlow(true)
+    val daXacThucEmail = _daXacThucEmail.asStateFlow()
 
     init {
         layThongTinCaNhan()
         kiemTraLoaiTaiKhoan()
         tinhHangThanhVien()
+        kiemTraTrangThaiEmail()
+    }
+
+    fun kiemTraTrangThaiEmail() {
+        val user = auth.currentUser
+        user?.reload()?.addOnCompleteListener {
+            _daXacThucEmail.value = user.isEmailVerified
+        }
+    }
+
+    fun guiLaiEmailXacThuc(onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
+        auth.currentUser?.sendEmailVerification()
+            ?.addOnSuccessListener { onThanhCong() }
+            ?.addOnFailureListener { onThatBai(it.message ?: "Lỗi") }
     }
 
     private fun tinhMucDoHoanThien() {

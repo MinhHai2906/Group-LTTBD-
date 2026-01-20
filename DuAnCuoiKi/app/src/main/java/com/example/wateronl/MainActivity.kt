@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 2. Màn hình Đăng nhập
+                            // 2. Màn hình đăng nhập
                             composable("dang_nhap") {
                                 ManHinhDangNhap(
                                     onChuyenSangDangKy = { navController.navigate("dang_ky") },
@@ -65,10 +65,19 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 3. Màn hình Đăng ký
+                            // 3. Màn hình đăng ký
                             composable("dang_ky") {
                                 ManHinhDangKy(
-                                    onQuayLaiDangNhap = { navController.popBackStack() }
+                                    onQuayLaiDangNhap = { navController.popBackStack() },
+                                    onDangKyThanhCong = {
+                                        // Chuyển hướng đến trang chủ
+                                        navController.navigate("trang_chu") {
+                                            // Xóa sạch lịch sử để bấm Back không quay lại màn hình đăng ký/chờ
+                                            popUpTo("man_hinh_cho") { inclusive = true }
+                                        }
+                                        // Hiện thông báo
+                                        ThongBaoApp.hienThanhCong("Đăng ký thành công! Chào mừng bạn.")
+                                    }
                                 )
                             }
 
@@ -96,7 +105,8 @@ class MainActivity : ComponentActivity() {
                             // 6. Thanh toán
                             composable("thanh_toan") {
                                 val currentUser = FirebaseAuth.getInstance().currentUser
-                                val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
+                                val userName =
+                                    currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
                                 ThanhToan(
                                     userName = userName,
                                     onBackClick = { navController.popBackStack() },
@@ -112,11 +122,15 @@ class MainActivity : ComponentActivity() {
                                     nullable = true
                                 })
                             ) { backStackEntry ->
-                                val initialAddress = backStackEntry.arguments?.getString("initialAddress")
+                                val initialAddress =
+                                    backStackEntry.arguments?.getString("initialAddress")
                                 MapScreen(
                                     initialAddress = initialAddress,
                                     onAddressSelected = {
-                                        navController.previousBackStackEntry?.savedStateHandle?.set("selected_address", it)
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            "selected_address",
+                                            it
+                                        )
                                         navController.popBackStack()
                                     },
                                     onBackClick = { navController.popBackStack() }
