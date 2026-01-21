@@ -1,6 +1,7 @@
 package com.example.wateronl
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,8 +17,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.wateronl.ui.theme.WaterOnlTheme
-import com.google.firebase.auth.FirebaseAuth
 import org.osmdroid.config.Configuration
+import vn.zalopay.sdk.ZaloPaySDK
 
 class MainActivity : ComponentActivity() {
 
@@ -27,6 +28,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         Configuration.getInstance().userAgentValue = packageName
+
+        // Xử lý kết quả ZaloPay khi Activity được tạo mới
+        ZaloPaySDK.getInstance().onResult(intent)
 
         setContent {
             WaterOnlTheme {
@@ -95,12 +99,10 @@ class MainActivity : ComponentActivity() {
 
                             // 6. Thanh toán
                             composable("thanh_toan") {
-                                val currentUser = FirebaseAuth.getInstance().currentUser
-                                val userName = currentUser?.displayName?.takeIf { it.isNotBlank() } ?: "Khách"
                                 ThanhToan(
-                                    userName = userName,
                                     onBackClick = { navController.popBackStack() },
-                                    navController = navController
+                                    navController = navController,
+                                    activity = this@MainActivity
                                 )
                             }
 
@@ -130,5 +132,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Xử lý kết quả ZaloPay khi Activity đã chạy
+        ZaloPaySDK.getInstance().onResult(intent)
     }
 }

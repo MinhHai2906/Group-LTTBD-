@@ -1,5 +1,8 @@
 package com.example.wateronl
 
+import android.app.Activity
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,10 +36,12 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -44,30 +49,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.wateronl.Api.CreateOrder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import vn.zalopay.sdk.ZaloPayError
+import vn.zalopay.sdk.ZaloPaySDK
+import vn.zalopay.sdk.listeners.PayOrderListener
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ThanhToan(userName: String, onBackClick: () -> Unit, navController: NavController) {
+fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: Activity, viewModel: ProfileViewModel = viewModel()) {
     val itemsToPay = ThanhToanData.danhSachThanhToan
     val totalPrice = itemsToPay.sumOf { it.price * it.increasing }
+    val userName by viewModel.hoTen.collectAsState()
     var note by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("Nhấn để chọn địa chỉ") }
     val paymentOptions = listOf("Thanh toán khi nhận hàng", "Thanh toán chuyển khoản")
     var selectedPaymentOption by remember { mutableStateOf(paymentOptions[0]) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     val newAddressResult = navController.currentBackStackEntry
         ?.savedStateHandle
@@ -113,7 +136,7 @@ fun ThanhToan(userName: String, onBackClick: () -> Unit, navController: NavContr
                 text = "Thanh toán",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = MauCam,
+                color =  MauCam,
                 textAlign = TextAlign.Center
             )
         }
@@ -174,7 +197,15 @@ fun ThanhToan(userName: String, onBackClick: () -> Unit, navController: NavContr
                         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
                     )
                     if (phoneNumber.isEmpty()) {
-                        Text(text = "Số điện thoại", color = Color.Gray)
+                        Text(
+                            text = buildAnnotatedString {
+                                append("Số điện thoại")
+                                withStyle(style = SpanStyle(color = Color.Red, fontWeight = FontWeight.Normal)) {
+                                    append(" (Bắt buộc)")
+                                }
+                            },
+                            color = Color.Gray
+                        )
                     }
                 }
             }
@@ -220,7 +251,7 @@ fun ThanhToan(userName: String, onBackClick: () -> Unit, navController: NavContr
                                 selected = (text == selectedPaymentOption),
                                 onClick = { selectedPaymentOption = text },
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = Color(0xFFE59C54)
+                                    selectedColor = MauCam
                                 )
                             )
                             Text(
@@ -267,12 +298,75 @@ fun ThanhToan(userName: String, onBackClick: () -> Unit, navController: NavContr
                     )
                 }
                 Button(
-                    onClick = { /* Handle payment confirmation */ },
+                    onClick = {
+                        if (address == "Nhấn để chọn địa chỉ" || phoneNumber.isBlank()) {
+                            Toast.makeText(context, "Cần nhập đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show()
+                        } else {
+                            if (selectedPaymentOption == "Thanh toán chuyển khoản") {
+                                coroutineScope.launch {
+                                    try {
+                                        val orderApi = CreateOrder()
+                                        val itemsJson = JSONArray()
+                                        itemsToPay.forEach {
+                                            val item = JSONObject()
+                                            item.put("itemid", it.id)
+                                            item.put("itemname", it.namedrink)
+                                            item.put("itemprice", it.price)
+                                            item.put("itemquantity", it.increasing)
+                                            itemsJson.put(item)
+                                        }
+
+                                        val order = withContext(Dispatchers.IO) {
+                                            orderApi.createOrder(totalPrice.toLong().toString(), itemsJson.toString())
+                                        }
+
+                                        if (order != null && order.has("returncode")) {
+                                            val code = order.getInt("returncode")
+                                            if (code == 1) {
+                                                val token = order.getString("zptranstoken")
+                                                ZaloPaySDK.getInstance().payOrder(
+                                                    activity,
+                                                    token,
+                                                    "demozpdk://app",
+                                                    object : PayOrderListener {
+                                                        override fun onPaymentSucceeded(transactionId: String?, transToken: String?, appTransID: String?) {
+                                                            Toast.makeText(context, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
+                                                        }
+
+                                                        override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
+                                                            Toast.makeText(context, "Thanh toán bị hủy", Toast.LENGTH_SHORT).show()
+                                                        }
+
+                                                        override fun onPaymentError(zaloPayError: ZaloPayError?, zpTransToken: String?, appTransID: String?) {
+                                                            Toast.makeText(context, "Thanh toán thất bại", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    }
+                                                )
+                                            } else {
+                                                val returnMessage = order.getString("returnmessage")
+                                                Log.e("ZALO_PAY_FIX", "Lỗi từ ZaloPay: $returnMessage")
+                                                Toast.makeText(context, "Lỗi từ ZaloPay: $returnMessage", Toast.LENGTH_LONG).show()
+                                            }
+                                        } else {
+                                            Log.e("ZALO_PAY_FIX", "Phản hồi không hợp lệ từ server: ${order?.toString()}")
+                                            Toast.makeText(context, "Phản hồi không hợp lệ: ${order?.toString()}", Toast.LENGTH_LONG).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("ZALO_PAY_FIX", "Ngoại lệ khi tạo đơn hàng: ${e.message}")
+                                        Toast.makeText(context, "Ngoại lệ: ${e.message}", Toast.LENGTH_LONG).show()
+                                        e.printStackTrace()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context, "Xác nhận thanh toán khi nhận hàng", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 60.dp, vertical = 8.dp)
                         .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE59C54)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MauCam),
                     shape = RoundedCornerShape(40.dp)
                 ) {
                     Text(
@@ -313,11 +407,19 @@ fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Địa chỉ nhận hàng",
-                    fontSize = 10.sp,
-                    color = Color.Gray
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Địa chỉ nhận hàng",
+                        fontSize = 10.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = " (Bắt buộc)",
+                        fontSize = 10.sp,
+                        color = Color.Red,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
                 Text(
                     text = address,
                     fontSize = 12.sp,
@@ -396,7 +498,8 @@ fun ThanhToanItem(item: ThanhPhanUi) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewThanhToan() {
+    val context = LocalContext.current
     MaterialTheme {
-        ThanhToan(userName = "Khách", onBackClick = {}, navController = rememberNavController())
+        ThanhToan(onBackClick = {}, navController = rememberNavController(), activity = context as Activity)
     }
 }

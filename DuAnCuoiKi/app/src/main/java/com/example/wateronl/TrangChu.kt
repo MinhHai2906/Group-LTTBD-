@@ -58,6 +58,7 @@ import coil.compose.AsyncImage
 import androidx.navigation.compose.rememberNavController
 
 data  class ThanhPhanUi(
+    val id: String,
     @get:DrawableRes val image: Int,
     val namedrink: String,
     val price: Int,
@@ -144,6 +145,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Coffee",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
+                            id = "cfbacsiu",
                             image = R.drawable.cfbacsiu,
                             namedrink = "Bạc sĩu",
                             price = 28000,
@@ -154,6 +156,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "cfda",
                             image = R.drawable.cfda,
                             namedrink = "Cà phê đá",
                             price = 25000,
@@ -164,6 +167,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "cfmuoi",
                             image = R.drawable.cfmuoi,
                             namedrink = "Cà phê muối",
                             price = 33000,
@@ -174,6 +178,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "cfsua",
                             image = R.drawable.cfsua,
                             namedrink = "Cà phê sữa",
                             price = 28000,
@@ -189,6 +194,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Cookies đá xay",
                     danhSachThanhPhan = listOf(
                     ThanhPhanUi(
+                        id = "cookiesdaudx",
                         image = R.drawable.cookiesdaudx,
                         namedrink = "Cookies Dâu",
                         price = 40000,
@@ -199,6 +205,7 @@ fun TrangChuContent(navController: NavController) {
                         buy = "Mua ngay"
                     ),
                     ThanhPhanUi(
+                        id = "cookieschocolatepepermintdx",
                         image = R.drawable.cookieschocolatepepermintdx,
                         namedrink = "Cookies Chocolate Pepermint",
                         price = 45000,
@@ -209,6 +216,7 @@ fun TrangChuContent(navController: NavController) {
                         buy = "Mua ngay"
                     ),
                     ThanhPhanUi(
+                        id = "cookiesxoaidx",
                         image = R.drawable.cookiesxoaidx,
                         namedrink = "Cookies Xoài",
                         price = 40000,
@@ -219,6 +227,7 @@ fun TrangChuContent(navController: NavController) {
                         buy = "Mua ngay"
                     ),
                     ThanhPhanUi(
+                        id = "cookieshazelnutdx",
                         image = R.drawable.cookieshazelnutdx,
                         namedrink = "Cookies Hazelnut",
                         price = 43000,
@@ -229,6 +238,7 @@ fun TrangChuContent(navController: NavController) {
                         buy = "Mua ngay"
                     ),
                         ThanhPhanUi(
+                            id = "cookiesmatchadx",
                             image = R.drawable.cookiesdaumatchadx,
                             namedrink = "Cookies Matcha",
                             price = 40000,
@@ -239,6 +249,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "cookiesvietquatcreamcheesedx",
                             image = R.drawable.cookiesvietquatcreamcheesedx,
                             namedrink = "Cookies Việt Quất Cream Cheese",
                             price = 45000,
@@ -255,6 +266,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Đá xay",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
+                            id = "daxaydao",
                             image = R.drawable.daxaydao,
                             namedrink = "Đá Xay Đào",
                             price = 35000,
@@ -265,6 +277,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "daxaykiwi",
                             image = R.drawable.daxaykiwi,
                             namedrink = "Đá xay Kiwi",
                             price = 35000,
@@ -275,6 +288,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "daxaydautay",
                             image = R.drawable.daxaydautay,
                             namedrink = "Đá Xay Dâu Tây",
                             price = 38000,
@@ -285,6 +299,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "daxaymatcha",
                             image = R.drawable.daxaymatcha,
                             namedrink = "Đá Xay Matcha",
                             price = 35000,
@@ -295,6 +310,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "daxaykhoaimon",
                             image = R.drawable.daxaykhoaimon,
                             namedrink = "Đá Xay Khoai Môn",
                             price = 35000,
@@ -305,6 +321,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "daxaychocolate",
                             image = R.drawable.daxaychocolate,
                             namedrink = "Đá Xay Chocolate",
                             price = 35000,
@@ -315,6 +332,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "daxayphucbontu",
                             image = R.drawable.daxayphucbontu,
                             namedrink = "Đá Xay Phúc Bồn Tử",
                             price = 35000,
@@ -330,6 +348,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Sữa chua",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
+                            id = "suachuanho",
                             image = R.drawable.suachuanho,
                             namedrink = "Sữa chua nho",
                             price = 30000,
@@ -340,6 +359,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "suachuavidao",
                             image = R.drawable.suachuavidao,
                             namedrink = "Sữa Chua Đào",
                             price = 30000,
@@ -350,6 +370,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "suachuachanhday",
                             image = R.drawable.suachuachanhday,
                             namedrink = "Sữa Chua Chanh Dây",
                             price = 32000,
@@ -366,6 +387,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Soda",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
+                            id = "sodadao",
                             image = R.drawable.sodadao,
                             namedrink = "Soda Đào",
                             price = 30000,
@@ -376,6 +398,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "sodaxoai",
                             image = R.drawable.sodaxoai,
                             namedrink = "Soda Xoài",
                             price = 30000,
@@ -386,6 +409,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "sodakiwi",
                             image = R.drawable.sodakiwwi,
                             namedrink = "Soda Kiwi",
                             price = 30000,
@@ -396,6 +420,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "sodamamxoi",
                             image = R.drawable.sodamamxoi,
                             namedrink = "Soda Mâm xôi",
                             price = 35000,
@@ -406,6 +431,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "sodavietquat",
                             image = R.drawable.sodavietquat,
                             namedrink = "Soda Việt Quốc",
                             price = 35000,
@@ -416,6 +442,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "sodacafechanhbacha",
                             image = R.drawable.sodacafechanhbacha,
                             namedrink = "Soda Caffe Chanh Bạc Hà",
                             price = 35000,
@@ -432,6 +459,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Các loại Trà",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
+                            id = "traatiso",
                             image = R.drawable.traatiso,
                             namedrink = "Trà Atiso",
                             price = 40000,
@@ -442,6 +470,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "tracamsa",
                             image = R.drawable.tracamsa,
                             namedrink = "Trà Cam Xả",
                             price = 35000,
@@ -452,6 +481,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "traolongsen",
                             image = R.drawable.traolongsen,
                             namedrink = "Trà Olong Sen",
                             price = 38000,
@@ -462,6 +492,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "travaihoahong",
                             image = R.drawable.travaihoahong,
                             namedrink = "Trà Vải Hoa Hồng",
                             price = 35000,
@@ -472,6 +503,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "tratraicaynhietdoi",
                             image = R.drawable.tratraicaynhietdoi,
                             namedrink = "Trà Trái Cây Nhiệt Đới",
                             price = 35000,
@@ -487,6 +519,7 @@ fun TrangChuContent(navController: NavController) {
                     nameMon = "Nước ép",
                     danhSachThanhPhan = listOf(
                         ThanhPhanUi(
+                            id = "nethom",
                             image = R.drawable.nethom,
                             namedrink = "Nước ép thơm",
                             price = 30000,
@@ -497,6 +530,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "nebuoi",
                             image = R.drawable.nebuoi,
                             namedrink = "Nước ép bưởi",
                             price = 30000,
@@ -507,6 +541,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "netao",
                             image = R.drawable.netao,
                             namedrink = "Nước ép táo",
                             price = 30000,
@@ -517,6 +552,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "necam",
                             image = R.drawable.necam,
                             namedrink = "Nước ép cam",
                             price = 30000,
@@ -527,6 +563,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
                         ThanhPhanUi(
+                            id = "neduahau",
                             image = R.drawable.neduahau,
                             namedrink = "Nước ép dưa hấu",
                             price = 30000,
