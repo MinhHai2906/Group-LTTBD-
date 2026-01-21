@@ -72,7 +72,8 @@ class MainActivity : ComponentActivity() {
                             // 3. Màn hình Đăng ký
                             composable("dang_ky") {
                                 ManHinhDangKy(
-                                    onQuayLaiDangNhap = { navController.popBackStack() }
+                                    onQuayLaiDangNhap = { navController.popBackStack() },
+                                    onDangKyThanhCong = { navController.popBackStack() }
                                 )
                             }
 
