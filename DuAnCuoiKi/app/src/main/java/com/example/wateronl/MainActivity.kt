@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 2. Màn hình Đăng nhập
+                            // 2. Màn hình đăng nhập
                             composable("dang_nhap") {
                                 ManHinhDangNhap(
                                     onChuyenSangDangKy = { navController.navigate("dang_ky") },
@@ -73,7 +73,12 @@ class MainActivity : ComponentActivity() {
                             composable("dang_ky") {
                                 ManHinhDangKy(
                                     onQuayLaiDangNhap = { navController.popBackStack() },
-                                    onDangKyThanhCong = { navController.popBackStack() }
+                                    onDangKyThanhCong = {
+                                        navController.navigate("trang_chu") {
+                                            popUpTo("man_hinh_cho") { inclusive = true }
+                                        }
+                                        ThongBaoApp.hienThanhCong("Đăng ký thành công! Vui lòng kiểm tra email xác thực.")
+                                    }
                                 )
                             }
 
@@ -115,11 +120,15 @@ class MainActivity : ComponentActivity() {
                                     nullable = true
                                 })
                             ) { backStackEntry ->
-                                val initialAddress = backStackEntry.arguments?.getString("initialAddress")
+                                val initialAddress =
+                                    backStackEntry.arguments?.getString("initialAddress")
                                 MapScreen(
                                     initialAddress = initialAddress,
                                     onAddressSelected = {
-                                        navController.previousBackStackEntry?.savedStateHandle?.set("selected_address", it)
+                                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                                            "selected_address",
+                                            it
+                                        )
                                         navController.popBackStack()
                                     },
                                     onBackClick = { navController.popBackStack() }

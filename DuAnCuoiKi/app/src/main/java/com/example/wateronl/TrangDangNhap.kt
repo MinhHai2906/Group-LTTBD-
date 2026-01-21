@@ -250,11 +250,13 @@ fun GiaoDienDangNhap(
                 Column(
                     modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) { // Tăng spacing lên 16 cho thoáng
+                ) {
 
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
                         Column(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -266,10 +268,12 @@ fun GiaoDienDangNhap(
                                 color = MauNauDam
                             )
                             Spacer(modifier = Modifier.height(6.dp))
-                            Box(modifier = Modifier
-                                .width(80.dp)
-                                .height(3.dp)
-                                .background(MauCam))
+                            Box(
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .height(3.dp)
+                                    .background(MauCam)
+                            )
                         }
                         Column(
                             modifier = Modifier

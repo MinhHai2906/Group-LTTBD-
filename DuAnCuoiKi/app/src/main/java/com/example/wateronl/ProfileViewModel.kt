@@ -61,7 +61,16 @@ class ProfileViewModel : ViewModel() {
     fun guiLaiEmailXacThuc(onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
         auth.currentUser?.sendEmailVerification()
             ?.addOnSuccessListener { onThanhCong() }
-            ?.addOnFailureListener { onThatBai(it.message ?: "Lỗi") }
+            ?.addOnFailureListener { e ->
+                val loiTiengViet = if (e.message?.contains("blocked all requests") == true) {
+                    "Bạn gửi yêu cầu quá nhanh. Vui lòng đợi vài phút rồi thử lại!"
+                } else if (e is com.google.firebase.FirebaseNetworkException) {
+                    "Lỗi kết nối mạng. Vui lòng kiểm tra lại."
+                } else {
+                    "Lỗi: ${e.message}"
+                }
+                onThatBai(loiTiengViet)
+            }
     }
 
     private fun tinhMucDoHoanThien() {
