@@ -72,9 +72,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
     implementation(fileTree(mapOf(
-        "dir" to "E:\\ZaloPay",
-        "include" to listOf("*.aar", "*.jar"),
-        "exclude" to listOf("")
+        "dir" to "libs",
+        "include" to listOf("*.aar", "*.jar")
     )))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
