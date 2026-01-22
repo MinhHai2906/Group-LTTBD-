@@ -83,7 +83,15 @@ class MainActivity : ComponentActivity() {
                             }
 
                             // 4. Trang chủ
-                            composable("trang_chu") {
+                            composable(
+                                route = "trang_chu?tabIndex={tabIndex}",
+                                arguments = listOf(androidx.navigation.navArgument("tabIndex") {
+                                    type = androidx.navigation.NavType.IntType
+                                    defaultValue = 0
+                                })
+                            ) { backStackEntry ->
+                                val tabIndex = backStackEntry.arguments?.getInt("tabIndex") ?: 0
+
                                 MainScreen(
                                     onDangXuat = {
                                         navController.navigate("dang_nhap") {
@@ -91,7 +99,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                         ThongBaoApp.hienThanhCong("Đã đăng xuất thành công")
                                     },
-                                    navController = navController
+                                    navController = navController,
+                                    initialTab = tabIndex
                                 )
                             }
 
@@ -133,6 +142,18 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onBackClick = { navController.popBackStack() }
                                 )
+                            }
+                            composable("lich_su_don_hang") {
+                            }
+                            composable(
+                                route = "chi_tiet_don_hang/{donHangId}",
+                                arguments = listOf(navArgument("donHangId") {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val donHangId =
+                                    backStackEntry.arguments?.getString("donHangId") ?: ""
+                                ChiTietDonHang(navController = navController, donHangId = donHangId)
                             }
                         }
                         Box(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {

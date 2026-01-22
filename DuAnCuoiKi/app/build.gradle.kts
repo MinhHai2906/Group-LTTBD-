@@ -91,7 +91,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("org.osmdroid:osmdroid-android:6.1.18")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("com.squareup.okhttp3:okhttp:4.6.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("commons-codec:commons-codec:1.14")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("org.json:json:20210307")
 }

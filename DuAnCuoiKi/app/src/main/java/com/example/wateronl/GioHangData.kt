@@ -1,39 +1,54 @@
 package com.example.wateronl
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import com.google.firebase.auth.FirebaseAuth
 
 object GioHangData {
     val danhSachSanPham = mutableStateListOf<ThanhPhanUi>()
-    private var sharedPreferencesManager: SharedPreferencesManager? = null
+    private var prefs: SharedPreferencesManager? = null
+    private val currentUid: String
+        get() = FirebaseAuth.getInstance().currentUser?.uid ?: "khach_vang_lai"
 
     fun init(context: Context) {
-        sharedPreferencesManager = SharedPreferencesManager(context)
+        prefs = SharedPreferencesManager(context)
+        FirebaseAuth.getInstance().addAuthStateListener {
+            Log.d("GIO_HANG", "Phát hiện đổi tài khoản -> Tải lại giỏ hàng cho: $currentUid")
+            taiLaiGioHang()
+        }
+    }
+
+    fun taiLaiGioHang() {
+        // 1. Lấy dữ liệu của người dùng hiện tại
+        val dataCu = prefs?.taiDanhSachSanPham(currentUid) ?: emptyList()
+
+        // 2. Xóa sạch dữ liệu cũ đang hiển thị trên màn hình
         danhSachSanPham.clear()
-        danhSachSanPham.addAll(sharedPreferencesManager!!.taiDanhSachSanPham())
+
+        // 3. Nạp dữ liệu mới vào
+        danhSachSanPham.addAll(dataCu)
+    }
+
+    private fun luuDuLieu() {
+        prefs?.luuDanhSachSanPham(currentUid, danhSachSanPham.toList())
     }
 
     fun themVaoGio(sanPham: ThanhPhanUi) {
         val index = danhSachSanPham.indexOfFirst { it.namedrink == sanPham.namedrink }
         if (index != -1) {
-            // Nếu đã có:
-            // 1. Cập nhật số lượng
             val sanPhamCu = danhSachSanPham[index]
             val sanPhamMoi = sanPhamCu.copy(increasing = sanPhamCu.increasing + sanPham.increasing)
-
-            // 2. Xóa vị trí cũ và đưa lên đầu để người dùng thấy mới nhất
-            danhSachSanPham.removeAt(index)
-            danhSachSanPham.add(0, sanPhamMoi)
+            danhSachSanPham[index] = sanPhamMoi
         } else {
-            // Nếu chưa có, thêm vào đầu danh sách (vị trí 0)
             danhSachSanPham.add(0, sanPham)
         }
-        luuGioHang()
+        luuDuLieu()
     }
 
     fun xoaKhoiGio(sanPham: ThanhPhanUi) {
         danhSachSanPham.remove(sanPham)
-        luuGioHang()
+        luuDuLieu()
     }
 
     fun tinhTongTien(): Int {
@@ -48,11 +63,7 @@ object GioHangData {
             } else {
                 danhSachSanPham.removeAt(index)
             }
-            luuGioHang()
+            luuDuLieu()
         }
-    }
-
-    private fun luuGioHang() {
-        sharedPreferencesManager?.luuDanhSachSanPham(danhSachSanPham.toList())
     }
 }

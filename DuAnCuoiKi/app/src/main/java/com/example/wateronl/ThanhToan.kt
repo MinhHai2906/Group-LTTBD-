@@ -1,7 +1,7 @@
 package com.example.wateronl
 
+// --- CÁC IMPORT QUAN TRỌNG ---
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +31,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -57,16 +56,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.wateronl.Api.CreateOrder
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,10 +76,16 @@ import vn.zalopay.sdk.ZaloPayError
 import vn.zalopay.sdk.ZaloPaySDK
 import vn.zalopay.sdk.listeners.PayOrderListener
 
+// -----------------------------
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: Activity, viewModel: ProfileViewModel = viewModel()) {
+fun ThanhToan(
+    onBackClick: () -> Unit,
+    navController: NavController,
+    activity: Activity,
+    viewModel: ProfileViewModel = viewModel()
+) {
     val itemsToPay = ThanhToanData.danhSachThanhToan
     val totalPrice = itemsToPay.sumOf { it.price * it.increasing }
     val userName by viewModel.hoTen.collectAsState()
@@ -92,6 +98,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
+    // Lắng nghe kết quả chọn địa chỉ từ MapScreen
     val newAddressResult = navController.currentBackStackEntry
         ?.savedStateHandle
         ?.getLiveData<String>("selected_address")
@@ -110,6 +117,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
+        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,16 +135,14 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = "back",
                     tint = MauCam,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .align(Alignment.CenterStart)
+                    modifier = Modifier.size(50.dp)
                 )
             }
             Text(
                 text = "Thanh toán",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color =  MauCam,
+                color = MauCam,
                 textAlign = TextAlign.Center
             )
         }
@@ -166,6 +172,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                 )
             }
 
+            // Card chọn địa chỉ
             item {
                 DiaChiCard(
                     address = address,
@@ -175,6 +182,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                 )
             }
 
+            // Input số điện thoại
             item {
                 Box(
                     modifier = Modifier
@@ -185,7 +193,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                             color = Color.Gray,
                             shape = RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 16.dp,vertical = 5.dp),
+                        .padding(horizontal = 16.dp, vertical = 5.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
                     BasicTextField(
@@ -193,14 +201,23 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                         onValueChange = { phoneNumber = it },
                         textStyle = TextStyle(fontSize = 14.sp),
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        // SỬA: Chuyển sang bàn phím số
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
                         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
                     )
                     if (phoneNumber.isEmpty()) {
                         Text(
                             text = buildAnnotatedString {
                                 append("Số điện thoại")
-                                withStyle(style = SpanStyle(color = Color.Red, fontWeight = FontWeight.Normal)) {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                ) {
                                     append(" (Bắt buộc)")
                                 }
                             },
@@ -210,6 +227,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                 }
             }
 
+            // Input ghi chú
             item {
                 Box(
                     modifier = Modifier
@@ -237,6 +255,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                 }
             }
 
+            // Chọn phương thức thanh toán
             item {
                 Column {
                     paymentOptions.forEach { text ->
@@ -256,7 +275,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                             )
                             Text(
                                 text = text,
-                                fontSize =14.sp,
+                                fontSize = 14.sp,
                                 modifier = Modifier.padding(start = 4.dp)
                             )
                         }
@@ -265,6 +284,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
             }
         }
 
+        // Card Tổng tiền & Nút thanh toán
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -297,12 +317,96 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                         color = Color.Black
                     )
                 }
+
+                // === NÚT XÁC NHẬN THANH TOÁN ===
                 Button(
                     onClick = {
-                        if (address == "Nhấn để chọn địa chỉ" || phoneNumber.isBlank()) {
-                            Toast.makeText(context, "Cần nhập đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show()
+                        // SỬA: Logic Validate số điện thoại chặt chẽ hơn
+                        val isPhoneValid = phoneNumber.length == 10 &&
+                                phoneNumber.startsWith("0") &&
+                                phoneNumber.all { it.isDigit() }
+
+                        // 1. Kiểm tra thông tin đầu vào
+                        if (address == "Nhấn để chọn địa chỉ") {
+                            Toast.makeText(
+                                context,
+                                "Vui lòng chọn địa chỉ nhận hàng",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (phoneNumber.isBlank()) {
+                            Toast.makeText(
+                                context,
+                                "Vui lòng nhập số điện thoại",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (!isPhoneValid) {
+                            Toast.makeText(
+                                context,
+                                "Số điện thoại phải bắt đầu bằng 0 và đủ 10 số",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
+                            // 2. Chuẩn bị dữ liệu Đơn hàng
+                            val auth = FirebaseAuth.getInstance()
+                            val user = auth.currentUser
+                            val maDonHang = "DH_${System.currentTimeMillis()}"
+                            val thoiGianHienTai = System.currentTimeMillis()
+                            val sdf = java.text.SimpleDateFormat(
+                                "dd/MM/yyyy HH:mm",
+                                java.util.Locale.getDefault()
+                            )
+                            val ngayDep = sdf.format(java.util.Date(thoiGianHienTai))
+                            val danhSachMonAn = itemsToPay.map {
+                                ChiTietDonHang(it.namedrink, it.image, it.increasing, it.price)
+                            }
+                            val donHangMoi = DonHang(
+                                id = maDonHang,
+                                uid = user?.uid ?: "",
+                                tenNguoiNhan = userName,
+                                sdt = phoneNumber,
+                                diaChi = address,
+                                ghiChu = note,
+                                tongTien = totalPrice.toLong(),
+                                phuongThuc = selectedPaymentOption,
+                                daThanhToan = false,
+                                trangThai = 0,
+                                ngayDat = ngayDep,
+                                timestamp = thoiGianHienTai,
+                                danhSachMon = danhSachMonAn
+                            )
+
+                            // Hàm phụ trợ để lưu đơn hàng lên Firebase
+                            fun luuLenFirebase(donHang: DonHang) {
+                                val db = FirebaseFirestore.getInstance()
+                                db.collection("don_hang").document(donHang.id).set(donHang)
+                                    .addOnSuccessListener {
+                                        // Xóa giỏ hàng và danh sách thanh toán
+                                        itemsToPay.forEach { item -> GioHangData.xoaKhoiGio(item) }
+                                        ThanhToanData.danhSachThanhToan.clear()
+
+                                        Toast.makeText(
+                                            context,
+                                            "Đặt hàng thành công!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+
+                                        // SỬA ĐOẠN NÀY: Chuyển về trang_chu nhưng ép buộc mở Tab 2 (Đơn hàng)
+                                        navController.navigate("trang_chu?tabIndex=2") { // số 2 là tab Đơn hàng
+                                            popUpTo("trang_chu") { inclusive = true }
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(
+                                            context,
+                                            "Lỗi lưu đơn: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+
+                            // 3. Xử lý Logic Thanh Toán
                             if (selectedPaymentOption == "Thanh toán chuyển khoản") {
+                                // --- LOGIC ZALOPAY ---
                                 coroutineScope.launch {
                                     try {
                                         val orderApi = CreateOrder()
@@ -316,8 +420,12 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                                             itemsJson.put(item)
                                         }
 
+                                        // Gọi API tạo đơn hàng
                                         val order = withContext(Dispatchers.IO) {
-                                            orderApi.createOrder(totalPrice.toLong().toString(), itemsJson.toString())
+                                            orderApi.createOrder(
+                                                totalPrice.toLong().toString(),
+                                                itemsJson.toString()
+                                            )
                                         }
 
                                         if (order != null && order.has("returncode")) {
@@ -329,36 +437,62 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
                                                     token,
                                                     "demozpdk://app",
                                                     object : PayOrderListener {
-                                                        override fun onPaymentSucceeded(transactionId: String?, transToken: String?, appTransID: String?) {
-                                                            Toast.makeText(context, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
+                                                        override fun onPaymentSucceeded(
+                                                            transactionId: String?,
+                                                            transToken: String?,
+                                                            appTransID: String?
+                                                        ) {
+                                                            // ZaloPay thành công -> Cập nhật trạng thái -> Lưu
+                                                            donHangMoi.daThanhToan = true
+                                                            donHangMoi.ghiChu += " (Đã thanh toán qua ZaloPay)"
+                                                            luuLenFirebase(donHangMoi)
                                                         }
 
-                                                        override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
-                                                            Toast.makeText(context, "Thanh toán bị hủy", Toast.LENGTH_SHORT).show()
+                                                        override fun onPaymentCanceled(
+                                                            zpTransToken: String?,
+                                                            appTransID: String?
+                                                        ) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Đã hủy thanh toán ZaloPay",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
                                                         }
 
-                                                        override fun onPaymentError(zaloPayError: ZaloPayError?, zpTransToken: String?, appTransID: String?) {
-                                                            Toast.makeText(context, "Thanh toán thất bại", Toast.LENGTH_SHORT).show()
+                                                        override fun onPaymentError(
+                                                            zaloPayError: ZaloPayError?,
+                                                            zpTransToken: String?,
+                                                            appTransID: String?
+                                                        ) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Lỗi thanh toán ZaloPay",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
                                                         }
                                                     }
                                                 )
                                             } else {
-                                                val returnMessage = order.getString("returnmessage")
-                                                Log.e("ZALO_PAY_FIX", "Lỗi từ ZaloPay: $returnMessage")
-                                                Toast.makeText(context, "Lỗi từ ZaloPay: $returnMessage", Toast.LENGTH_LONG).show()
+                                                val msg = order.getString("returnmessage")
+                                                Toast.makeText(
+                                                    context,
+                                                    "Lỗi ZaloPay: $msg",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
                                             }
-                                        } else {
-                                            Log.e("ZALO_PAY_FIX", "Phản hồi không hợp lệ từ server: ${order?.toString()}")
-                                            Toast.makeText(context, "Phản hồi không hợp lệ: ${order?.toString()}", Toast.LENGTH_LONG).show()
                                         }
                                     } catch (e: Exception) {
-                                        Log.e("ZALO_PAY_FIX", "Ngoại lệ khi tạo đơn hàng: ${e.message}")
-                                        Toast.makeText(context, "Ngoại lệ: ${e.message}", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Lỗi tạo đơn: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                         e.printStackTrace()
                                     }
                                 }
                             } else {
-                                Toast.makeText(context, "Xác nhận thanh toán khi nhận hàng", Toast.LENGTH_SHORT).show()
+                                // --- LOGIC TIỀN MẶT ---
+                                luuLenFirebase(donHangMoi)
                             }
                         }
                     },
@@ -382,6 +516,7 @@ fun ThanhToan(onBackClick: () -> Unit, navController: NavController, activity: A
     }
 }
 
+// UI Con: Card địa chỉ
 @Composable
 fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
     Card(
@@ -408,11 +543,7 @@ fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Địa chỉ nhận hàng",
-                        fontSize = 10.sp,
-                        color = Color.Gray
-                    )
+                    Text(text = "Địa chỉ nhận hàng", fontSize = 10.sp, color = Color.Gray)
                     Text(
                         text = " (Bắt buộc)",
                         fontSize = 10.sp,
@@ -430,14 +561,15 @@ fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
             }
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Edit Address",
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
                 tint = Color.Gray
             )
         }
     }
 }
 
+// UI Con: Item món ăn trong danh sách thanh toán
 @Composable
 fun ThanhToanItem(item: ThanhPhanUi) {
     Card(
@@ -479,11 +611,7 @@ fun ThanhToanItem(item: ThanhPhanUi) {
                     color = Color.Black,
                     maxLines = 1
                 )
-                Text(
-                    text = "Số lượng: ${item.increasing}",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
+                Text(text = "Số lượng: ${item.increasing}", fontSize = 16.sp, color = Color.Gray)
                 Text(
                     text = "${item.price}đ",
                     fontSize = 16.sp,
@@ -492,14 +620,5 @@ fun ThanhToanItem(item: ThanhPhanUi) {
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewThanhToan() {
-    val context = LocalContext.current
-    MaterialTheme {
-        ThanhToan(onBackClick = {}, navController = rememberNavController(), activity = context as Activity)
     }
 }

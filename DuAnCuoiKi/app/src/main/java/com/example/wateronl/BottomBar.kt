@@ -22,10 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +39,12 @@ private val NavItems = listOf(
 )
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, onDangXuat: () -> Unit,navController: NavController, initialTab: Int = 0) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    onDangXuat: () -> Unit,
+    navController: NavController,
+    initialTab: Int = 0
+) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(initialTab) }
 
     Scaffold(
@@ -57,35 +60,33 @@ fun MainScreen(modifier: Modifier = Modifier, onDangXuat: () -> Unit,navControll
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = innerPadding.calculateBottomPadding()) 
+                .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             when (selectedIndex) {
                 0 -> TrangChuContent(navController = navController)
-                1 -> GioHangScreen(onBackClick = { selectedIndex = 0 }, navController = navController)
-                2 -> DonHangScreen()
-                3 -> ManHinhCaNhan(onDangXuat = onDangXuat)
+                1 -> GioHangScreen(
+                    onBackClick = { selectedIndex = 0 },
+                    navController = navController
+                )
+                // --- SỬA ĐOẠN NÀY ---
+                2 -> LichSuDonHang(
+                    navController = navController,
+                    hienNutBack = false, // Ở BottomBar thì không hiện nút Back
+                    onItemClick = { maDonHang ->
+                        // Khi bấm vào một đơn hàng -> Chuyển sang màn hình Chi tiết
+                        navController.navigate("chi_tiet_don_hang/$maDonHang")
+                    }
+                )
+                // --------------------
 
+                3 -> ManHinhCaNhan(
+                    navController = navController,
+                    onDangXuat = onDangXuat
+                )
             }
         }
     }
 }
-
-@Composable
-fun DonHangScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Màn hình đơn hàng",
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            color = Color.Gray,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-    }
-}
-
 
 @Composable
 fun ThanhBottomBar(
@@ -114,13 +115,13 @@ fun ThanhBottomBar(
                         fontSize = 10.sp
                     )
                 },
-                        colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MauCam,
-                selectedTextColor = MauCam,
-                unselectedIconColor = Color.Black,
-                unselectedTextColor = Color.Black,
-                indicatorColor = Color.Transparent
-            )
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MauCam,
+                    selectedTextColor = MauCam,
+                    unselectedIconColor = Color.Black,
+                    unselectedTextColor = Color.Black,
+                    indicatorColor = Color.Transparent
+                )
             )
         }
     }
@@ -130,6 +131,6 @@ fun ThanhBottomBar(
 @Composable
 fun PreviewMainScreen() {
     MaterialTheme {
-        MainScreen(onDangXuat = {},navController = rememberNavController())
+        MainScreen(onDangXuat = {}, navController = rememberNavController())
     }
 }

@@ -1,0 +1,175 @@
+package com.example.wateronl
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LichSuDonHang(
+    navController: NavController,
+    hienNutBack: Boolean = true,
+    // --- THÊM THAM SỐ NÀY ĐỂ HẾT LỖI ---
+    onItemClick: (String) -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
+    val danhSachDonHang = remember { mutableStateListOf<DonHang>() }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(key1 = user) {
+        if (user != null) {
+            db.collection("don_hang")
+                .whereEqualTo("uid", user.uid)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener { snapshots, e ->
+                    if (e != null) {
+                        isLoading = false; return@addSnapshotListener
+                    }
+                    if (snapshots != null) {
+                        danhSachDonHang.clear()
+                        for (doc in snapshots) {
+                            val donHang = doc.toObject(DonHang::class.java)
+                            if (donHang.timestamp == 0L) donHang.timestamp =
+                                System.currentTimeMillis()
+                            danhSachDonHang.add(donHang)
+                        }
+                    }
+                    isLoading = false
+                }
+        } else {
+            isLoading = false
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Đơn hàng của tôi", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    if (hienNutBack) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (danhSachDonHang.isEmpty()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Bạn chưa có đơn hàng nào", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(danhSachDonHang) { donHang ->
+                        // Truyền sự kiện click vào đây
+                        ItemDonHang(donHang, onClick = { onItemClick(donHang.id) })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) { // Thêm tham số onClick
+    val mauTrangThai = when (donHang.trangThai) {
+        0 -> Color(0xFFFF9800); 1 -> Color(0xFF2196F3); 2 -> Color(0xFF9C27B0)
+        3 -> Color(0xFF4CAF50); 4 -> Color(0xFFF44336); else -> Color.Gray
+    }
+    val tenTrangThai = when (donHang.trangThai) {
+        0 -> "Chờ xác nhận"; 1 -> "Đang pha chế"; 2 -> "Đang giao hàng"
+        3 -> "Giao thành công"; 4 -> "Đã hủy"; else -> "Không xác định"
+    }
+
+    Card(
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() } // <-- GẮN SỰ KIỆN CLICK VÀO CARD
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("#${donHang.id.takeLast(8)}", fontWeight = FontWeight.Bold, color = Color.Gray)
+                Text(text = donHang.ngayDat, fontSize = 12.sp, color = Color.Gray)
+            }
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            donHang.danhSachMon.take(2).forEach { item ->
+                Text(
+                    "${item.soLuong}x ${item.tenMon}",
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+            if (donHang.danhSachMon.size > 2) {
+                Text(
+                    "... và ${donHang.danhSachMon.size - 2} món khác",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "${donHang.tongTien}đ",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color(0xFFD84315)
+                )
+                Surface(
+                    color = mauTrangThai.copy(alpha = 0.2f),
+                    contentColor = mauTrangThai,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        tenTrangThai,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}

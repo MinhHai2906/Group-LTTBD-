@@ -83,6 +83,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 enum class LoaiSheet {
     DOI_TEN, DOI_MAT_KHAU, DOI_AVATAR, THONG_TIN_CHI_TIET, CAI_DAT, HANG_THANH_VIEN, XOA_TAI_KHOAN
@@ -91,6 +93,7 @@ enum class LoaiSheet {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManHinhCaNhan(
+    navController: NavController,
     onDangXuat: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
@@ -276,6 +279,7 @@ fun ManHinhCaNhan(
                 Icons.Default.Lock,
                 "Đổi mật khẩu"
             ) { moSheet(LoaiSheet.DOI_MAT_KHAU) }
+
             MucChonProfile(Icons.Default.Settings, "Cài đặt") { moSheet(LoaiSheet.CAI_DAT) }
             MucChonProfile(Icons.Default.ExitToApp, "Đăng xuất", true) { hienDialogDangXuat = true }
         }
@@ -809,5 +813,5 @@ fun MucChonProfile(icon: ImageVector, tieuDe: String, isRed: Boolean = false, on
 @Preview(showBackground = true)
 @Composable
 fun PreviewProfile() {
-    ManHinhCaNhan(onDangXuat = {})
+    ManHinhCaNhan(navController = rememberNavController(), onDangXuat = {})
 }

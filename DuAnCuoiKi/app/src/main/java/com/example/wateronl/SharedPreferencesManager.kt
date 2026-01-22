@@ -8,22 +8,33 @@ import com.google.gson.reflect.TypeToken
 
 class SharedPreferencesManager(context: Context) {
 
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("GioHangPrefs", Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("GioHangPrefs", Context.MODE_PRIVATE)
     private val gson = Gson()
 
-    fun luuDanhSachSanPham(danhSach: List<ThanhPhanUi>) {
+    // SỬA: Thêm tham số userId để lưu riêng cho từng người
+    fun luuDanhSachSanPham(userId: String, danhSach: List<ThanhPhanUi>) {
         val json = gson.toJson(danhSach)
+        // Key lưu trữ sẽ là "CART_IDCuaUser"
         sharedPreferences.edit {
-            putString("DANH_SACH_SAN_PHAM", json)
+            putString("CART_$userId", json)
         }
     }
 
-    fun taiDanhSachSanPham(): List<ThanhPhanUi> {
-        val json = sharedPreferences.getString("DANH_SACH_SAN_PHAM", null)
+    // SỬA: Thêm tham số userId để tải đúng giỏ của người đó
+    fun taiDanhSachSanPham(userId: String): List<ThanhPhanUi> {
+        val json = sharedPreferences.getString("CART_$userId", null)
         if (json != null) {
             val type = object : TypeToken<List<ThanhPhanUi>>() {}.type
             return gson.fromJson(json, type)
         }
         return emptyList()
+    }
+
+    // Hàm xóa giỏ hàng (nếu cần sau này)
+    fun xoaGioHang(userId: String) {
+        sharedPreferences.edit {
+            remove("CART_$userId")
+        }
     }
 }
