@@ -1,18 +1,43 @@
 package com.example.wateronl
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -20,12 +45,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LichSuDonHang(
     navController: NavController,
     hienNutBack: Boolean = true,
-    // --- THÊM THAM SỐ NÀY ĐỂ HẾT LỖI ---
     onItemClick: (String) -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -59,28 +82,50 @@ fun LichSuDonHang(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Đơn hàng của tôi", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    if (hienNutBack) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
-            )
-        }
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(Color(0xFFF9F9F9))
+    ) {
         Box(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 10.dp),
+            contentAlignment = Alignment.Center
         ) {
+            if (hienNutBack) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(50.dp)
+                        .padding(start = 20.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_back),
+                        contentDescription = "back",
+                        tint = MauCam,
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+
+            Text(
+                text = "Đơn hàng của tôi",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MauCam,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
             if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = MauCam
+                )
             } else if (danhSachDonHang.isEmpty()) {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
@@ -94,7 +139,6 @@ fun LichSuDonHang(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(danhSachDonHang) { donHang ->
-                        // Truyền sự kiện click vào đây
                         ItemDonHang(donHang, onClick = { onItemClick(donHang.id) })
                     }
                 }
@@ -104,7 +148,7 @@ fun LichSuDonHang(
 }
 
 @Composable
-fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) { // Thêm tham số onClick
+fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
     val mauTrangThai = when (donHang.trangThai) {
         0 -> Color(0xFFFF9800); 1 -> Color(0xFF2196F3); 2 -> Color(0xFF9C27B0)
         3 -> Color(0xFF4CAF50); 4 -> Color(0xFFF44336); else -> Color.Gray
@@ -120,7 +164,7 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) { // Thêm tham số onCl
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() } // <-- GẮN SỰ KIỆN CLICK VÀO CARD
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

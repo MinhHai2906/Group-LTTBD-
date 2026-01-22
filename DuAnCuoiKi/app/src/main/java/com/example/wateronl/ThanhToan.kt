@@ -1,6 +1,5 @@
 package com.example.wateronl
 
-// --- CÁC IMPORT QUAN TRỌNG ---
 import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.border
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -76,8 +76,6 @@ import vn.zalopay.sdk.ZaloPayError
 import vn.zalopay.sdk.ZaloPaySDK
 import vn.zalopay.sdk.listeners.PayOrderListener
 
-// -----------------------------
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ThanhToan(
@@ -113,7 +111,7 @@ fun ThanhToan(
 
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -121,7 +119,7 @@ fun ThanhToan(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 30.dp),
+                .padding(top = 20.dp, bottom = 10.dp),
             contentAlignment = Alignment.Center
         ) {
             IconButton(

@@ -144,6 +144,13 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable("lich_su_don_hang") {
+                                LichSuDonHang(
+                                    navController = navController,
+                                    hienNutBack = true,
+                                    onItemClick = { donHangId ->
+                                        navController.navigate("chi_tiet_don_hang/$donHangId")
+                                    }
+                                )
                             }
                             composable(
                                 route = "chi_tiet_don_hang/{donHangId}",
@@ -167,7 +174,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Xử lý kết quả ZaloPay khi Activity đã chạy
         ZaloPaySDK.getInstance().onResult(intent)
     }
 }

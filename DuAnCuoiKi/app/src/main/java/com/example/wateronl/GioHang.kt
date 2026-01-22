@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -86,31 +87,15 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
     // --- Hết quản lý State mới ---
 
     Column(
-        modifier=Modifier.fillMaxSize(),
+        modifier=Modifier.fillMaxSize().statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ){
         // Header
         Box(
-            modifier=Modifier.fillMaxWidth().padding(top=30.dp),
+            modifier=Modifier.fillMaxWidth().padding(top=20.dp, bottom = 10.dp),
             contentAlignment = Alignment.Center
         ){
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .align(Alignment.CenterStart).size(50.dp)
-                    .padding(start = 20.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = "back",
-                    tint = MauCam,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .align(Alignment.CenterStart)
-                )
-            }
-
             Text(
                 text="Giỏ hàng",
                 fontSize = 24.sp,

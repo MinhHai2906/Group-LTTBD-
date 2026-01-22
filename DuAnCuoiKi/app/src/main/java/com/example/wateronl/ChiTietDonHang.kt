@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,27 +13,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,25 +43,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChiTietDonHang(navController: NavController, donHangId: String) {
     val db = FirebaseFirestore.getInstance()
     var donHang by remember { mutableStateOf<DonHang?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Tải thông tin đơn hàng từ ID
     LaunchedEffect(donHangId) {
         db.collection("don_hang").document(donHangId).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     donHang = document.toObject(DonHang::class.java)
-                    // Gán lại ID vì Firestore toObject không tự map ID document
                     donHang?.id = document.id
                 }
                 isLoading = false
@@ -72,26 +67,42 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
             .addOnFailureListener { isLoading = false }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Chi tiết đơn hàng",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(Color(0xFFF5F5F5))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .size(50.dp)
+                    .padding(start = 20.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "back",
+                    tint = MauCam,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+
+            Text(
+                text = "Chi tiết đơn hàng",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MauCam,
+                textAlign = TextAlign.Center
             )
-        },
-        containerColor = Color(0xFFF5F5F5)
-    ) { paddingValues ->
+        }
+
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MauCam)
@@ -113,12 +124,11 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
 
             LazyColumn(
                 modifier = Modifier
-                    .padding(paddingValues)
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 20.dp)
             ) {
-                // 1. THÔNG TIN TRẠNG THÁI (ĐÃ SỬA GIAO DIỆN)
                 item {
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -126,7 +136,6 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
                         elevation = CardDefaults.cardElevation(2.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            // Dòng 1: Mã đơn (To, đậm) và Ngày đặt (Nhỏ, xám) dàn đều 2 bên
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -163,8 +172,6 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
                             }
 
                             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-
-                            // Dòng 2: Trạng thái
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Trạng thái: ", fontSize = 16.sp, color = Color.Gray)
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -179,7 +186,6 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
                     }
                 }
 
-                // 2. Thông tin người nhận
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -211,7 +217,6 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
                     }
                 }
 
-                // 3. Danh sách món
                 item {
                     Text(
                         "Danh sách món",
@@ -223,7 +228,6 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
                     ItemMonChiTiet(mon)
                 }
 
-                // 4. Tổng tiền
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -289,7 +293,6 @@ fun ItemMonChiTiet(mon: ChiTietDonHang) {
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Ảnh món (Nếu có Image ID thì hiển thị, tạm thời dùng placeholder nếu cần)
         if (mon.imageId != 0) {
             Image(
                 painter = painterResource(id = mon.imageId),
@@ -300,10 +303,11 @@ fun ItemMonChiTiet(mon: ChiTietDonHang) {
                 contentScale = ContentScale.Crop
             )
         } else {
-            // Fallback nếu không có ảnh local (hoặc dùng AsyncImage nếu là URL)
-            Box(Modifier
-                .size(50.dp)
-                .background(Color.LightGray, RoundedCornerShape(8.dp)))
+            Box(
+                Modifier
+                    .size(50.dp)
+                    .background(Color.LightGray, RoundedCornerShape(8.dp))
+            )
         }
 
         Spacer(Modifier.width(12.dp))

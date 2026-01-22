@@ -68,17 +68,13 @@ fun MainScreen(
                     onBackClick = { selectedIndex = 0 },
                     navController = navController
                 )
-                // --- SỬA ĐOẠN NÀY ---
                 2 -> LichSuDonHang(
                     navController = navController,
-                    hienNutBack = false, // Ở BottomBar thì không hiện nút Back
+                    hienNutBack = false,
                     onItemClick = { maDonHang ->
-                        // Khi bấm vào một đơn hàng -> Chuyển sang màn hình Chi tiết
                         navController.navigate("chi_tiet_don_hang/$maDonHang")
                     }
                 )
-                // --------------------
-
                 3 -> ManHinhCaNhan(
                     navController = navController,
                     onDangXuat = onDangXuat

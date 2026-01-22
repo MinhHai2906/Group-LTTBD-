@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -148,7 +149,8 @@ fun ManHinhCaNhan(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(20.dp)
+                .statusBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 0.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -156,8 +158,8 @@ fun ManHinhCaNhan(
                 "Thông tin cá nhân",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = MauNauDam,
-                modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)
+                color = MauCam,
+                modifier = Modifier.padding(top = 20.dp, bottom = 32.dp)
             )
 
             if (isLoading) {
@@ -282,6 +284,7 @@ fun ManHinhCaNhan(
 
             MucChonProfile(Icons.Default.Settings, "Cài đặt") { moSheet(LoaiSheet.CAI_DAT) }
             MucChonProfile(Icons.Default.ExitToApp, "Đăng xuất", true) { hienDialogDangXuat = true }
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
         if (loaiSheetHienTai != null) {
