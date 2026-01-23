@@ -95,6 +95,7 @@ fun ThanhToan(
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val paymentHandled = remember { java.util.concurrent.atomic.AtomicBoolean(false) }
 
     // Lắng nghe kết quả chọn địa chỉ từ MapScreen
     val newAddressResult = navController.currentBackStackEntry
@@ -380,18 +381,14 @@ fun ThanhToan(
                                 val db = FirebaseFirestore.getInstance()
                                 db.collection("don_hang").document(donHang.id).set(donHang)
                                     .addOnSuccessListener {
-                                        // Xóa giỏ hàng và danh sách thanh toán
-                                        itemsToPay.forEach { item -> GioHangData.xoaKhoiGio(item) }
-                                        ThanhToanData.danhSachThanhToan.clear()
-
                                         Toast.makeText(
                                             context,
                                             "Đặt hàng thành công!",
                                             Toast.LENGTH_SHORT
                                         ).show()
 
-                                        // SỬA ĐOẠN NÀY: Chuyển về trang_chu nhưng ép buộc mở Tab 2 (Đơn hàng)
-                                        navController.navigate("trang_chu?tabIndex=2") { // số 2 là tab Đơn hàng
+                                        // SỬA: Chuyển về trang_chu, báo cho nó biết cần xóa giỏ hàng và mở tab 2
+                                        navController.navigate("trang_chu?tabIndex=2&clearCart=true") {
                                             popUpTo("trang_chu") { inclusive = true }
                                         }
                                     }
@@ -442,10 +439,12 @@ fun ThanhToan(
                                                             transToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            activity.runOnUiThread {
-                                                                donHangMoi.daThanhToan = true
-                                                                donHangMoi.ghiChu += " (Đã thanh toán qua ZaloPay)"
-                                                                luuLenFirebase(donHangMoi)
+                                                            if (paymentHandled.compareAndSet(false, true)) {
+                                                                activity.runOnUiThread {
+                                                                    donHangMoi.daThanhToan = true
+                                                                    donHangMoi.ghiChu += " (Đã thanh toán qua ZaloPay)"
+                                                                    luuLenFirebase(donHangMoi)
+                                                                }
                                                             }
                                                         }
 
@@ -453,12 +452,14 @@ fun ThanhToan(
                                                             zpTransToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            activity.runOnUiThread {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Đã hủy thanh toán ZaloPay",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
+                                                            if (!paymentHandled.get()) {
+                                                                activity.runOnUiThread {
+                                                                    Toast.makeText(
+                                                                        context,
+                                                                        "Đã hủy thanh toán ZaloPay",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
                                                             }
                                                         }
 
@@ -467,12 +468,14 @@ fun ThanhToan(
                                                             zpTransToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            activity.runOnUiThread {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Lỗi thanh toán ZaloPay",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
+                                                           if (!paymentHandled.get()) {
+                                                                activity.runOnUiThread {
+                                                                    Toast.makeText(
+                                                                        context,
+                                                                        "Lỗi thanh toán ZaloPay",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
                                                             }
                                                         }
                                                     }
