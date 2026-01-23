@@ -111,7 +111,9 @@ fun ThanhToan(
 
 
     Column(
-        modifier = Modifier.fillMaxSize().statusBarsPadding(),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -404,7 +406,7 @@ fun ThanhToan(
 
                             // 3. Xử lý Logic Thanh Toán
                             if (selectedPaymentOption == "Thanh toán chuyển khoản") {
-                                // --- LOGIC ZALOPAY ---
+                                // LOGIC ZALOPAY
                                 coroutineScope.launch {
                                     try {
                                         val orderApi = CreateOrder()
@@ -440,21 +442,24 @@ fun ThanhToan(
                                                             transToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            // ZaloPay thành công -> Cập nhật trạng thái -> Lưu
-                                                            donHangMoi.daThanhToan = true
-                                                            donHangMoi.ghiChu += " (Đã thanh toán qua ZaloPay)"
-                                                            luuLenFirebase(donHangMoi)
+                                                            activity.runOnUiThread {
+                                                                donHangMoi.daThanhToan = true
+                                                                donHangMoi.ghiChu += " (Đã thanh toán qua ZaloPay)"
+                                                                luuLenFirebase(donHangMoi)
+                                                            }
                                                         }
 
                                                         override fun onPaymentCanceled(
                                                             zpTransToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "Đã hủy thanh toán ZaloPay",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
+                                                            activity.runOnUiThread {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Đã hủy thanh toán ZaloPay",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
                                                         }
 
                                                         override fun onPaymentError(
@@ -462,11 +467,13 @@ fun ThanhToan(
                                                             zpTransToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "Lỗi thanh toán ZaloPay",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
+                                                            activity.runOnUiThread {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Lỗi thanh toán ZaloPay",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
                                                         }
                                                     }
                                                 )

@@ -68,6 +68,7 @@ fun MainScreen(
                     onBackClick = { selectedIndex = 0 },
                     navController = navController
                 )
+
                 2 -> LichSuDonHang(
                     navController = navController,
                     hienNutBack = false,
@@ -75,6 +76,7 @@ fun MainScreen(
                         navController.navigate("chi_tiet_don_hang/$maDonHang")
                     }
                 )
+
                 3 -> ManHinhCaNhan(
                     navController = navController,
                     onDangXuat = onDangXuat

@@ -13,6 +13,7 @@ object AvatarList {
         "avatar_9" to R.drawable.avatar_9,
         "avatar_10" to R.drawable.avatar_10
     )
+
     fun layAnhTuMa(code: String?): Int {
         return danhSach[code] ?: R.drawable.avatar_1
     }

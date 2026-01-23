@@ -59,7 +59,7 @@ object ThanhToanData {
 }
 
 @Composable
-fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
+fun GioHangScreen(onBackClick: () -> Unit, navController: NavController) {
     val duLieuGioHang = GioHangData.danhSachSanPham
     val sanPhamDaChon = remember { mutableStateListOf<ThanhPhanUi>() }
     val context = LocalContext.current
@@ -87,17 +87,21 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
     // --- Hết quản lý State mới ---
 
     Column(
-        modifier=Modifier.fillMaxSize().statusBarsPadding(),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
-    ){
+    ) {
         // Header
         Box(
-            modifier=Modifier.fillMaxWidth().padding(top=20.dp, bottom = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 10.dp),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Text(
-                text="Giỏ hàng",
+                text = "Giỏ hàng",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MauCam,
@@ -141,13 +145,12 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 10.dp)
-                .height(110.dp)
-                ,
+                .height(110.dp),
             shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color.White
             )
-        ){
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Top,
@@ -155,7 +158,9 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
             ) {
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(top=20.dp, start = 20.dp,end=20.dp,bottom=6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
@@ -164,7 +169,7 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-                    
+
                     Text(
                         text = "${tongTien}đ",
                         fontSize = 18.sp,
@@ -172,14 +177,14 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
                         color = Color.Black
                     )
                 }
-                
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(end = 10.dp)
@@ -206,13 +211,19 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController){
                     Button(
                         onClick = {
                             if (sanPhamDaChon.isEmpty()) {
-                                Toast.makeText(context, "Bạn cần chọn món cần thanh toán", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Bạn cần chọn món cần thanh toán",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
                                 ThanhToanData.setDanhSachThanhToan(sanPhamDaChon.toList())
                                 navController.navigate("thanh_toan")
                             }
                         },
-                        modifier = Modifier.weight(1f).height(50.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE59C54)),
                         shape = RoundedCornerShape(40.dp),
                     ) {
@@ -290,7 +301,7 @@ fun ItemGioHang(
                     color = Color.Black,
                     maxLines = 1
                 )
-                
+
                 // Giá sản phẩm
                 Text(
                     text = "${sanPham.price}đ",
@@ -309,30 +320,36 @@ fun ItemGioHang(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(
-                            onClick = { 
+                            onClick = {
                                 GioHangData.capNhatSoLuong(sanPham, sanPham.increasing - 1)
                             },
                             modifier = Modifier.size(24.dp)
                         ) {
-                            Icon(painter = painterResource(id = R.drawable.ic_minus), contentDescription = "Trừ", tint = Color.Gray)
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_minus),
+                                contentDescription = "Trừ",
+                                tint = Color.Gray
+                            )
                         }
 
                         Text(
-                            text = "${sanPham.increasing}", 
+                            text = "${sanPham.increasing}",
                             modifier = Modifier.padding(horizontal = 8.dp),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
 
                         IconButton(
-                            onClick = { 
+                            onClick = {
                                 GioHangData.capNhatSoLuong(sanPham, sanPham.increasing + 1)
                             },
                             modifier = Modifier.size(24.dp)
                         ) {
-                            Icon(painter = painterResource(id = R.drawable.ic_plus),
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_plus),
                                 contentDescription = "Cộng",
-                                tint = MauCam)
+                                tint = MauCam
+                            )
                         }
                     }
 
@@ -340,8 +357,10 @@ fun ItemGioHang(
                     Spacer(modifier = Modifier.weight(1f))
 
                     IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Xóa",
-                            tint = MauCam)
+                        Icon(
+                            imageVector = Icons.Default.Delete, contentDescription = "Xóa",
+                            tint = MauCam
+                        )
                     }
                 }
             }
@@ -351,7 +370,7 @@ fun ItemGioHang(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewGioHang(){
+fun PreviewGioHang() {
     MaterialTheme {
         GioHangScreen(onBackClick = {}, navController = rememberNavController())
     }
