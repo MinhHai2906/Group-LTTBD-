@@ -369,6 +369,7 @@ Sau khi đăng nhập, bạn sẽ vào **Trang Chủ** với:
 > **LƯU Ý:** Những tài khoản dưới đây chỉ dành cho **test/demo**. Không sử dụng trên môi trường production.
 > <br><br>
 > **LƯU Ý:*** Cần tải Zalopay ảo để không bị thoát đăng nhập của app Zalopay thật dưới đây là link.
+> <br><br>
 > (https://docs.zalopay.vn/docs/developer-tools/test-instructions/test-wallets/)
 
 ##### 1. Thẻ Visa.
