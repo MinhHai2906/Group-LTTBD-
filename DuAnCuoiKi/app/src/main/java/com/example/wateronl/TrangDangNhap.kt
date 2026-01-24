@@ -84,27 +84,32 @@ fun ManHinhDangNhap(
     val context = LocalContext.current
     val loginState by viewModel.loginState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
+    // Cấu hình Đăng nhập Google: Yêu cầu Token để xác thực với Firebase
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken("568231836814-3121ks3amj3219a2sts8e9ujc8c879ot.apps.googleusercontent.com")
         .requestEmail()
         .build()
     val googleSignInClient = GoogleSignIn.getClient(context, gso)
+
+    // Launcher xử lý kết quả trả về sau khi người dùng chọn tài khoản Google
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { viewModel.dangNhapGoogle(it) }
+                account?.idToken?.let { viewModel.dangNhapGoogle(it) }      // Gửi Token lên Firebase qua ViewModel
             } catch (e: ApiException) {
                 Toast.makeText(context, "Lỗi Google: ${e.statusCode}", Toast.LENGTH_SHORT).show()
             }
         }
 
+    // Lắng nghe trạng thái đăng nhập từ ViewModel để điều hướng
     LaunchedEffect(loginState) {
         if (loginState == "OK") {
             Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show()
-            viewModel.resetState()
-            onDangNhapThanhCong()
+            viewModel.resetState()      // Xóa trạng thái cũ để không bị lặp lại logic
+            onDangNhapThanhCong()       // Chuyển vào trang chủ
         } else if (loginState != null) {
             Toast.makeText(context, loginState, Toast.LENGTH_SHORT).show()
             viewModel.resetState()
@@ -142,6 +147,7 @@ fun GiaoDienDangNhap(
     val isFormValid =
         emailError == null && passwordError == null && email.isNotEmpty() && matKhau.isNotEmpty()
 
+    // Kiểm tra định dạng Email ngay khi nhập
     fun validateEmail(input: String) {
         email = input; emailError =
             if (Patterns.EMAIL_ADDRESS.matcher(input).matches()) null else "Email không hợp lệ"
@@ -156,6 +162,7 @@ fun GiaoDienDangNhap(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    // Dialog hiện lên khi bấm "Quên mật khẩu"
     if (hienDialogQuenMK) {
         AlertDialog(
             onDismissRequest = { hienDialogQuenMK = false },
@@ -194,7 +201,7 @@ fun GiaoDienDangNhap(
             color = MauCam
         )
 
-        Column(
+        Column(     // Giao diện chính sử dụng Column + verticalScroll để tránh bị bàn phím che khuất
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
@@ -299,7 +306,7 @@ fun GiaoDienDangNhap(
                         loi = emailError,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
+                            imeAction = ImeAction.Next      // Hiện nút "Tiếp" trên bàn phím
                         ),
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     )
@@ -373,6 +380,7 @@ fun GiaoDienDangNhap(
                         HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
                     }
 
+                    // Nút Đăng nhập Google
                     OutlinedButton(
                         onClick = onGoogleLogin,
                         modifier = Modifier

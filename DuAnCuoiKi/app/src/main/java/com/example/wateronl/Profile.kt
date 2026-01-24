@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -76,8 +78,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -96,9 +100,10 @@ enum class LoaiSheet {
 fun ManHinhCaNhan(
     navController: NavController,
     onDangXuat: () -> Unit,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = viewModel()       // Kết nối với ProfileViewModel để lấy/cập nhật dữ liệu
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val ten by viewModel.hoTen.collectAsState()
     val email by viewModel.email.collectAsState()
     val sdt by viewModel.sdt.collectAsState()
@@ -113,6 +118,7 @@ fun ManHinhCaNhan(
     val isLoading by viewModel.isLoading.collectAsState()
     val mucDoHoanThien by viewModel.mucDoHoanThien.collectAsState()
     val daXacThuc by viewModel.daXacThucEmail.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.kiemTraTrangThaiEmail()
     }
@@ -130,6 +136,14 @@ fun ManHinhCaNhan(
     var tempMatKhauXoa by remember { mutableStateOf("") }
     var hienThiMK by remember { mutableStateOf(false) }
 
+    // Regex kiểm tra
+    val sdtRegex = Regex("^0\\d{9}$")
+    val ngaySinhRegex = Regex("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/(19|20)\\d\\d$")
+    val ngaySinhGanDungRegex = Regex("^\\d{1,2}/\\d{1,2}/\\d{4}$")
+
+    val sdtHopLe = tempSdt.isEmpty() || sdtRegex.matches(tempSdt)
+    val ngaySinhHopLe = tempNgaySinh.isEmpty() || ngaySinhRegex.matches(tempNgaySinh)
+
     val mauHang = when {
         hangThanhVien.contains("Vàng") -> Color(0xFFFFD700)
         hangThanhVien.contains("Bạc") -> Color(0xFFC0C0C0)
@@ -144,14 +158,20 @@ fun ManHinhCaNhan(
         loaiSheetHienTai = loai
     }
 
-    Scaffold(containerColor = Color(0xFFF9F9F9)) { paddingValues ->
+    Scaffold(
+        containerColor = Color(0xFFF9F9F9),
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { focusManager.clearFocus() }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .statusBarsPadding()
                 .padding(horizontal = 20.dp, vertical = 0.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState()),     // Cho phép cuộn trang
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -171,7 +191,7 @@ fun ManHinhCaNhan(
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .shimmerEffect()
+                            .shimmerEffect()        // Xử lý trạng thái Loading bằng hiệu ứng Shimmer (vết mờ chuyển động)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -205,7 +225,7 @@ fun ManHinhCaNhan(
                                 .size(80.dp)
                                 .clip(CircleShape)
                                 .border(2.dp, Color.LightGray, CircleShape)
-                                .clickable { moSheet(LoaiSheet.DOI_AVATAR) }
+                                .clickable { moSheet(LoaiSheet.DOI_AVATAR) }        // Nhấn vào để đổi ảnh
                         )
                         Icon(
                             Icons.Default.CameraAlt,
@@ -259,6 +279,7 @@ fun ManHinhCaNhan(
                             }
                         }
 
+                        // Hiển thị thanh tiến trình hoàn thiện hồ sơ
                         if (mucDoHoanThien < 1.0f) {
                             Spacer(modifier = Modifier.height(8.dp))
                             ThanhHoanThienHoSo(tiLe = mucDoHoanThien)
@@ -269,6 +290,7 @@ fun ManHinhCaNhan(
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Các mục lựa chọn (Hồ sơ, Đổi MK, Đăng xuất...)
             MucChonProfile(
                 Icons.Default.Person,
                 "Hồ sơ cá nhân"
@@ -287,6 +309,7 @@ fun ManHinhCaNhan(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
+        // Cửa sổ trượt lên (Bottom Sheet) dùng chung cho nhiều chức năng
         if (loaiSheetHienTai != null) {
             ModalBottomSheet(
                 onDismissRequest = { loaiSheetHienTai = null },
@@ -297,6 +320,10 @@ fun ManHinhCaNhan(
                     modifier = Modifier
                         .fillMaxWidth()
                         .imePadding()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { focusManager.clearFocus() }
                         .padding(24.dp)
                         .padding(bottom = 20.dp)
                 ) {
@@ -343,6 +370,7 @@ fun ManHinhCaNhan(
                                 color = MauNauDam
                             )
                             Spacer(Modifier.height(16.dp))
+                            // Hiển thị danh sách Avatar dạng lưới để người dùng chọn
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(4),
                                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -390,10 +418,15 @@ fun ManHinhCaNhan(
                             Spacer(Modifier.height(12.dp))
                             OutlinedTextField(
                                 value = tempSdt,
-                                onValueChange = { tempSdt = it },
+                                onValueChange = { if (it.length <= 10) tempSdt = it },
                                 label = { Text("Số điện thoại") },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                isError = !sdtHopLe,
+                                supportingText = {
+                                    if (!sdtHopLe && tempSdt.isNotEmpty()) Text("SĐT phải bắt đầu bằng 0 và có 10 chữ số", color = Color.Red)
+                                }
                             )
                             Spacer(Modifier.height(12.dp))
                             OutlinedTextField(
@@ -408,8 +441,20 @@ fun ManHinhCaNhan(
                                 value = tempNgaySinh,
                                 onValueChange = { tempNgaySinh = it },
                                 label = { Text("Ngày sinh (dd/mm/yyyy)") },
+                                placeholder = { Text("VD: 01/01/2005") },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                isError = !ngaySinhHopLe,
+                                supportingText = {
+                                    if (!ngaySinhHopLe && tempNgaySinh.isNotEmpty()) {
+                                        val message = if (ngaySinhGanDungRegex.matches(tempNgaySinh)) {
+                                            "Thiếu số 0 (VD: xx/xx/xxxx)"
+                                        } else {
+                                            "Định dạng đúng: dd/mm/yyyy"
+                                        }
+                                        Text(message, color = Color.Red)
+                                    }
+                                }
                             )
                             Spacer(Modifier.height(16.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -438,13 +483,24 @@ fun ManHinhCaNhan(
                             Spacer(Modifier.height(24.dp))
                             Button(
                                 onClick = {
-                                    viewModel.capNhatThongTinChiTiet(
-                                        tempSdt,
-                                        tempDiaChi,
-                                        tempGioiTinh,
-                                        tempNgaySinh
-                                    ); loaiSheetHienTai =
-                                    null; ThongBaoApp.hienThanhCong("Đã lưu hồ sơ")
+                                    if (tempSdt.isEmpty() || tempDiaChi.isEmpty() || tempNgaySinh.isEmpty()) {
+                                        ThongBaoApp.hienLoi("Vui lòng nhập đầy đủ thông tin")
+                                    } else if (!sdtHopLe) {
+                                        ThongBaoApp.hienLoi("Số điện thoại không hợp lệ")
+                                    } else if (!ngaySinhHopLe) {
+                                        val loiChiTiet = if (ngaySinhGanDungRegex.matches(tempNgaySinh)) 
+                                            "Vui lòng thêm số 0 vào ngày/tháng!" 
+                                            else "Ngày sinh không đúng định dạng dd/mm/yyyy"
+                                        ThongBaoApp.hienLoi(loiChiTiet)
+                                    } else {
+                                        viewModel.capNhatThongTinChiTiet(
+                                            tempSdt,
+                                            tempDiaChi,
+                                            tempGioiTinh,
+                                            tempNgaySinh
+                                        ); loaiSheetHienTai =
+                                        null; ThongBaoApp.hienThanhCong("Đã lưu hồ sơ")
+                                    }
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()

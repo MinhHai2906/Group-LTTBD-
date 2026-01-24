@@ -1,7 +1,7 @@
 package com.example.wateronl
 
-object AvatarList {
-    val danhSach = mapOf(
+object AvatarList {          // tạo ra một Singleton
+    val danhSach = mapOf(    // ánh xạ giữa một cái tên và ID hình ảnh
         "avatar_1" to R.drawable.avatar_1,
         "avatar_2" to R.drawable.avatar_2,
         "avatar_3" to R.drawable.avatar_3,
@@ -14,7 +14,7 @@ object AvatarList {
         "avatar_10" to R.drawable.avatar_10
     )
 
-    fun layAnhTuMa(code: String?): Int {
+    fun layAnhTuMa(code: String?): Int {    // nhận vào một mã String trả ID ảnh tương ứng
         return danhSach[code] ?: R.drawable.avatar_1
     }
 }
