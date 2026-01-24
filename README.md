@@ -15,6 +15,7 @@
   <img src="images/Thanhtoan.jpg" width="30%" alt="Thanh toán" />
 </div>
 
+<br><br>
 
 <div align="center">
   <img src="images/Thanhtoanzalopay1.jpg" width="30%" alt="ZaloPay" />
