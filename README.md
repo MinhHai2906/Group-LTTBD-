@@ -9,9 +9,17 @@
 
 ## App đặt nước online
 
-![Trang chủ](images/Trangchu.jpg) ![Giỏ hàng](images/Giohang.jpg) ![Thanh toán](images/Thanhtoan.jpg)
+<div align="center">
+  <img src="images/Trangchu.jpg" width="30%" alt="Trang chủ" />
+  <img src="images/Giohang.jpg" width="30%" alt="Giỏ hàng" />
+  <img src="images/Thanhtoan.jpg" width="30%" alt="Thanh toán" />
+</div>
 
-![ZaloPay](images/Thanhtoanzalopay1.jpg) ![Thành công](images/ThanhtoanTC.jpg) ![Trang cá nhân](images/Trangcanhan.jpg)
+<div align="center">
+  <img src="images/Thanhtoanzalopay1.jpg" width="30%" alt="ZaloPay" />
+  <img src="images/ThanhtoanTC.jpg" width="30%" alt="Thành công" />
+  <img src="images/Trangcanhan.jpg" width="30%" alt="Trang cá nhân" />
+</div>
 ---
 
 ## Tính Năng Chính
