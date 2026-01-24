@@ -4,14 +4,14 @@
 
 ## Thành viên và đóng góp 
 
-![Thành viên](person.jpg)
-![Đóng góp](donggop.jpg)
+![Thành viên](images/person.jpg)
+![Đóng góp](images/donggop.jpg)
 
 ## App đặt nước online
 
-![Trang chủ](Trangchu.jpg) ![Giỏ hàng](Giohang.jpg) ![Thanh toán](Thanhtoan.jpg)
+![Trang chủ](images/Trangchu.jpg) ![Giỏ hàng](images/Giohang.jpg) ![Thanh toán](images/Thanhtoan.jpg)
 
-![ZaloPay](Thanhtoanzalopay1.jpg) ![Thành công](ThanhtoanTC.jpg) ![Trang cá nhân](Trangcanhan.jpg)
+![ZaloPay](images/Thanhtoanzalopay1.jpg) ![Thành công](images/ThanhtoanTC.jpg) ![Trang cá nhân](images/Trangcanhan.jpg)
 ---
 
 ## Tính Năng Chính
@@ -48,23 +48,23 @@
 
 ## Tech Stack
 
-**Language:** Kotlin + Java  
-**UI:** Jetpack Compose (Material 3) + XML Layout  
-**Architecture:** MVVM (ViewModel + LiveData/Coroutines)  
-
-**Database:** Firebase Firestore  
-**Networking:** OkHttp3 + Retrofit2 + Gson  
-**Authentication:** Firebase Auth + Google Sign-In  
-
-**Maps:** OSMDroid (OpenStreetMap)  
-**Image Loading:** Coil  
-**Async:** Coroutines  
-**Build Tool:** Gradle (Kotlin DSL)  
-
-**Min SDK:** 24  
-**Target SDK:** 36  
-**Java Version:** 11
----
+<span style="color:#7F52FF">**Language:**</span> Kotlin + Java  
+<span style="color:#3DDC84">**UI:**</span> Jetpack Compose (Material 3) + XML Layout  
+<span style="color:#0066CC">**Architecture:**</span> MVVM (ViewModel + LiveData/Coroutines)  
+ 
+<span style="color:#FFA500">**Database:**</span> Firebase Firestore  
+<span style="color:#E34C26">**Networking:**</span> OkHttp3 + Retrofit2 + Gson  
+<span style="color:#FFA500">**Authentication:**</span> Firebase Auth + Google Sign-In  
+ 
+<span style="color:#008000">**Maps:**</span> OSMDroid (OpenStreetMap)  
+<span style="color:#FF6B6B">**Image Loading:**</span> Coil  
+<span style="color:#7F52FF">**Async:**</span> Coroutines  
+<span style="color:#02303A">**Build Tool:**</span> Gradle (Kotlin DSL)  
+ 
+<span style="color:#0099CC">**Min SDK:**</span> 24  
+<span style="color:#0099CC">**Target SDK:**</span> 36  
+<span style="color:#007396">**Java Version:**</span> 11
+ ---
 
 ## Cấu Trúc Dự Án
 
@@ -376,17 +376,17 @@ Sau khi đăng nhập, bạn sẽ vào **Trang Chủ** với:
 
 ##### 2. Danh Sách Thẻ Nội địa
 
-| STT | Số Thẻ ATM | Tên Chủ Thẻ | Ngân Hàng |
+| STT | Số Thẻ ATM | Tên Chủ Thẻ | 	Ngày phát hành |
 |-----|-----------|------------|----------|
-| 1 | 9704540000000062 | NGUYEN VAN A | SBI |
-| 2 | 9704540000000070 | NGUYEN VAN A | SBI |
-| 3 | 9704540000000088 | NGUYEN VAN A | SBI |
-| 4 | 9704540000000096 | NGUYEN VAN A | SBI |
-| 5 | 9704541000000094 | NGUYEN VAN A | SBI |
-| 6 | 9704541000000078 | NGUYEN VAN A | SBI |
+| 1 | 9704540000000062 | NGUYEN VAN A | 1018 |
+| 2 | 9704540000000070 | NGUYEN VAN A | 1018 |
+| 3 | 9704540000000088 | NGUYEN VAN A | 1018 |
+| 4 | 9704540000000096 | NGUYEN VAN A | 1018 |
+| 5 | 9704541000000094 | NGUYEN VAN A | 1018 |
+| 6 | 9704541000000078 | NGUYEN VAN A | 1018 |
 
 **Hướng dẫn sử dụng:**
-1. Chọn phương thức thanh toán: **Ví Điện Tử** hoặc **Ngân Hàng**
+1. Chọn phương thức thanh toán: **Thẻ Nội địa**
 2. Chọn ngân hàng **SBI**
 3. Nhập một trong các số thẻ ATM trên
 4. Nhập mã OTP luôn là **111111**
