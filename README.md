@@ -399,10 +399,9 @@ Sau khi đăng nhập, bạn sẽ vào **Trang Chủ** với:
 
 **Hướng dẫn sử dụng:**
 1. Chọn phương thức thanh toán: **Thẻ Nội địa**
-2. Chọn ngân hàng **SBI**
-3. Nhập một trong các số thẻ ATM trên
-4. Nhập mã OTP luôn là **111111**
-5. Nhấn **"Thanh Toán"** để hoàn tất
+2. Nhập một trong các số thẻ ATM trên
+3. Nhập mã OTP luôn là **111111**
+4. Nhấn **"Thanh Toán"** để hoàn tất
 
 ##### Lưu ý Quan Trọng:
 - Những tài khoản này chỉ dùng cho **test & demo** trên môi trường development
