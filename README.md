@@ -15,12 +15,14 @@
   <img src="images/Thanhtoan.jpg" width="30%" alt="Thanh toán" />
 </div>
 
+<br><br>
+
 <div align="center">
   <img src="images/Thanhtoanzalopay1.jpg" width="30%" alt="ZaloPay" />
   <img src="images/ThanhtoanTC.jpg" width="30%" alt="Thành công" />
   <img src="images/Trangcanhan.jpg" width="30%" alt="Trang cá nhân" />
 </div>
----
+
 
 ## Tính Năng Chính
 
@@ -364,8 +366,10 @@ Sau khi đăng nhập, bạn sẽ vào **Trang Chủ** với:
 
 #### Các Tài Khoản Để Thử Nghiệm
 
-> **Lưu ý:** Những tài khoản dưới đây chỉ dành cho **test/demo**. Không sử dụng trên môi trường production.
-> **Lưa ý** Cần tải Zalopay ảo để không bị thoát đăng nhập của app Zalopay thật dưới đây là link.
+> **LƯU Ý:** Những tài khoản dưới đây chỉ dành cho **test/demo**. Không sử dụng trên môi trường production.
+> <br><br>
+> **LƯU Ý:*** Cần tải Zalopay ảo để không bị thoát đăng nhập của app Zalopay thật dưới đây là link.
+> <br><br>
 > (https://docs.zalopay.vn/docs/developer-tools/test-instructions/test-wallets/)
 
 ##### 1. Thẻ Visa.
@@ -395,10 +399,9 @@ Sau khi đăng nhập, bạn sẽ vào **Trang Chủ** với:
 
 **Hướng dẫn sử dụng:**
 1. Chọn phương thức thanh toán: **Thẻ Nội địa**
-2. Chọn ngân hàng **SBI**
-3. Nhập một trong các số thẻ ATM trên
-4. Nhập mã OTP luôn là **111111**
-5. Nhấn **"Thanh Toán"** để hoàn tất
+2. Nhập một trong các số thẻ ATM trên
+3. Nhập mã OTP luôn là **111111**
+4. Nhấn **"Thanh Toán"** để hoàn tất
 
 ##### Lưu ý Quan Trọng:
 - Những tài khoản này chỉ dùng cho **test & demo** trên môi trường development
