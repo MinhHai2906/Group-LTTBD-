@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,20 +53,21 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 
-data  class ThanhPhanUi(
+data class ThanhPhanUi(
     val id: String,
     @get:DrawableRes val image: Int,
     val namedrink: String,
     val price: Int,
     @get:DrawableRes val minus: Int,
-    val increasing: Int, // tăng dần
+    val increasing: Int,
     @get:DrawableRes val plus: Int,
     @get:DrawableRes val shop: Int,
     val buy: String,
 )
+
 open class NhomUI(
 
     val nameMon: String,
@@ -93,7 +93,9 @@ fun TrangChuContent(navController: NavController) {
             )
         ) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(top=40.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 40.dp)
             ) {
                 val buttonList = listOf(
                     "Tất cả",
@@ -126,13 +128,15 @@ fun TrangChuContent(navController: NavController) {
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                             modifier = Modifier.height(36.dp)
                         ) {
-                            Text(text = nameDrink, fontSize = 13.sp,
-                                textAlign= TextAlign.Center)
+                            Text(
+                                text = nameDrink, fontSize = 13.sp,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
             }
-        } // Hết phần Header (Card)
+        }
 
 
         Box(
@@ -189,54 +193,54 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         )
                     )
-                ),//NhómUI cafe
+                ),
                 NhomUI(
                     nameMon = "Cookies đá xay",
                     danhSachThanhPhan = listOf(
-                    ThanhPhanUi(
-                        id = "cookiesdaudx",
-                        image = R.drawable.cookiesdaudx,
-                        namedrink = "Cookies Dâu",
-                        price = 40000,
-                        minus = R.drawable.ic_minus,
-                        increasing = 1,
-                        plus = R.drawable.ic_plus,
-                        shop = R.drawable.ic_giohang,
-                        buy = "Mua ngay"
-                    ),
-                    ThanhPhanUi(
-                        id = "cookieschocolatepepermintdx",
-                        image = R.drawable.cookieschocolatepepermintdx,
-                        namedrink = "Cookies Chocolate Pepermint",
-                        price = 45000,
-                        minus = R.drawable.ic_minus,
-                        increasing = 1,
-                        plus = R.drawable.ic_plus,
-                        shop = R.drawable.ic_giohang,
-                        buy = "Mua ngay"
-                    ),
-                    ThanhPhanUi(
-                        id = "cookiesxoaidx",
-                        image = R.drawable.cookiesxoaidx,
-                        namedrink = "Cookies Xoài",
-                        price = 40000,
-                        minus = R.drawable.ic_minus,
-                        increasing = 1,
-                        plus = R.drawable.ic_plus,
-                        shop = R.drawable.ic_giohang,
-                        buy = "Mua ngay"
-                    ),
-                    ThanhPhanUi(
-                        id = "cookieshazelnutdx",
-                        image = R.drawable.cookieshazelnutdx,
-                        namedrink = "Cookies Hazelnut",
-                        price = 43000,
-                        minus = R.drawable.ic_minus,
-                        increasing = 1,
-                        plus = R.drawable.ic_plus,
-                        shop = R.drawable.ic_giohang,
-                        buy = "Mua ngay"
-                    ),
+                        ThanhPhanUi(
+                            id = "cookiesdaudx",
+                            image = R.drawable.cookiesdaudx,
+                            namedrink = "Cookies Dâu",
+                            price = 40000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            id = "cookieschocolatepepermintdx",
+                            image = R.drawable.cookieschocolatepepermintdx,
+                            namedrink = "Cookies Chocolate Pepermint",
+                            price = 45000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            id = "cookiesxoaidx",
+                            image = R.drawable.cookiesxoaidx,
+                            namedrink = "Cookies Xoài",
+                            price = 40000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
+                        ThanhPhanUi(
+                            id = "cookieshazelnutdx",
+                            image = R.drawable.cookieshazelnutdx,
+                            namedrink = "Cookies Hazelnut",
+                            price = 43000,
+                            minus = R.drawable.ic_minus,
+                            increasing = 1,
+                            plus = R.drawable.ic_plus,
+                            shop = R.drawable.ic_giohang,
+                            buy = "Mua ngay"
+                        ),
                         ThanhPhanUi(
                             id = "cookiesmatchadx",
                             image = R.drawable.cookiesdaumatchadx,
@@ -259,8 +263,8 @@ fun TrangChuContent(navController: NavController) {
                             shop = R.drawable.ic_giohang,
                             buy = "Mua ngay"
                         )
-                )
-            ),//NhómUI cookies đá xay
+                    )
+                ),//NhómUI cookies đá xay
 
                 NhomUI(
                     nameMon = "Đá xay",
@@ -381,7 +385,7 @@ fun TrangChuContent(navController: NavController) {
                             buy = "Mua ngay"
                         ),
 
-                    )
+                        )
                 ),//NhómUI  Sữa chua
                 NhomUI(
                     nameMon = "Soda",
@@ -513,7 +517,7 @@ fun TrangChuContent(navController: NavController) {
                             shop = R.drawable.ic_giohang,
                             buy = "Mua ngay"
                         ),
-                        )
+                    )
                 ),//NhómUI  TRÀ
                 NhomUI(
                     nameMon = "Nước ép",
@@ -587,9 +591,7 @@ fun TrangChuContent(navController: NavController) {
                 modifier = Modifier.padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 20.dp)
             ) {
-                // Duyệt qua từng nhóm
                 filteredDuLieuDrink.forEach { nhom ->
-                    // 1. Header Nhóm (tên nhóm và icon) được coi là 1 item riêng
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -603,22 +605,20 @@ fun TrangChuContent(navController: NavController) {
                             )
                         }
                     }
-
-                    // 2. Danh sách sản phẩm của nhóm, mỗi sản phẩm là 1 item riêng
                     items(nhom.danhSachThanhPhan) { thanhPhan ->
-                        TheHienThiThanhPhan(thanhPhan,
+                        TheHienThiThanhPhan(
+                            thanhPhan,
                             onClick = { /* Xử lý click*/ },
                             onImageClick = {
-                                // Khi click vào ảnh, lưu ID ảnh vào biến state để hiển thị Dialog
                                 anhDangChon = thanhPhan.image
                             },
-                        navController = navController)
+                            navController = navController
+                        )
                         Spacer(modifier = Modifier.height(15.dp))
                     }
                 }
             }
         }
-        // Phần hiển thị Dialog phóng to ảnh
         if (anhDangChon != null) {
             Dialog(
                 onDismissRequest = { anhDangChon = null },
@@ -631,7 +631,6 @@ fun TrangChuContent(navController: NavController) {
                         .clickable { anhDangChon = null },
                     contentAlignment = Alignment.Center
                 ) {
-                    // Dùng Coil ở đây để load ảnh to trong Dialog
                     AsyncImage(
                         model = anhDangChon!!,
                         contentDescription = "Ảnh phóng to",
@@ -662,7 +661,12 @@ fun TrangChuContent(navController: NavController) {
 }
 
 @Composable
-fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick: () -> Unit, navController: NavController) {
+fun TheHienThiThanhPhan(
+    duLieu: ThanhPhanUi,
+    onClick: () -> Unit,
+    onImageClick: () -> Unit,
+    navController: NavController
+) {
     val context = LocalContext.current
     var soLuong by remember { mutableIntStateOf(duLieu.increasing) }
     Card(
@@ -686,7 +690,6 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { onImageClick() }
             ) {
-                // Dùng Coil ở đây để load ảnh item sản phẩm
                 AsyncImage(
                     model = duLieu.image,
                     contentDescription = duLieu.namedrink,
@@ -706,7 +709,7 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-                
+
                 Text(
                     text = "${duLieu.price}đ",
                     fontSize = 18.sp,
@@ -724,13 +727,17 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(
-                            onClick = {  if (soLuong > 1) soLuong--},
+                            onClick = { if (soLuong > 1) soLuong-- },
                             modifier = Modifier.size(25.dp)
                         ) {
-                            Icon(painter = painterResource(id = duLieu.minus), contentDescription = "Trừ", tint = Color.Gray,
-                                modifier = Modifier.size(25.dp))
+                            Icon(
+                                painter = painterResource(id = duLieu.minus),
+                                contentDescription = "Trừ",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(25.dp)
+                            )
                         }
-                        
+
                         Text(
                             text = "$soLuong",
                             modifier = Modifier.padding(horizontal = 8.dp),
@@ -739,34 +746,50 @@ fun TheHienThiThanhPhan(duLieu: ThanhPhanUi, onClick: () -> Unit , onImageClick:
                         )
 
                         IconButton(
-                            onClick = { soLuong++  },
+                            onClick = { soLuong++ },
                             modifier = Modifier.size(25.dp)
                         ) {
-                            Icon(painter = painterResource(id = duLieu.plus), contentDescription = "Cộng", tint = MauCam,
-                                modifier = Modifier.size(25.dp))
+                            Icon(
+                                painter = painterResource(id = duLieu.plus),
+                                contentDescription = "Cộng",
+                                tint = MauCam,
+                                modifier = Modifier.size(25.dp)
+                            )
                         }
-                        IconButton( onClick = {
-                            val sanPhamVoiSoLuong = duLieu.copy(increasing = soLuong)
-                            GioHangData.themVaoGio(sanPhamVoiSoLuong)
-                            val toast = Toast.makeText(context, "Đã thêm $soLuong ${duLieu.namedrink} vào giỏ!", Toast.LENGTH_SHORT)
-                            toast.setGravity(Gravity.CENTER, 0, 0)
-                            toast.show()
-                        },
-                            modifier = Modifier.size(47.dp).padding(start = 20.dp)) {
-                            Icon(painter = painterResource(id = duLieu.shop), contentDescription = "Giỏ hàng", tint = MauCam,
-                                modifier = Modifier.size(47.dp))
-                    }
+                        IconButton(
+                            onClick = {
+                                val sanPhamVoiSoLuong = duLieu.copy(increasing = soLuong)
+                                GioHangData.themVaoGio(sanPhamVoiSoLuong)
+                                val toast = Toast.makeText(
+                                    context,
+                                    "Đã thêm $soLuong ${duLieu.namedrink} vào giỏ!",
+                                    Toast.LENGTH_SHORT
+                                )
+                                toast.setGravity(Gravity.CENTER, 0, 0)
+                                toast.show()
+                            },
+                            modifier = Modifier
+                                .size(47.dp)
+                                .padding(start = 20.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = duLieu.shop),
+                                contentDescription = "Giỏ hàng",
+                                tint = MauCam,
+                                modifier = Modifier.size(47.dp)
+                            )
+                        }
 
 
-                    Row {
+                        Row {
 
                         }
                         Button(
-                            onClick = { 
+                            onClick = {
                                 val sanPhamVoiSoLuong = duLieu.copy(increasing = soLuong)
                                 ThanhToanData.setDanhSachThanhToan(listOf(sanPhamVoiSoLuong))
                                 navController.navigate("thanh_toan")
-                             },
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = MauCam),
                             shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),

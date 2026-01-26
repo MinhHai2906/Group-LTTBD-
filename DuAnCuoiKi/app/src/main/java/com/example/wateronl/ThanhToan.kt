@@ -96,8 +96,6 @@ fun ThanhToan(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val paymentHandled = remember { java.util.concurrent.atomic.AtomicBoolean(false) }
-
-    // Lắng nghe kết quả chọn địa chỉ từ MapScreen
     val newAddressResult = navController.currentBackStackEntry
         ?.savedStateHandle
         ?.getLiveData<String>("selected_address")
@@ -118,7 +116,6 @@ fun ThanhToan(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -172,8 +169,6 @@ fun ThanhToan(
                     color = Color.Black
                 )
             }
-
-            // Card chọn địa chỉ
             item {
                 DiaChiCard(
                     address = address,
@@ -182,8 +177,6 @@ fun ThanhToan(
                     }
                 )
             }
-
-            // Input số điện thoại
             item {
                 Box(
                     modifier = Modifier
@@ -202,7 +195,6 @@ fun ThanhToan(
                         onValueChange = { phoneNumber = it },
                         textStyle = TextStyle(fontSize = 14.sp),
                         modifier = Modifier.fillMaxWidth(),
-                        // SỬA: Chuyển sang bàn phím số
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
@@ -227,8 +219,6 @@ fun ThanhToan(
                     }
                 }
             }
-
-            // Input ghi chú
             item {
                 Box(
                     modifier = Modifier
@@ -255,8 +245,6 @@ fun ThanhToan(
                     }
                 }
             }
-
-            // Chọn phương thức thanh toán
             item {
                 Column {
                     paymentOptions.forEach { text ->
@@ -284,8 +272,6 @@ fun ThanhToan(
                 }
             }
         }
-
-        // Card Tổng tiền & Nút thanh toán
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -318,16 +304,12 @@ fun ThanhToan(
                         color = Color.Black
                     )
                 }
-
-                // === NÚT XÁC NHẬN THANH TOÁN ===
                 Button(
                     onClick = {
                         // SỬA: Logic Validate số điện thoại chặt chẽ hơn
                         val isPhoneValid = phoneNumber.length == 10 &&
                                 phoneNumber.startsWith("0") &&
                                 phoneNumber.all { it.isDigit() }
-
-                        // 1. Kiểm tra thông tin đầu vào
                         if (address == "Nhấn để chọn địa chỉ") {
                             Toast.makeText(
                                 context,
@@ -347,7 +329,6 @@ fun ThanhToan(
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            // 2. Chuẩn bị dữ liệu Đơn hàng
                             val auth = FirebaseAuth.getInstance()
                             val user = auth.currentUser
                             val maDonHang = "DH_${System.currentTimeMillis()}"
@@ -376,7 +357,6 @@ fun ThanhToan(
                                 danhSachMon = danhSachMonAn
                             )
 
-                            // Hàm phụ trợ để lưu đơn hàng lên Firebase
                             fun luuLenFirebase(donHang: DonHang) {
                                 val db = FirebaseFirestore.getInstance()
                                 db.collection("don_hang").document(donHang.id).set(donHang)
@@ -386,8 +366,6 @@ fun ThanhToan(
                                             "Đặt hàng thành công!",
                                             Toast.LENGTH_SHORT
                                         ).show()
-
-                                        // SỬA: Chuyển về trang_chu, báo cho nó biết cần xóa giỏ hàng và mở tab 2
                                         navController.navigate("trang_chu?tabIndex=2&clearCart=true") {
                                             popUpTo("trang_chu") { inclusive = true }
                                         }
@@ -400,10 +378,7 @@ fun ThanhToan(
                                         ).show()
                                     }
                             }
-
-                            // 3. Xử lý Logic Thanh Toán
                             if (selectedPaymentOption == "Thanh toán chuyển khoản") {
-                                // LOGIC ZALOPAY
                                 coroutineScope.launch {
                                     try {
                                         val orderApi = CreateOrder()
@@ -416,8 +391,6 @@ fun ThanhToan(
                                             item.put("itemquantity", it.increasing)
                                             itemsJson.put(item)
                                         }
-
-                                        // Gọi API tạo đơn hàng
                                         val order = withContext(Dispatchers.IO) {
                                             orderApi.createOrder(
                                                 totalPrice.toLong().toString(),
@@ -439,7 +412,11 @@ fun ThanhToan(
                                                             transToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                            if (paymentHandled.compareAndSet(false, true)) {
+                                                            if (paymentHandled.compareAndSet(
+                                                                    false,
+                                                                    true
+                                                                )
+                                                            ) {
                                                                 activity.runOnUiThread {
                                                                     donHangMoi.daThanhToan = true
                                                                     donHangMoi.ghiChu += " (Đã thanh toán qua ZaloPay)"
@@ -468,7 +445,7 @@ fun ThanhToan(
                                                             zpTransToken: String?,
                                                             appTransID: String?
                                                         ) {
-                                                           if (!paymentHandled.get()) {
+                                                            if (!paymentHandled.get()) {
                                                                 activity.runOnUiThread {
                                                                     Toast.makeText(
                                                                         context,
@@ -524,7 +501,6 @@ fun ThanhToan(
     }
 }
 
-// UI Con: Card địa chỉ
 @Composable
 fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
     Card(
@@ -577,7 +553,6 @@ fun DiaChiCard(address: String, onEditAddress: () -> Unit) {
     }
 }
 
-// UI Con: Item món ăn trong danh sách thanh toán
 @Composable
 fun ThanhToanItem(item: ThanhPhanUi) {
     Card(

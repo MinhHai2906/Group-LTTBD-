@@ -48,28 +48,26 @@ import com.google.firebase.firestore.Query
 @Composable
 fun LichSuDonHang(
     navController: NavController,
-    hienNutBack: Boolean = true,        // dùng để ẩn nút back nếu màn hình này nằm trong Bottom Bar
-    onItemClick: (String) -> Unit       // Callback trả về ID đơn hàng khi người dùng nhấn vào
+    hienNutBack: Boolean = true,
+    onItemClick: (String) -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
     val auth = FirebaseAuth.getInstance()
-    val user = auth.currentUser         // Lấy thông tin người dùng hiện tại để lọc đơn hàng
-
-    // mutableStateListOf: Danh sách đặc biệt, khi dữ liệu bên trong thay đổi, giao diện sẽ tự vẽ lại
+    val user = auth.currentUser
     val danhSachDonHang = remember { mutableStateListOf<DonHang>() }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(key1 = user) {
         if (user != null) {
             db.collection("don_hang")
-                .whereEqualTo("uid", user.uid)  // Chỉ lấy đơn hàng của chính người dùng này
-                .orderBy("timestamp", Query.Direction.DESCENDING)   // Sắp xếp: Đơn mới nhất hiện lên đầu
-                .addSnapshotListener { snapshots, e ->        // Lắng nghe dữ liệu thời gian thực (Realtime)
+                .whereEqualTo("uid", user.uid)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener { snapshots, e ->
                     if (e != null) {
                         isLoading = false; return@addSnapshotListener
                     }
                     if (snapshots != null) {
-                        danhSachDonHang.clear()                // Xóa danh sách cũ để cập nhật danh sách mới nhất
+                        danhSachDonHang.clear()
                         for (doc in snapshots) {
                             val donHang = doc.toObject(DonHang::class.java)
                             if (donHang.timestamp == 0L) donHang.timestamp =
@@ -124,7 +122,7 @@ fun LichSuDonHang(
 
         Box(modifier = Modifier.fillMaxSize()) {
             if (isLoading) {
-                CircularProgressIndicator(      // Hiện vòng xoay khi đang tải dữ liệu từ Cloud Firestore
+                CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
                     color = MauCam
                 )
@@ -166,7 +164,7 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }        // Nhấn vào thẻ đơn hàng để xem chi tiết
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -177,14 +175,14 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
                 Text(text = donHang.ngayDat, fontSize = 12.sp, color = Color.Gray)
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            donHang.danhSachMon.take(2).forEach { item ->       //  chỉ hiển thị tối đa 2 món
+            donHang.danhSachMon.take(2).forEach { item ->
                 Text(
                     "${item.soLuong}x ${item.tenMon}",
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
-            if (donHang.danhSachMon.size > 2) {                     // nếu đơn hàng có nhiều hơn 2 món, hiển thị thêm dòng báo hiệu
+            if (donHang.danhSachMon.size > 2) {
                 Text(
                     "... và ${donHang.danhSachMon.size - 2} món khác",
                     fontSize = 12.sp,
@@ -198,7 +196,7 @@ fun ItemDonHang(donHang: DonHang, onClick: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "${donHang.tongTien}đ",     // hiển thị tổng tiền và tag trạng thái
+                    "${donHang.tongTien}đ",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = Color(0xFFD84315)

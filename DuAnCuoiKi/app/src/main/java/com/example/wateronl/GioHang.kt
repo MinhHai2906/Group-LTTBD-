@@ -63,28 +63,20 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController) {
     val duLieuGioHang = GioHangData.danhSachSanPham
     val sanPhamDaChon = remember { mutableStateListOf<ThanhPhanUi>() }
     val context = LocalContext.current
-
-    // Lắng nghe sự thay đổi của duLieuGioHang và cập nhật lại sanPhamDaChon
     LaunchedEffect(duLieuGioHang.toList()) {
-        // Tạo một danh sách mới chứa các sản phẩm đã được cập nhật số lượng
         val sanPhamDaChonMoi = mutableListOf<ThanhPhanUi>()
         sanPhamDaChon.forEach { spChon ->
-            // Tìm sản phẩm tương ứng trong giỏ hàng để lấy số lượng mới nhất
             val sanPhamTrongGio = duLieuGioHang.find { it.namedrink == spChon.namedrink }
             if (sanPhamTrongGio != null) {
                 sanPhamDaChonMoi.add(sanPhamTrongGio)
             }
         }
-        // Cập nhật lại toàn bộ danh sách đã chọn
         sanPhamDaChon.clear()
         sanPhamDaChon.addAll(sanPhamDaChonMoi)
     }
 
     val tongTien = sanPhamDaChon.sumOf { it.price * it.increasing }
-
-    // 3. Trạng thái của checkbox "Tất cả" phụ thuộc vào 2 danh sách trên
     val isCheckedAll = duLieuGioHang.isNotEmpty() && sanPhamDaChon.size == duLieuGioHang.size
-    // --- Hết quản lý State mới ---
 
     Column(
         modifier = Modifier
@@ -109,7 +101,6 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController) {
             )
         }
 
-        // Danh sách sản phẩm
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -118,7 +109,6 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController) {
             contentPadding = PaddingValues(bottom = 10.dp)
         ) {
             items(duLieuGioHang, key = { it.namedrink }) { sanPham ->
-                // Kiểm tra xem item này có trong danh sách đã chọn hay không
                 val isItemSelected = sanPhamDaChon.contains(sanPham)
 
                 ItemGioHang(
@@ -133,7 +123,7 @@ fun GioHangScreen(onBackClick: () -> Unit, navController: NavController) {
                     },
                     onDelete = {
                         GioHangData.xoaKhoiGio(sanPham)
-                        sanPhamDaChon.remove(sanPham) // Đồng thời xóa khỏi danh sách đã chọn
+                        sanPhamDaChon.remove(sanPham)
                     }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -293,7 +283,6 @@ fun ItemGioHang(
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.Start
             ) {
-                // Tên sản phẩm
                 Text(
                     text = sanPham.namedrink,
                     fontSize = 18.sp,
@@ -301,21 +290,16 @@ fun ItemGioHang(
                     color = Color.Black,
                     maxLines = 1
                 )
-
-                // Giá sản phẩm
                 Text(
                     text = "${sanPham.price}đ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MauCam
                 )
-
-                // Hàng chứa Tăng/Giảm số lượng và nút Xóa
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Cụm Tăng/Giảm
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {

@@ -12,7 +12,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
@@ -55,6 +60,7 @@ fun MapScreen(
             scope.launch(Dispatchers.IO) {
                 try {
                     val geocoder = Geocoder(context, Locale.getDefault())
+
                     @Suppress("DEPRECATION")
                     val addresses = geocoder.getFromLocationName(initialAddress, 1)
                     if (addresses?.isNotEmpty() == true) {
@@ -151,8 +157,10 @@ fun MapScreen(
                         val addressText = withTimeout(10000L) { // 10-second timeout
                             withContext(Dispatchers.IO) {
                                 @Suppress("DEPRECATION")
-                                val addresses = geocoder.getFromLocation(point.latitude, point.longitude, 1)
-                                addresses?.firstOrNull()?.getAddressLine(0) ?: "Không tìm thấy địa chỉ"
+                                val addresses =
+                                    geocoder.getFromLocation(point.latitude, point.longitude, 1)
+                                addresses?.firstOrNull()?.getAddressLine(0)
+                                    ?: "Không tìm thấy địa chỉ"
                             }
                         }
                         onAddressSelected(addressText)

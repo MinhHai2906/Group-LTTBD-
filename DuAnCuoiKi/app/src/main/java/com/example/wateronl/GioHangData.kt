@@ -20,13 +20,8 @@ object GioHangData {
     }
 
     fun taiLaiGioHang() {
-        // 1. Lấy dữ liệu của người dùng hiện tại
         val dataCu = prefs?.taiDanhSachSanPham(currentUid) ?: emptyList()
-
-        // 2. Xóa sạch dữ liệu cũ đang hiển thị trên màn hình
         danhSachSanPham.clear()
-
-        // 3. Nạp dữ liệu mới vào
         danhSachSanPham.addAll(dataCu)
     }
 

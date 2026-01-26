@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()        // Quản lý các trạng thái hiển thị bằng StateFlow
+    private val db = FirebaseFirestore.getInstance()
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
@@ -45,7 +45,6 @@ class ProfileViewModel : ViewModel() {
     val daXacThucEmail = _daXacThucEmail.asStateFlow()
 
     init {
-        // Tự động chạy các hàm lấy dữ liệu ngay khi ViewModel được tạo
         layThongTinCaNhan()
         kiemTraLoaiTaiKhoan()
         tinhHangThanhVien()
@@ -53,10 +52,9 @@ class ProfileViewModel : ViewModel() {
         tinhMucDoHoanThien()
     }
 
-    // Kiểm tra xem người dùng đã bấm xác nhận link trong Email chưa
     fun kiemTraTrangThaiEmail() {
         val user = auth.currentUser
-        user?.reload()?.addOnCompleteListener {     // reload() để cập nhật trạng thái mới nhất từ server
+        user?.reload()?.addOnCompleteListener {
             _daXacThucEmail.value = user.isEmailVerified
         }
     }
@@ -76,7 +74,7 @@ class ProfileViewModel : ViewModel() {
             }
     }
 
-    private fun tinhMucDoHoanThien() {              // mức độ hoàn thiện hồ sơ
+    private fun tinhMucDoHoanThien() {
         var diem = 0f
         if (_hoTen.value.isNotEmpty()) diem += 0.2f
         if (_sdt.value.isNotEmpty()) diem += 0.2f
@@ -86,7 +84,6 @@ class ProfileViewModel : ViewModel() {
         _mucDoHoanThien.value = diem
     }
 
-    // Phân loại tài khoản để hiển thị/ẩn tính năng (ví dụ Google thì không cho đổi mật khẩu)
     fun kiemTraLoaiTaiKhoan() {
         val user = auth.currentUser
         val isGoogle =
@@ -94,7 +91,6 @@ class ProfileViewModel : ViewModel() {
         _laTaiKhoanGoogle.value = isGoogle
     }
 
-    // Lấy dữ liệu từ Firestore dựa trên UID của người dùng đang đăng nhập
     fun layThongTinCaNhan() {
         _isLoading.value = true
         val user = auth.currentUser
@@ -105,7 +101,7 @@ class ProfileViewModel : ViewModel() {
         if (uid != null) {
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
-                    if (document.exists()) {    // Ánh xạ dữ liệu từ document sang các biến StateFlow
+                    if (document.exists()) {
                         val ten = document.getString("ten")
                         val sdtDb = document.getString("sdt")
                         val diaChiDb = document.getString("diachi")
@@ -124,7 +120,7 @@ class ProfileViewModel : ViewModel() {
                     } else {
                         _avatarCode.value = "avatar_1"
                     }
-                    tinhMucDoHoanThien()        // Tính lại % sau khi có dữ liệu
+                    tinhMucDoHoanThien()
                     _isLoading.value = false
                 }
                 .addOnFailureListener { _isLoading.value = false }
@@ -133,7 +129,6 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // Logic tính hạng: Duyệt tất cả đơn hàng, cộng tổng tiền để phân bậc Vàng/Bạc
     fun tinhHangThanhVien() {
         val uid = auth.currentUser?.uid ?: return
         db.collection("don_hang").whereEqualTo("uid", uid).get()
@@ -153,7 +148,6 @@ class ProfileViewModel : ViewModel() {
         auth.signOut()
     }
 
-    // Sử dụng SetOptions.merge() để chỉ cập nhật các trường thay đổi, không ghi đè mất các trường cũ
     fun capNhatHoTen(tenMoi: String) {
         val uid = auth.currentUser?.uid
         if (uid != null) {
@@ -213,11 +207,8 @@ class ProfileViewModel : ViewModel() {
             }
     }
 
-    // Xóa tài khoản, quy trình bảo mật của Firebase bắt buộc Re-authenticate (Xác thực lại)
     fun xoaTaiKhoan(matKhau: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
         val user = auth.currentUser ?: return
-
-        // 1. Nếu là Google -> Xóa luôn
         if (_laTaiKhoanGoogle.value) {
             db.collection("users").document(user.uid).delete()
             user.delete().addOnCompleteListener { task ->
@@ -226,21 +217,18 @@ class ProfileViewModel : ViewModel() {
             }
             return
         }
-
-        // 2. Nếu là Email/Pass -> Phải xác thực lại bằng mật khẩu
         val credential = EmailAuthProvider.getCredential(user.email!!, matKhau)
-        user.reauthenticate(credential).addOnCompleteListener { reAuthTask ->
-            if (reAuthTask.isSuccessful) {
-                // Xóa dữ liệu Firestore
-                db.collection("users").document(user.uid).delete()
-                // Xóa User Auth
-                user.delete().addOnCompleteListener { deleteTask ->
-                    if (deleteTask.isSuccessful) onThanhCong()
-                    else onThatBai(deleteTask.exception?.message ?: "Lỗi xóa")
+        user.reauthenticate(credential)
+            .addOnCompleteListener { reAuthTask ->
+                if (reAuthTask.isSuccessful) {
+                    db.collection("users").document(user.uid).delete()
+                    user.delete().addOnCompleteListener { deleteTask ->
+                        if (deleteTask.isSuccessful) onThanhCong()
+                        else onThatBai(deleteTask.exception?.message ?: "Lỗi xóa")
+                    }
+                } else {
+                    onThatBai("Mật khẩu không đúng!")
                 }
-            } else {
-                onThatBai("Mật khẩu không đúng!")
             }
-        }
     }
 }

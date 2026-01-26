@@ -51,15 +51,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun ChiTietDonHang(navController: NavController, donHangId: String) {
-    val db = FirebaseFirestore.getInstance() // khởi tạo instance làm việc với Firestore
-    var donHang by remember { mutableStateOf<DonHang?>(null) } // Biến state lưu dữ liệu đơn hàng sau khi lấy về
-    var isLoading by remember { mutableStateOf(true) } // Biến state quản lý trạng thái đang tải dữ liệu
+    val db = FirebaseFirestore.getInstance()
+    var donHang by remember { mutableStateOf<DonHang?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(donHangId) {
-        db.collection("don_hang").document(donHangId).get() // Truy cập collection 'don_hang' lấy tài liệu theo ID
+        db.collection("don_hang").document(donHangId).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    donHang = document.toObject(DonHang::class.java)  // Chuyển dữ liệu từ Firebase thành đối tượng DonHang
+                    donHang = document.toObject(DonHang::class.java)
                     donHang?.id = document.id // Lưu lại ID của document
                 }
                 isLoading = false
@@ -113,7 +113,6 @@ fun ChiTietDonHang(navController: NavController, donHangId: String) {
             }
         } else {
             val dh = donHang!!
-            // Logic xử lý màu sắc tương ứng với từng trạng thái đơn hàng (0: Chờ, 1: Pha chế...)
             val mauTrangThai = when (dh.trangThai) {
                 0 -> Color(0xFFFF9800); 1 -> Color(0xFF2196F3); 2 -> Color(0xFF9C27B0)
                 3 -> Color(0xFF4CAF50); 4 -> Color(0xFFF44336); else -> Color.Gray

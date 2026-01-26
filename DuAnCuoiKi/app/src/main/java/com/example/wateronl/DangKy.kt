@@ -64,18 +64,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun ManHinhDangKy(
     onQuayLaiDangNhap: () -> Unit,
     onDangKyThanhCong: () -> Unit,
-    viewModel: LoginViewModel = viewModel() // Kết nối với ViewModel để xử lý logic đăng ký
+    viewModel: LoginViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val loginState by viewModel.loginState.collectAsState() // Theo dõi trạng thái đăng ký
-    val isLoading by viewModel.isLoading.collectAsState()   // Theo dõi trạng thái đang xử lý
+    val loginState by viewModel.loginState.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     // Lắng nghe sự thay đổi của loginState
     LaunchedEffect(loginState) {
-        if (loginState == "OK") {   // Nếu ViewModel báo đăng ký thành công
+        if (loginState == "OK") {
             viewModel.resetState()
-            onDangKyThanhCong()     // Chuyển màn hình
-        } else if (loginState != null) {        // Nếu có lỗi (ví dụ: Email đã tồn tại)
+            onDangKyThanhCong()
+        } else if (loginState != null) {
             Toast.makeText(context, loginState, Toast.LENGTH_SHORT).show()
             viewModel.resetState()
         }
@@ -94,18 +94,14 @@ fun GiaoDienDangKy(
     onDangKy: (String, String, String) -> Unit,
     onQuayLaiDangNhap: () -> Unit
 ) {
-    // Các biến lưu giá trị người dùng nhập
     var tenNguoiDung by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var matKhau by remember { mutableStateOf("") }
     var xacNhanMatKhau by remember { mutableStateOf("") }
-
-    // Các biến lưu thông báo lỗi cho từng ô nhập liệu
     var nameError by remember { mutableStateOf<String?>(null) }
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var confirmPasswordError by remember { mutableStateOf<String?>(null) }
-
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -114,13 +110,11 @@ fun GiaoDienDangKy(
             if (input.isNotBlank()) null else "Tên không được để trống"
     }
 
-    // Hàm kiểm tra định dạng Email hợp lệ bằng Patterns.EMAIL_ADDRESS
     fun validateEmail(input: String) {
         email = input; emailError =
             if (Patterns.EMAIL_ADDRESS.matcher(input).matches()) null else "Email không hợp lệ"
     }
 
-    // Hàm kiểm tra mật khẩu
     fun validatePassword(input: String) {
         matKhau = input; passwordError =
             if (input.length >= 6) null else "Mật khẩu phải từ 6 ký tự"; if (xacNhanMatKhau.isNotEmpty()) confirmPasswordError =
@@ -132,7 +126,6 @@ fun GiaoDienDangKy(
             if (input == matKhau) null else "Mật khẩu không khớp"
     }
 
-    // Chỉ cho phép bấm nút Đăng ký khi tất cả các ô đều hợp lệ và không trống
     val isFormValid =
         nameError == null && emailError == null && passwordError == null && confirmPasswordError == null && tenNguoiDung.isNotBlank() && email.isNotBlank() && matKhau.isNotBlank() && xacNhanMatKhau.isNotBlank()
 
@@ -253,7 +246,7 @@ fun GiaoDienDangKy(
                         loi = nameError,
                         onValueChange = { validateName(it) },
                         keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Words, //để tự động viết hoa chữ cái đầu
+                            capitalization = KeyboardCapitalization.Words,
                             imeAction = ImeAction.Next
                         ),
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
@@ -279,7 +272,7 @@ fun GiaoDienDangKy(
                         goiY = "Nhập mật khẩu...",
                         icon = Icons.Default.Lock,
                         loi = passwordError,
-                        isPassword = true, // ẩn ký tự bằng dấu chấm
+                        isPassword = true,
                         onValueChange = { validatePassword(it) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,

@@ -7,7 +7,7 @@ import vn.zalopay.sdk.ZaloPaySDK
 class WaterOnlApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        GioHangData.init(this)              // Khởi tạo Giỏ hàng
-        ZaloPaySDK.init(554, Environment.SANDBOX) // Khởi tạo ZaloPay
+        GioHangData.init(this)
+        ZaloPaySDK.init(554, Environment.SANDBOX)
     }
 }

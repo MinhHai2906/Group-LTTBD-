@@ -28,8 +28,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         Configuration.getInstance().userAgentValue = packageName
-
-        // Xử lý kết quả ZaloPay khi Activity được tạo mới
         ZaloPaySDK.getInstance().onResult(intent)
 
         setContent {
@@ -45,7 +43,6 @@ class MainActivity : ComponentActivity() {
                             startDestination = "man_hinh_cho",
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            // 1. Màn hình chờ
                             composable("man_hinh_cho") {
                                 ManHinhCho(
                                     onDieuHuong = { manHinhTiepTheo ->
@@ -55,8 +52,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-
-                            // 2. Màn hình đăng nhập
                             composable("dang_nhap") {
                                 ManHinhDangNhap(
                                     onChuyenSangDangKy = { navController.navigate("dang_ky") },
@@ -68,8 +63,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-
-                            // 3. Màn hình Đăng ký
                             composable("dang_ky") {
                                 ManHinhDangKy(
                                     onQuayLaiDangNhap = { navController.popBackStack() },
@@ -81,8 +74,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-
-                            // 4. Trang chủ
                             composable(
                                 route = "trang_chu?tabIndex={tabIndex}",
                                 arguments = listOf(androidx.navigation.navArgument("tabIndex") {
@@ -103,16 +94,12 @@ class MainActivity : ComponentActivity() {
                                     initialTab = tabIndex
                                 )
                             }
-
-                            // 5. Giỏ hàng
                             composable("gio_hang_route") {
                                 GioHangScreen(
                                     onBackClick = { navController.popBackStack() },
                                     navController = navController
                                 )
                             }
-
-                            // 6. Thanh toán
                             composable("thanh_toan") {
                                 ThanhToan(
                                     onBackClick = { navController.popBackStack() },
@@ -120,8 +107,6 @@ class MainActivity : ComponentActivity() {
                                     activity = this@MainActivity
                                 )
                             }
-
-                            // 7. Map
                             composable(
                                 route = "map_screen?initialAddress={initialAddress}",
                                 arguments = listOf(navArgument("initialAddress") {
