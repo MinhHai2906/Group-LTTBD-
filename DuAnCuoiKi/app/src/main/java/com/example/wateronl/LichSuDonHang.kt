@@ -61,7 +61,7 @@ fun LichSuDonHang(
         if (user != null) {
             db.collection("don_hang")
                 .whereEqualTo("uid", user.uid)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy("timestamp", Query.Direction.DESCENDING)           // cập nhật đơn hàng mới nhất đầu dsach
                 .addSnapshotListener { snapshots, e ->
                     if (e != null) {
                         isLoading = false; return@addSnapshotListener
@@ -126,7 +126,7 @@ fun LichSuDonHang(
                     modifier = Modifier.align(Alignment.Center),
                     color = MauCam
                 )
-            } else if (danhSachDonHang.isEmpty()) {
+            } else if (danhSachDonHang.isEmpty()) {                             //kiểm tra xem có đơn hàng chưa
                 Column(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally

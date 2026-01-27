@@ -9,7 +9,7 @@ object GioHangData {
     val danhSachSanPham = mutableStateListOf<ThanhPhanUi>()
     private var prefs: SharedPreferencesManager? = null
     private val currentUid: String
-        get() = FirebaseAuth.getInstance().currentUser?.uid ?: "khach_vang_lai"
+        get() = FirebaseAuth.getInstance().currentUser?.uid ?: "khach_vang_lai"         //check người dùng từng đăng nhập chưa
 
     fun init(context: Context) {
         prefs = SharedPreferencesManager(context)

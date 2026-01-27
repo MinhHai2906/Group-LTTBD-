@@ -14,7 +14,7 @@ class LoginViewModel : ViewModel() {
     val isLoading = _isLoading.asStateFlow()
     private val _loginState = MutableStateFlow<String?>(null)
     val loginState = _loginState.asStateFlow()
-    private fun chuyenLoiSangTiengViet(e: Exception?): String {
+    private fun chuyenLoiSangTiengViet(e: Exception?): String {             //bắt các lỗi
         return when (e) {
             is com.google.firebase.auth.FirebaseAuthInvalidUserException -> "Tài khoản không tồn tại hoặc bị khóa."
             is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException -> "Sai email hoặc mật khẩu."
@@ -36,7 +36,7 @@ class LoginViewModel : ViewModel() {
                     val user = auth.currentUser
                     val uid = user?.uid
                     if (uid != null) {
-                        user.sendEmailVerification()
+                        user.sendEmailVerification()            //hàm gửi email xác thực
                         val userMap = hashMapOf(
                             "uid" to uid,
                             "email" to email,
@@ -108,7 +108,7 @@ class LoginViewModel : ViewModel() {
             onThatBai("Vui lòng nhập Email!")
             return
         }
-        auth.sendPasswordResetEmail(email)
+        auth.sendPasswordResetEmail(email)                      //gửi email khôi phục mật khẩu
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onThanhCong()

@@ -1,6 +1,6 @@
 package com.example.wateronl
 
-object AvatarList {          // tạo Singleton
+object AvatarList {
     val danhSach = mapOf(
         "avatar_1" to R.drawable.avatar_1,
         "avatar_2" to R.drawable.avatar_2,

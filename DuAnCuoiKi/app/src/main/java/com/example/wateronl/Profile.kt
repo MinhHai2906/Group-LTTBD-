@@ -823,7 +823,7 @@ fun ThanhHoanThienHoSo(tiLe: Float) {
 
 fun Modifier.shimmerEffect(): Modifier = composed {
     var size by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
-    val transition = rememberInfiniteTransition(label = "shimmer")
+    val transition = rememberInfiniteTransition(label = "shimmer")                          //hiệu ứng load ở proile
     val startOffsetX by transition.animateFloat(
         initialValue = -2 * size.width.toFloat(), targetValue = 2 * size.width.toFloat(),
         animationSpec = infiniteRepeatable(animation = tween(1000)), label = "shimmer_anim"

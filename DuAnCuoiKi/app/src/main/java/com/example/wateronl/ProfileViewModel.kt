@@ -55,7 +55,7 @@ class ProfileViewModel : ViewModel() {
     fun kiemTraTrangThaiEmail() {
         val user = auth.currentUser
         user?.reload()?.addOnCompleteListener {
-            _daXacThucEmail.value = user.isEmailVerified
+            _daXacThucEmail.value = user.isEmailVerified                    //xác thực email
         }
     }
 
@@ -131,13 +131,13 @@ class ProfileViewModel : ViewModel() {
 
     fun tinhHangThanhVien() {
         val uid = auth.currentUser?.uid ?: return
-        db.collection("don_hang").whereEqualTo("uid", uid).get()
+        db.collection("don_hang").whereEqualTo("uid", uid).get()        //truy vấn tài khoản để hiện đúng đơn hàng
             .addOnSuccessListener { documents ->
                 var tongTien = 0L
                 for (doc in documents) {
                     tongTien += doc.getDouble("tongTien")?.toLong() ?: 0L
                 }
-                _tongTienTichLuy.value = tongTien
+                _tongTienTichLuy.value = tongTien                                                   //tính hạng thành viên
                 if (tongTien >= 5000000) _hangThanhVien.value = "Thành viên Vàng 👑"
                 else if (tongTien >= 1000000) _hangThanhVien.value = "Thành viên Bạc 🥈"
                 else _hangThanhVien.value = "Thành viên Mới"
@@ -209,7 +209,7 @@ class ProfileViewModel : ViewModel() {
 
     fun xoaTaiKhoan(matKhau: String, onThanhCong: () -> Unit, onThatBai: (String) -> Unit) {
         val user = auth.currentUser ?: return
-        if (_laTaiKhoanGoogle.value) {
+        if (_laTaiKhoanGoogle.value) {                                                      //không thể đổi mk nếu đăng nhập gg
             db.collection("users").document(user.uid).delete()
             user.delete().addOnCompleteListener { task ->
                 if (task.isSuccessful) onThanhCong()
